@@ -1,0 +1,4 @@
+# .gitignore for XCode
+
+## Various settings
+xcuserdata/
