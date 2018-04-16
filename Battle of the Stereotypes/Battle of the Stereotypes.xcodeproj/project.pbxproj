@@ -37,7 +37,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3F43AD072084F66A00CF4A01 /* Battle_of_the_Stereotypes_Dev_Provisioning_Profile.mobileprovision */ = {isa = PBXFileReference; lastKnownFileType = file; name = Battle_of_the_Stereotypes_Dev_Provisioning_Profile.mobileprovision; path = ../../../Desktop/Battle_of_the_Stereotypes_Dev_Provisioning_Profile.mobileprovision; sourceTree = "<group>"; };
 		3F93E12D20836D96001ED586 /* Battle of the Stereotypes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Battle of the Stereotypes.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F93E13020836D96001ED586 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3F93E13220836D96001ED586 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -84,7 +83,6 @@
 		3F93E12420836D96001ED586 = {
 			isa = PBXGroup;
 			children = (
-				3F43AD072084F66A00CF4A01 /* Battle_of_the_Stereotypes_Dev_Provisioning_Profile.mobileprovision */,
 				3F93E12F20836D96001ED586 /* Battle of the Stereotypes */,
 				3F93E14A20836D96001ED586 /* Battle of the StereotypesTests */,
 				3F93E15520836D96001ED586 /* Battle of the StereotypesUITests */,
@@ -443,7 +441,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Simon Huebner (725B99BR3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 5T2DJX4396;
+				DEVELOPMENT_TEAM = U9496F2C26;
 				INFOPLIST_FILE = "Battle of the Stereotypes/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -463,7 +461,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Simon Huebner (725B99BR3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 5T2DJX4396;
+				DEVELOPMENT_TEAM = U9496F2C26;
 				INFOPLIST_FILE = "Battle of the Stereotypes/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
