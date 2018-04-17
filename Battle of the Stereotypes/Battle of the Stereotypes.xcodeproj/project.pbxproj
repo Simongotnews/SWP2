@@ -449,7 +449,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "simongotnews.Battle-of-the-Stereotypes";
+				PRODUCT_BUNDLE_IDENTIFIER = "-T2DJX4396.Battle-of-the-Stereotypes";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -467,7 +467,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "simongotnews.Battle-of-the-Stereotypes";
+				PRODUCT_BUNDLE_IDENTIFIER = "-T2DJX4396.Battle-of-the-Stereotypes";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 2;
