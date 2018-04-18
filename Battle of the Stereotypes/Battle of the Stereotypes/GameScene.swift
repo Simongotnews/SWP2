@@ -24,6 +24,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Wurfgeschoss
     var ball: SKSpriteNode!
     
+    //Fire Button zum Einstellen der Kraft beim Wurf
+    var fireButton: SKSpriteNode!
+    
     var leftDummyHealthLabel:SKLabelNode!
     var leftDummyHealth:Int = 0 {
         didSet {
@@ -101,24 +104,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(ball)
         
+        //initialisiere den Fire Button
+        fireButton = SKSpriteNode(imageNamed: "fireButton")
+        fireButton.size = CGSize(width: 80, height: 80)
+        fireButton.position = CGPoint(x: 0, y: 160)
+        
+        self.addChild(fireButton)
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         //Schleife die schaut ob der Fire Button gedrückt wurde und entsprechend reagiert
-        //bis jetzt gibt es noch keinen Button und man kann überall klicken
         for t in touches {
-            ball.physicsBody?.affectedByGravity=true
-            ball.physicsBody?.isDynamic=true
-            ball.physicsBody?.allowsRotation=true
-            ball.physicsBody?.applyImpulse(CGVector(dx: 600, dy: 660))
-            break
+            if fireButton.contains(t.location(in: self)) {
+                throwProjectile()
+                break
+            }
         }
         
         
     }
     
+    func throwProjectile() {
+        ball.physicsBody?.affectedByGravity=true
+        ball.physicsBody?.isDynamic=true
+        ball.physicsBody?.allowsRotation=true
+        ball.physicsBody?.applyImpulse(CGVector(dx: 600, dy: 600))
+    }
+    
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
+    
 }
