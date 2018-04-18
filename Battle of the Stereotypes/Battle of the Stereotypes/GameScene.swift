@@ -44,7 +44,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         leftDummy.physicsBody = SKPhysicsBody(rectangleOf: leftDummy.size)
         leftDummy.physicsBody?.isDynamic = true
-        
+        leftDummy.physicsBody?.affectedByGravity = false
         leftDummy.physicsBody?.categoryBitMask = dummyCategory
         leftDummy.physicsBody?.contactTestBitMask = weaponCategory
         leftDummy.physicsBody?.collisionBitMask = 0
@@ -55,6 +55,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 250)
         
         rightDummy.physicsBody = SKPhysicsBody(rectangleOf: rightDummy.size)
+        rightDummy.physicsBody?.affectedByGravity = false
         rightDummy.physicsBody?.isDynamic = true
         
         rightDummy.physicsBody?.categoryBitMask = dummyCategory
@@ -83,8 +84,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.name = "rightdummy"
         
         
-        self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         self.physicsWorld.contactDelegate = self
+        
+        //initialisiere das Wurfgeschoss
+        let ballTexture = SKTexture(imageNamed: "Krug")
+        ball = SKSpriteNode(texture: ballTexture)
+        ball.size = CGSize(width: 30, height: 30)
+        ball.position = CGPoint(x: self.frame.size.width / 2 - 600, y: leftDummy.size.height / 2 - 250)
+        ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
+        ball.physicsBody?.mass = 1
+        ball.physicsBody?.allowsRotation=false
+        ball.physicsBody?.isDynamic=false
+        ball.physicsBody?.affectedByGravity=false
+        ball.physicsBody?.collisionBitMask=0x1 << 2
+        
+        self.addChild(ball)
+        
+        //initialisiere den Fire Button
+        fireButton = SKSpriteNode(imageNamed: "fireButton")
+        fireButton.size = CGSize(width: 80, height: 80)
+        fireButton.position = CGPoint(x: 0, y: 160)
+        
+        self.addChild(fireButton)
+        
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        //Schleife die schaut ob der Fire Button gedrückt wurde und entsprechend reagiert
+        for t in touches {
+            if fireButton.contains(t.location(in: self)) {
+                throwProjectile()
+                break
+            }
+        }
+        
+        
+    }
+    
+    func throwProjectile() {
+        ball.physicsBody?.affectedByGravity=true
+        ball.physicsBody?.isDynamic=true
+        ball.physicsBody?.allowsRotation=true
+        ball.physicsBody?.applyImpulse(CGVector(dx: 600, dy: 600))
     }
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
@@ -123,4 +166,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
+    
 }
