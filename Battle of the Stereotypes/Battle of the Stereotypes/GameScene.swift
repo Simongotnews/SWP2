@@ -21,6 +21,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var leftDummy: SKSpriteNode!
     var rightDummy: SKSpriteNode!
     var arrow: SKSpriteNode!
+    
+    //Wurfgeschoss
+    var ball: SKSpriteNode!
+    
+    //Fire Button zum Einstellen der Kraft beim Wurf
+    var fireButton: SKSpriteNode!
+    
     var leftDummyHealthLabel:SKLabelNode!
     var leftDummyHealth:Int = 0 {
         didSet {
@@ -110,55 +117,55 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-        //Schleife die schaut ob der Fire Button gedrückt wurde und entsprechend reagiert
-        for t in touches {
-            if fireButton.contains(t.location(in: self)) {
-                throwProjectile()
-                break
-            }
-        }
-        
-        
-    }
-    
     func throwProjectile() {
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
         ball.physicsBody?.applyImpulse(CGVector(dx: 600, dy: 600))
+        if childNode(withName: "arrow") != nil{
+            arrow.removeFromParent()
+        }
     }
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
-        if let name = touchedNode.name
+        if touchedNode.name != nil && (childNode(withName: "arrow") == nil)
         {
                 createArrow()
         }
+        if fireButton.contains(touch.location(in: self)) {
+            throwProjectile()
+        }
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-            arrow.removeFromParent()
+        
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let sprite = childNode(withName: "arrow"){
             let touch:UITouch = touches.first!
             let pos = touch.location(in: self)
             
-            let touchedNode = self.atPoint(pos)
+            _ = self.atPoint(pos)
+            
+            
             let deltaX = self.arrow.position.x - pos.x
             let deltaY = self.arrow.position.y - pos.y
-            let angle = atan2(deltaY, deltaX)
-            sprite.zRotation = angle + CGFloat(90 * (M_PI/180))
+            
+            var angle = atan2(deltaX, deltaY)
+            angle = angle * -1
+            print(angle)
+            if(0.0 < angle + CGFloat(90 * (Double.pi/180)) && 1.6 > angle + CGFloat(90 * (Double.pi/180))){
+                sprite.zRotation = angle + CGFloat(90 * (Double.pi/180))
+            }
         }
     }
     func createArrow(){
-        arrow = SKSpriteNode(imageNamed: "pfeil")
+        arrow = SKSpriteNode(imageNamed: "Pfeil")
         let centerLeft = leftDummy.position
         arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
         arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
-        arrow.setScale(0.2)
+        arrow.setScale(0.05)
         self.addChild(arrow)
         arrow.name = "arrow"
         
