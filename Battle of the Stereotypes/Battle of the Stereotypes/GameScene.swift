@@ -20,7 +20,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var leftDummy: SKSpriteNode!
     var rightDummy: SKSpriteNode!
-    
+    var arrow: SKSpriteNode!
     var leftDummyHealthLabel:SKLabelNode!
     var leftDummyHealth:Int = 0 {
         didSet {
@@ -79,11 +79,47 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummyHealth = 100
         
         self.addChild(rightDummyHealthLabel)
+        leftDummy.name = "leftdummy"
+        rightDummy.name = "rightdummy"
+        
         
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         self.physicsWorld.contactDelegate = self
     }
-    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch:UITouch = touches.first!
+        let pos = touch.location(in: self)
+        let touchedNode = self.atPoint(pos)
+        if let name = touchedNode.name
+        {
+                createArrow()
+        }
+    }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+            arrow.removeFromParent()
+    }
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let sprite = childNode(withName: "arrow"){
+            let touch:UITouch = touches.first!
+            let pos = touch.location(in: self)
+            
+            let touchedNode = self.atPoint(pos)
+            let deltaX = self.arrow.position.x - pos.x
+            let deltaY = self.arrow.position.y - pos.y
+            let angle = atan2(deltaY, deltaX)
+            sprite.zRotation = angle + CGFloat(90 * (M_PI/180))
+        }
+    }
+    func createArrow(){
+        arrow = SKSpriteNode(imageNamed: "pfeil")
+        let centerLeft = leftDummy.position
+        arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
+        arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
+        arrow.setScale(0.2)
+        self.addChild(arrow)
+        arrow.name = "arrow"
+        
+    }
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
