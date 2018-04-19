@@ -9,10 +9,105 @@
 import UIKit
 import SpriteKit
 import GameplayKit
+import GameKit
 
-class GameViewController: UIViewController {
-
+class GameViewController: UIViewController,GKGameCenterControllerDelegate,GKMatchmakerViewControllerDelegate {
+    // Variable ob Game Center aktiv ist
+    var gamecenterEnabled = false
+    
+    var localMatch = GKMatch()
+    
+    // GKMatchmakerViewControllerDelegate Methoden
+    
+    // MatchmakerView abgebrochen
+    func matchmakerViewControllerWasCancelled(_ viewController: GKMatchmakerViewController) {
+        self.dismiss(animated:true,completion:nil)
+    }
+    
+    // MatchmakerView fehlgeschlagen
+    func matchmakerViewController(_ viewController: GKMatchmakerViewController, didFailWithError error: Error) {
+        self.dismiss(animated:true,completion:nil)
+    }
+    
+    // MatchmakerView Match gefunden
+    func matchmakerViewController(_ viewController: GKMatchmakerViewController, didFind match: GKMatch) {
+        localMatch=match
+    }
+    
+    // Versende einen Bytestream an alle Spieler (bei uns immer 2 Spieler)
+    func sendData(data: Data)
+    {
+        if(gamecenterEnabled) {
+            do {
+                try localMatch.sendData(toAllPlayers: data, with: GKMatchSendDataMode.reliable)
+            }
+            catch {
+                print("[" + String(describing: self) + "] Fehler beim Senden der Daten")
+            }
+        } else {
+            print("[" + String(describing: self) + "] Daten konnten nicht gesendet werden. Gamecenter nicht aktiv.")
+        }
+    }
+    
+    // Erhalte Daten vom Match Objekt
+    func match(_ match: GKMatch, didReceive data: Data, fromRemotePlayer player: GKPlayer) {
+        if(gamecenterEnabled) {
+            
+        } else {
+            print("[" + String(describing: self) + "] Daten konnten nicht empfangen werden. Gamecenter nicht aktiv.")
+        }
+    }
+    
+    // aufgerufen wenn der GameCenterViewController beendet wird
+    func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
+        gameCenterViewController.dismiss(animated: true, completion: nil)
+    }
+    
+    // Erstelle ein Match Objekt und versuche einem Spiel beizutreten
+    func findBattleMatch()
+    {
+        if(!gamecenterEnabled) {
+            print("[" + String(describing: self) + "] Spieler ist nicht eingeloggt")
+            return
+        }
+        print("[" + String(describing: self) + "] Beitreten eines... Battle Match")
+        let matchRequest=GKMatchRequest()
+        matchRequest.maxPlayers=2
+        matchRequest.minPlayers=2
+        matchRequest.defaultNumberOfPlayers=2
+        matchRequest.inviteMessage=GKLocalPlayer.localPlayer().displayName! + " würde gerne Battle of the Stereotypes mit dir spielen"
+        let matchMakerViewController = GKTurnBasedMatchmakerViewController.init(matchRequest: matchRequest)
+        matchMakerViewController.turnBasedMatchmakerDelegate=self as? GKTurnBasedMatchmakerViewControllerDelegate
+        self.present(matchMakerViewController, animated: true)
+    }
+    
+    // Authentifizierung des lokalen Spielers
+    func authenticateLocalPlayer() {
+        let localPlayer: GKLocalPlayer = GKLocalPlayer.localPlayer()
+        
+        localPlayer.authenticateHandler = {(ViewController, error) -> Void in
+            if((ViewController) != nil) {
+                // 1. Zeige den Login Screen wenn der Spieler nicht eingeloggt ist
+                self.present(ViewController!, animated: true, completion: nil)
+            } else if (localPlayer.isAuthenticated) {
+                // 2. Wenn Spieler bereits authentifiziert und eingeloggt, lade game center
+                self.gamecenterEnabled = true
+                
+            } else {
+                // 3. Game center nicht auf aktuellem Gerät aktiviert
+                self.gamecenterEnabled = false
+                print("[" + String(describing: self) + "] Lokaler Spieler konnte nicht autentifiziert werden")
+                print(error as Any)
+            }
+        }
+    }
+    
     override func viewDidLoad() {
+        print("[" + String(describing: self) + "] View geladen")
+        // Aufrufen von GameCenter Authentifizierung Controller
+        authenticateLocalPlayer()
+        findBattleMatch()
+        
         super.viewDidLoad()
         
         // Load 'GameScene.sks' as a GKScene. This provides gameplay related content
