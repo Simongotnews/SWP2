@@ -27,6 +27,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Fire Button zum Einstellen der Kraft beim Wurf
     var fireButton: SKSpriteNode!
     
+    //Boden des Spiels
+    var ground: SKSpriteNode!
+    
+    //Hintergrund
+    var background: SKSpriteNode!
+    
     var leftDummyHealthLabel:SKLabelNode!
     var leftDummyHealth:Int = 0 {
         didSet {
@@ -45,6 +51,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let weaponCategory:UInt32 = 0x1 << 0
     
     override func didMove(to view: SKView) {
+        
+        
+        
+        //initialisiere den Boden
+        let groundTexture = SKTexture(imageNamed: "Boden")
+        ground = SKSpriteNode(texture: groundTexture)
+        ground.size = CGSize(width: self.size.width, height: self.size.height/3)
+        ground.position.y -= 60
+        
+        self.addChild(ground)
+        
+        //initialisiere den Hintergrund
+        background = SKSpriteNode(imageNamed: "Hintergrund")
+        background.size = CGSize(width: self.size.width, height: self.size.height/3)
+        background.anchorPoint=CGPoint(x: 0.5, y: 0.5)
+        background.position=CGPoint(x: 0, y: -60)
+        background.zPosition = 1
+        
+        self.addChild(background)
+        
         leftDummy = SKSpriteNode(imageNamed: "dummy")
         leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
         
@@ -54,6 +80,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.physicsBody?.categoryBitMask = dummyCategory
         leftDummy.physicsBody?.contactTestBitMask = weaponCategory
         leftDummy.physicsBody?.collisionBitMask = 0
+        leftDummy.zPosition=3
+        
         
         self.addChild(leftDummy)
         
@@ -67,14 +95,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.physicsBody?.categoryBitMask = dummyCategory
         rightDummy.physicsBody?.contactTestBitMask = weaponCategory
         rightDummy.physicsBody?.collisionBitMask = 0
+        rightDummy.zPosition=3
+        
         self.addChild(rightDummy)
+        
         
         leftDummyHealthLabel = SKLabelNode(text: "Health: 100")
         leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 + 50)
         leftDummyHealthLabel.fontName = "Americantypewriter-Bold"
         leftDummyHealthLabel.fontSize = 26
         leftDummyHealthLabel.fontColor = UIColor.white
+        leftDummyHealthLabel.zPosition=3
         leftDummyHealth = 100
+        
         
         self.addChild(leftDummyHealthLabel)
         
@@ -83,6 +116,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummyHealthLabel.fontName = "Americantypewriter-Bold"
         rightDummyHealthLabel.fontSize = 26
         rightDummyHealthLabel.fontColor = UIColor.white
+        rightDummyHealthLabel.zPosition=3
         rightDummyHealth = 100
         
         self.addChild(rightDummyHealthLabel)
@@ -96,6 +130,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.size = CGSize(width: 30, height: 30)
         ball.position = CGPoint(x: self.frame.size.width / 2 - 600, y: leftDummy.size.height / 2 - 250)
         ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
+        ball.zPosition=3
         ball.physicsBody?.mass = 1
         ball.physicsBody?.allowsRotation=false
         ball.physicsBody?.isDynamic=false
@@ -108,8 +143,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireButton = SKSpriteNode(imageNamed: "fireButton")
         fireButton.size = CGSize(width: 80, height: 80)
         fireButton.position = CGPoint(x: 0, y: 160)
+        fireButton.zPosition=3
         
         self.addChild(fireButton)
+        
         
     }
     
