@@ -23,6 +23,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var arrow: SKSpriteNode!
     var allowsRotation:Bool = true
     
+    var angleForArrow:CGFloat! = 0.0
+    
     var adjustedArrow = false
     
     //Wurfgeschoss
@@ -171,9 +173,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
-        if touchedNode.name != nil && (childNode(withName: "arrow") == nil)
+        if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil)
         {
-                createArrow()
+            createArrow()
+        }
+        else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil){
+            createArrowRight()
         }
         
         //Button drücken, aber nur wenn Pfeil eingestellt
@@ -199,15 +204,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let pos = touch.location(in: self)
             
             _ = self.atPoint(pos)
-            
+            let touchedNode = self.atPoint(pos)
+                
             let deltaX = self.arrow.position.x - pos.x
             let deltaY = self.arrow.position.y - pos.y
             
-            var angle = atan2(deltaX, deltaY)
-            angle = angle * -1
-            if(0.0 < angle + CGFloat(90 * (Double.pi/180)) && 1.6 > angle + CGFloat(90 * (Double.pi/180))){
-                sprite.zRotation = angle + CGFloat(90 * (Double.pi/180))
-            }
+            angleForArrow = atan2(deltaX, deltaY)
+            if(touchedNode.name == "leftdummy"){
+                    angleForArrow = atan2(deltaX, deltaY)
+                    angleForArrow = angleForArrow * -1
+                    if(0.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.6 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                        sprite.zRotation = angleForArrow + CGFloat(90 * (Double.pi/180))
+                    }
+                }
+                else if(touchedNode.name == "rightdummy"){
+                    angleForArrow = atan2(deltaY, deltaX)
+                    if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                        sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
+                    }
+                }
         }
         }
         
@@ -222,6 +237,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         arrow.zPosition=3
         self.addChild(arrow)
         arrow.name = "arrow"
+    }
+    func createArrowRight(){
+        arrow = SKSpriteNode(imageNamed: "pfeil")
+        let centerLeft = rightDummy.position
+        arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
+        arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
+        arrow.setScale(0.05)
+        arrow.zPosition=3
+        self.addChild(arrow)
+        arrow.xScale = arrow.xScale * -1;
+        arrow.name = "arrow"
+        
     }
 
     func didBegin(_ contact: SKPhysicsContact){
