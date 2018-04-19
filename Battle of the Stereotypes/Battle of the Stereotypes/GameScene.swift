@@ -214,6 +214,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.contactTestBitMask = dummyCategory
         ball.physicsBody?.collisionBitMask = 0
         ball.physicsBody?.usesPreciseCollisionDetection = true
+        arrow.removeFromParent()
         
     }
     
@@ -244,21 +245,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     powerBar.run(SKAction.animate(with: TextureArray, timePerFrame: 0.2), withKey: "powerBarAction")
                     counter = 0
                     buttonTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.timerCallback), userInfo: nil, repeats: true)
-                    throwProjectile()
                     allowsRotation = true
-                    arrow.removeFromParent()
+                    
                 }
             }
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch:UITouch = touches.first!
         if childNode(withName: "arrow") != nil {
-            allowsRotation = false;
-            adjustedArrow=true
+            allowsRotation = false
+            adjustedArrow = true
+           
         }
+        if fireButton.contains(touch.location(in: self)) {
         buttonTimer.invalidate()
         powerBar.removeAction(forKey: "powerBarAction")
+         throwProjectile()
+        }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
