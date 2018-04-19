@@ -43,7 +43,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Hintergrund
     var background: SKSpriteNode!
 
-    var fired = true
+    var firedBool = true
     
     var leftDummy: SKSpriteNode!
     var rightDummy: SKSpriteNode!
@@ -62,7 +62,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    let dummyCategory:UInt32 = 0x1 << 1
+    let activeDummyCategory:UInt32 = 0x1 << 2
+    let unactiveDummyCategory:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
     
     let healthBarWidth: CGFloat = 240
@@ -112,7 +113,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.physicsBody = SKPhysicsBody(texture: leftDummyTexture, size: leftDummy.size)
         leftDummy.physicsBody?.isDynamic = true
         leftDummy.physicsBody?.affectedByGravity = false
-        leftDummy.physicsBody?.categoryBitMask = dummyCategory
+        leftDummy.physicsBody?.categoryBitMask = activeDummyCategory
         leftDummy.physicsBody?.contactTestBitMask = weaponCategory
         leftDummy.physicsBody?.collisionBitMask = 0
         leftDummy.zPosition=3
@@ -127,7 +128,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.isDynamic = true
         rightDummy.physicsBody?.affectedByGravity = false
-        rightDummy.physicsBody?.categoryBitMask = dummyCategory
+        rightDummy.physicsBody?.categoryBitMask = unactiveDummyCategory
         rightDummy.physicsBody?.contactTestBitMask = weaponCategory
         rightDummy.physicsBody?.collisionBitMask = 0
         rightDummy.zPosition=3
@@ -182,7 +183,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(fireButton)
     }
     
-    func initPowerBar(){ //Initialisiere den Kraftbalken
+    func initPowerBar(){ //initialisiere den Kraftbalken
         TextureAtlas = SKTextureAtlas(named: "powerBarImages")
         for i in 0...TextureAtlas.textureNames.count - 1 {
             let name = "progress_\(i)"
@@ -195,7 +196,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(powerBar)
     }
     
-    func initHealthBar(){ //Initalisiere eine Bar zur Anzeige der verbleibenden Lebenspunkte des jeweiligen Dummys
+    func initHealthBar(){ //initalisiere eine Bar zur Anzeige der verbleibenden Lebenspunkte des jeweiligen Dummys
         self.addChild(leftDummyHealthBar)
         self.addChild(rightDummyHealthBar)
         
@@ -224,7 +225,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let yImpulse = sqrt(1-pow(xImpulse, 2))
             ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse*1000, dy: yImpulse*1000))
             ball.physicsBody?.categoryBitMask = weaponCategory
-            ball.physicsBody?.contactTestBitMask = dummyCategory
+            ball.physicsBody?.contactTestBitMask = unactiveDummyCategory
             ball.physicsBody?.collisionBitMask = 0
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
@@ -242,11 +243,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
-        if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil)
-        {
+        if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil){
+            setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy)
             createArrow(node: leftDummy)
         }
         else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil){
+            setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy)
             createArrow(node: rightDummy)
         }
         
@@ -273,7 +275,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if fireButton.contains(touch.location(in: self)) {
         buttonTimer.invalidate()
         powerBar.removeAction(forKey: "powerBarAction")
-         throwProjectile()
+        throwProjectile()
         }
     }
     
@@ -307,6 +309,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func setCategoryBitmask(activeNode: SKSpriteNode, unactiveNode: SKSpriteNode){
+        activeNode.physicsBody?.categoryBitMask = activeDummyCategory
+        unactiveNode.physicsBody?.categoryBitMask = unactiveDummyCategory
+    }
+    
     func createArrow(node: SKSpriteNode){
         arrow = SKSpriteNode(imageNamed: "pfeil")
         let centerLeft = node.position
@@ -333,19 +340,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firstBody = contact.bodyB
             secondBody = contact.bodyA
         }
-        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & dummyCategory) != 0 && fired == true{
-            fired = false
-            projectileDidCollideWithDummy(projectileNode: firstBody.node as! SKSpriteNode, dummyNode: secondBody.node as! SKSpriteNode)
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & unactiveDummyCategory) != 0 && firedBool == true{
+            firedBool = false
+            projectileDidCollideWithDummy()
         }
     }
     
-    func projectileDidCollideWithDummy(projectileNode:SKSpriteNode, dummyNode:SKSpriteNode) {
+    func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
-        rightDummyHealth -= 50
-        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
-        if rightDummyHealth < 0 {
-            rightDummyHealth = 0
+        if(leftDummy.physicsBody?.categoryBitMask == unactiveDummyCategory){
+            leftDummyHealth -= 50
+            if leftDummyHealth < 0 {
+                leftDummyHealth = 0
+            }
         }
+        else if(rightDummy.physicsBody?.categoryBitMask == unactiveDummyCategory){
+            rightDummyHealth -= 50
+            if rightDummyHealth < 0 {
+                rightDummyHealth = 0
+            }
+        }
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
     }
     
     func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
