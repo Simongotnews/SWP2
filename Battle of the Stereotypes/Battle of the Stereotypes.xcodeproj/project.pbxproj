@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F136FB42088934300E1771A /* powerBarImages.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 3F136FB32088934300E1771A /* powerBarImages.atlas */; };
 		3FA47FEE20850BE900ADE0A8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA47FED20850BE900ADE0A8 /* AppDelegate.swift */; };
 		3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FEF20850BE900ADE0A8 /* GameScene.sks */; };
 		3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FF120850BE900ADE0A8 /* Actions.sks */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F136FB32088934300E1771A /* powerBarImages.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = powerBarImages.atlas; sourceTree = "<group>"; };
 		3FA47FEA20850BE900ADE0A8 /* Battle of the Stereotypes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Battle of the Stereotypes.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA47FED20850BE900ADE0A8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3FA47FEF20850BE900ADE0A8 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 		3FA47FEC20850BE900ADE0A8 /* Battle of the Stereotypes */ = {
 			isa = PBXGroup;
 			children = (
+				3F136FB32088934300E1771A /* powerBarImages.atlas */,
 				3FA47FED20850BE900ADE0A8 /* AppDelegate.swift */,
 				3FA47FEF20850BE900ADE0A8 /* GameScene.sks */,
 				3FA47FF120850BE900ADE0A8 /* Actions.sks */,
@@ -241,6 +244,7 @@
 				3FA47FF920850BE900ADE0A8 /* Main.storyboard in Resources */,
 				3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */,
 				3FA47FFB20850BEC00ADE0A8 /* Assets.xcassets in Resources */,
+				3F136FB42088934300E1771A /* powerBarImages.atlas in Resources */,
 				3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */,
 				3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */,
 			);

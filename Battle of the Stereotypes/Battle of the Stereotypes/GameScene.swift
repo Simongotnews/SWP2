@@ -36,6 +36,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Boden des Spiels
     var ground: SKSpriteNode!
     
+    //Kraftbalken
+    var powerBar = SKSpriteNode()
+    var counter: Int = 0
+    var buttonTimer = Timer()
+    var TextureAtlas = SKTextureAtlas()
+    var TextureArray = [SKTexture]()
+    
     //Hintergrund
     var background: SKSpriteNode!
 
@@ -153,6 +160,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireButton.zPosition=3
         
         self.addChild(fireButton)
+        
+        //Initialisiere den Kraftbalken
+        TextureAtlas = SKTextureAtlas(named: "powerBarImages")
+        for i in 0...TextureAtlas.textureNames.count - 1 {
+            let name = "progress_\(i)"
+            TextureArray.append(SKTexture(imageNamed: name))
+        }
+        powerBar = SKSpriteNode(imageNamed: "progress_0")
+        powerBar.size = CGSize(width: 300, height: 50)
+        powerBar.position = CGPoint(x: 0, y: 250 )
+        powerBar.zPosition = 3
+        self.addChild(powerBar)
     }
     
     func throwProjectile() {
@@ -169,6 +188,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    @objc func timerCallback(){
+        if counter < 10 {
+            counter += 1
+            print(counter)
+        }
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
@@ -181,11 +207,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             createArrowRight()
         }
         
+        
         //Button drücken, aber nur wenn Pfeil eingestellt
         if adjustedArrow==true{
-            if fireButton.contains(touch.location(in: self)) {
-                throwProjectile()
-                allowsRotation = true
+            if childNode(withName: "arrow") != nil {
+                if fireButton.contains(touch.location(in: self)) {
+                    powerBar.run(SKAction.animate(with: TextureArray, timePerFrame: 0.2), withKey: "powerBarAction")
+                    counter = 0
+                    buttonTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.timerCallback), userInfo: nil, repeats: true)
+                    throwProjectile()
+                    allowsRotation = true
+                }
             }
         }
     }
@@ -195,6 +227,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             allowsRotation = false;
             adjustedArrow=true
         }
+        buttonTimer.invalidate()
+        powerBar.removeAction(forKey: "powerBarAction")
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
