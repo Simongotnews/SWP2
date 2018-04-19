@@ -21,6 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var leftDummy: SKSpriteNode!
     var rightDummy: SKSpriteNode!
     var arrow: SKSpriteNode!
+    var allowsRotation:Bool!
     
     //Wurfgeschoss
     var ball: SKSpriteNode!
@@ -136,13 +137,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if fireButton.contains(touch.location(in: self)) {
             throwProjectile()
+            allowsRotation = true
         }
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+        if let sprite = childNode(withName: "arrow") {
+            allowsRotation = false;
+        }
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let sprite = childNode(withName: "arrow"){
+        if let sprite = childNode(withName: "arrow") {
+            if(allowsRotation == true){
             let touch:UITouch = touches.first!
             let pos = touch.location(in: self)
             
@@ -154,14 +159,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             var angle = atan2(deltaX, deltaY)
             angle = angle * -1
-            print(angle)
             if(0.0 < angle + CGFloat(90 * (Double.pi/180)) && 1.6 > angle + CGFloat(90 * (Double.pi/180))){
                 sprite.zRotation = angle + CGFloat(90 * (Double.pi/180))
             }
         }
+        }
     }
     func createArrow(){
-        arrow = SKSpriteNode(imageNamed: "Pfeil")
+        arrow = SKSpriteNode(imageNamed: "pfeil")
         let centerLeft = leftDummy.position
         arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
         arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
