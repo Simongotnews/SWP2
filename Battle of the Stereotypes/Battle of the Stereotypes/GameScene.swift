@@ -8,6 +8,9 @@
 
 import SpriteKit
 import GameplayKit
+import Foundation
+import UIKit
+import _SwiftUIKitOverlayShims
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
@@ -64,6 +67,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let dummyCategory:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
+    
+    //let MaxHealth = 100
+    let HealthBarWidth: CGFloat = 240
+    let HealthBarHeight: CGFloat = 40
+    
+    let leftDummyHealthBar = SKSpriteNode()
+    let rightDummyHealthBar = SKSpriteNode()
+    
+    var playerHP = 100
     
     override func didMove(to view: SKView) {
         //initialisiere den Boden
@@ -123,7 +135,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(leftDummyHealthLabel)
         
         rightDummyHealthLabel = SKLabelNode(text: "Health: 100")
-        rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 120, y: rightDummy.size.height / 2 + 50)
+        rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 135, y: rightDummy.size.height / 2 + 50)
         rightDummyHealthLabel.fontName = "Americantypewriter-Bold"
         rightDummyHealthLabel.fontSize = 26
         rightDummyHealthLabel.fontColor = UIColor.white
@@ -172,6 +184,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBar.position = CGPoint(x: 0, y: 250 )
         powerBar.zPosition = 3
         self.addChild(powerBar)
+     
+        initHealthBar()
+    }
+    
+    func initHealthBar(){
+        self.addChild(leftDummyHealthBar)
+        self.addChild(rightDummyHealthBar)
+        
+        leftDummyHealthBar.position = CGPoint(
+            x: leftDummyHealthLabel.position.x + 7,
+            y: leftDummyHealthLabel.position.y + 10
+        )
+        rightDummyHealthBar.position = CGPoint(
+            x: rightDummyHealthLabel.position.x,
+            y: rightDummyHealthLabel.position.y + 10
+        )
+        
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: playerHP)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
     
     func throwProjectile() {
@@ -183,9 +214,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.contactTestBitMask = dummyCategory
         ball.physicsBody?.collisionBitMask = 0
         ball.physicsBody?.usesPreciseCollisionDetection = true
-        if childNode(withName: "arrow") != nil{
-            arrow.removeFromParent()
-        }
+        
     }
     
     @objc func timerCallback(){
@@ -217,6 +246,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     buttonTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.timerCallback), userInfo: nil, repeats: true)
                     throwProjectile()
                     allowsRotation = true
+                    arrow.removeFromParent()
                 }
             }
         }
@@ -304,10 +334,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func projectileDidCollideWithDummy (projectileNode:SKSpriteNode, dummyNode:SKSpriteNode) {
         //ball.removeFromParent()
-        rightDummyHealth -= 10
+        rightDummyHealth -= 50
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
         if rightDummyHealth < 0 {
             rightDummyHealth = 0
         }
+    }
+    
+    func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
+        let barSize = CGSize(width: HealthBarWidth, height: HealthBarHeight);
+        
+        let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
+        
+        // create drawing context
+        UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
+        let context = UIGraphicsGetCurrentContext()
+        
+        // draw the health bar with a colored rectangle
+        fillColor.setFill()
+        let barWidth = (barSize.width - 1) * CGFloat(hp) / CGFloat(100)
+        let barRect = CGRect(x: 0.5, y: 0.5, width: barWidth, height: barSize.height - 1)
+        context!.fill(barRect)
+        
+        // extract image
+        let spriteImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        // set sprite texture and size
+        node.texture = SKTexture(image: spriteImage!)
+        node.size = barSize
     }
 
     override func update(_ currentTime: TimeInterval) {
