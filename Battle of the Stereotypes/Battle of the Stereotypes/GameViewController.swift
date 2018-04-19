@@ -11,51 +11,27 @@ import SpriteKit
 import GameplayKit
 import GameKit
 
-class GameViewController: UIViewController,GKGameCenterControllerDelegate,GKMatchmakerViewControllerDelegate {
-    // Variable ob Game Center aktiv ist
+class GameViewController: UIViewController,GKGameCenterControllerDelegate,GKTurnBasedMatchmakerViewControllerDelegate {
+    // lokales Match
+    var localMatch = GKTurnBasedMatch()
+    // Variable ob GameCenter aktiv ist
     var gamecenterEnabled = false
-    
-    var localMatch = GKMatch()
     
     // GKMatchmakerViewControllerDelegate Methoden
     
-    // MatchmakerView abgebrochen
-    func matchmakerViewControllerWasCancelled(_ viewController: GKMatchmakerViewController) {
-        self.dismiss(animated:true,completion:nil)
+    // TurnBasedMatchMakerView abgebrochen
+    func turnBasedMatchmakerViewControllerWasCancelled(_ viewController: GKTurnBasedMatchmakerViewController) {
+        self.dismiss(animated:true, completion:nil)
     }
     
-    // MatchmakerView fehlgeschlagen
-    func matchmakerViewController(_ viewController: GKMatchmakerViewController, didFailWithError error: Error) {
-        self.dismiss(animated:true,completion:nil)
+    // TurnBasedMatchView fehlgeschlagen
+    func turnBasedMatchmakerViewController(_ viewController: GKTurnBasedMatchmakerViewController, didFailWithError error: Error) {
+        self.dismiss(animated:true, completion:nil)
     }
     
-    // MatchmakerView Match gefunden
-    func matchmakerViewController(_ viewController: GKMatchmakerViewController, didFind match: GKMatch) {
+    // TurnBasedMatchmakerView Match gefunden
+    private func turnBasedMatchmakerViewController(_ viewController: GKMatchmakerViewController, didFind match: GKTurnBasedMatch) {
         localMatch=match
-    }
-    
-    // Versende einen Bytestream an alle Spieler (bei uns immer 2 Spieler)
-    func sendData(data: Data)
-    {
-        if(gamecenterEnabled) {
-            do {
-                try localMatch.sendData(toAllPlayers: data, with: GKMatchSendDataMode.reliable)
-            }
-            catch {
-                print("[" + String(describing: self) + "] Fehler beim Senden der Daten")
-            }
-        } else {
-            print("[" + String(describing: self) + "] Daten konnten nicht gesendet werden. Gamecenter nicht aktiv.")
-        }
-    }
-    
-    // Erhalte Daten vom Match Objekt
-    func match(_ match: GKMatch, didReceive data: Data, fromRemotePlayer player: GKPlayer) {
-        if(gamecenterEnabled) {
-            
-        } else {
-            print("[" + String(describing: self) + "] Daten konnten nicht empfangen werden. Gamecenter nicht aktiv.")
-        }
     }
     
     // aufgerufen wenn der GameCenterViewController beendet wird
@@ -77,7 +53,7 @@ class GameViewController: UIViewController,GKGameCenterControllerDelegate,GKMatc
         matchRequest.defaultNumberOfPlayers=2
         matchRequest.inviteMessage=GKLocalPlayer.localPlayer().displayName! + " würde gerne Battle of the Stereotypes mit dir spielen"
         let matchMakerViewController = GKTurnBasedMatchmakerViewController.init(matchRequest: matchRequest)
-        matchMakerViewController.turnBasedMatchmakerDelegate=self as? GKTurnBasedMatchmakerViewControllerDelegate
+        matchMakerViewController.turnBasedMatchmakerDelegate=self as GKTurnBasedMatchmakerViewControllerDelegate
         self.present(matchMakerViewController, animated: true)
     }
     
@@ -100,6 +76,12 @@ class GameViewController: UIViewController,GKGameCenterControllerDelegate,GKMatc
                 print(error as Any)
             }
         }
+    }
+
+    // Beispielmethode wenn der Spiele seinen Zug beendet hat
+    func turnEnded(data: Data)
+    {
+        //localMatch.endTurn(withNextParticipants: <#T##[GKTurnBasedParticipant]#>, turnTimeout: <#T##TimeInterval#>, match: data, completionHandler: <#T##((Error?) -> Void)?##((Error?) -> Void)?##(Error?) -> Void#>)
     }
     
     override func viewDidLoad() {
