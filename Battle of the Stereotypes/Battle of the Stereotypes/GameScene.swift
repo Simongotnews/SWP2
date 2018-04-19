@@ -157,10 +157,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    //Wurf des Projektils
     func throwProjectile() {
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
+        //Berechnung des Winkels
+        let winkel = (90 * 1) / 1.5
+        
         ball.physicsBody?.applyImpulse(CGVector(dx: 600, dy: 600))
         if childNode(withName: "arrow") != nil{
             arrow.removeFromParent()
