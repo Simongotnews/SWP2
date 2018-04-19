@@ -23,6 +23,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var arrow: SKSpriteNode!
     var allowsRotation:Bool = true
     
+    var adjustedArrow = false
+    
     //Wurfgeschoss
     var ball: SKSpriteNode!
     
@@ -164,6 +166,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             arrow.removeFromParent()
         }
     }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
@@ -172,16 +175,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         {
                 createArrow()
         }
-        if fireButton.contains(touch.location(in: self)) {
-            throwProjectile()
-            allowsRotation = true
+        
+        //Button drücken, aber nur wenn Pfeil eingestellt
+        if adjustedArrow==true{
+            if fireButton.contains(touch.location(in: self)) {
+                throwProjectile()
+                allowsRotation = true
+            }
         }
     }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let sprite = childNode(withName: "arrow") {
+        if childNode(withName: "arrow") != nil {
             allowsRotation = false;
+            adjustedArrow=true
         }
     }
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let sprite = childNode(withName: "arrow") {
             if(allowsRotation == true){
@@ -201,7 +211,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         }
+        
     }
+    
     func createArrow(){
         arrow = SKSpriteNode(imageNamed: "pfeil")
         let centerLeft = leftDummy.position
@@ -213,6 +225,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         arrow.name = "arrow"
         
     }
+    
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
