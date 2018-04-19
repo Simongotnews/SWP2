@@ -27,6 +27,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var allowsRotation:Bool = true
     
     var angleForArrow:CGFloat! = 0.0
+    var angleForArrow2:CGFloat! = 0.0
     
     var adjustedArrow = false
     
@@ -212,25 +213,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ball.physicsBody?.isDynamic=true
             ball.physicsBody?.allowsRotation=true
             //Berechnung des Winkels
-            let winkel = (90 * angleForArrow) / 1.5
-            print(angleForArrow)
+            let winkel = (90 * angleForArrow2/1.5)
             print(winkel)
             let xImpulse = cos(winkel)
             let yImpulse = sqrt(1-pow(xImpulse, 2))
-        
+            print("\(xImpulse) x \(yImpulse) y")
             ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse*1000, dy: yImpulse*1000))
             ball.physicsBody?.categoryBitMask = weaponCategory
             ball.physicsBody?.contactTestBitMask = dummyCategory
             ball.physicsBody?.collisionBitMask = 0
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
+            allowsRotation = true
         }
     }
     
     @objc func timerCallback(){
         if counter < 10 {
             counter += 1
-            print(counter)
         }
     }
     
@@ -290,18 +290,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(touchedNode.name == "leftdummy"){
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
-                    if(0.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.6 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                    if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
+                          print(angleForArrow + CGFloat(90 * (Double.pi/180)))
                         sprite.zRotation = angleForArrow + CGFloat(90 * (Double.pi/180))
-                        angleForArrow = angleForArrow + CGFloat(90 * (Double.pi/180))
+                        angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
+                        
                     }
                 }
-                else if(touchedNode.name == "rightdummy"){
-                    angleForArrow = atan2(deltaY, deltaX)
-                    if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
-                        sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
-                         angleForArrow = angleForArrow + CGFloat(90 * (Double.pi/180))
-                    }
+            else if(touchedNode.name == "rightdummy"){
+                angleForArrow = atan2(deltaY, deltaX)
+                if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                    sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
                 }
+                }
+            
         }
         }
         
