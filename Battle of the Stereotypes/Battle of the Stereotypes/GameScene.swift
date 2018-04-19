@@ -8,6 +8,9 @@
 
 import SpriteKit
 import GameplayKit
+import Foundation
+import UIKit
+import _SwiftUIKitOverlayShims
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
@@ -23,6 +26,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var arrow: SKSpriteNode!
     var allowsRotation:Bool = true
     
+    var angleForArrow:CGFloat! = 0.0
+    
     var adjustedArrow = false
     
     //Wurfgeschoss
@@ -34,8 +39,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Boden des Spiels
     var ground: SKSpriteNode!
     
+    //Kraftbalken
+    var powerBar = SKSpriteNode()
+    var counter: Int = 0
+    var buttonTimer = Timer()
+    var TextureAtlas = SKTextureAtlas()
+    var TextureArray = [SKTexture]()
+    
     //Hintergrund
     var background: SKSpriteNode!
+
+    var fired = true
     
     var leftDummyHealthLabel:SKLabelNode!
     var leftDummyHealth:Int = 0 {
@@ -51,13 +65,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    let dummyCategory:UInt32 = 0x1 << 1 // wird später zur Erfassung der Kollision von Spielfiguren mit Wurfgeschossen benötigt
+    let dummyCategory:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
     
+    //let MaxHealth = 100
+    let HealthBarWidth: CGFloat = 240
+    let HealthBarHeight: CGFloat = 40
+    
+    let leftDummyHealthBar = SKSpriteNode()
+    let rightDummyHealthBar = SKSpriteNode()
+    
+    var playerHP = 100
+    
     override func didMove(to view: SKView) {
-        
-        
-        
         //initialisiere den Boden
         let groundTexture = SKTexture(imageNamed: "Boden")
         ground = SKSpriteNode(texture: groundTexture)
@@ -75,10 +95,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(background)
         
-        leftDummy = SKSpriteNode(imageNamed: "dummy")
+        let leftDummyTexture = SKTexture(imageNamed: "dummy")
+        leftDummy = SKSpriteNode(texture: leftDummyTexture)
         leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
         
-        leftDummy.physicsBody = SKPhysicsBody(rectangleOf: leftDummy.size)
+        leftDummy.physicsBody = SKPhysicsBody(texture: leftDummyTexture, size: leftDummy.size)
         leftDummy.physicsBody?.isDynamic = true
         leftDummy.physicsBody?.affectedByGravity = false
         leftDummy.physicsBody?.categoryBitMask = dummyCategory
@@ -86,13 +107,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.physicsBody?.collisionBitMask = 0
         leftDummy.zPosition=3
         
-        
         self.addChild(leftDummy)
         
-        rightDummy = SKSpriteNode(imageNamed: "dummy")
+        let rightDummyTexture = SKTexture(imageNamed: "dummy")
+        rightDummy = SKSpriteNode(texture: leftDummyTexture)
         rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 250)
         
-        rightDummy.physicsBody = SKPhysicsBody(rectangleOf: rightDummy.size)
+        rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.affectedByGravity = false
         rightDummy.physicsBody?.isDynamic = true
         
@@ -103,7 +124,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(rightDummy)
         
-        
         leftDummyHealthLabel = SKLabelNode(text: "Health: 100")
         leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 + 50)
         leftDummyHealthLabel.fontName = "Americantypewriter-Bold"
@@ -112,11 +132,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummyHealthLabel.zPosition=3
         leftDummyHealth = 100
         
-        
         self.addChild(leftDummyHealthLabel)
         
         rightDummyHealthLabel = SKLabelNode(text: "Health: 100")
-        rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 120, y: rightDummy.size.height / 2 + 50)
+        rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 135, y: rightDummy.size.height / 2 + 50)
         rightDummyHealthLabel.fontName = "Americantypewriter-Bold"
         rightDummyHealthLabel.fontSize = 26
         rightDummyHealthLabel.fontColor = UIColor.white
@@ -127,7 +146,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.name = "leftdummy"
         rightDummy.name = "rightdummy"
         
-        
         //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         self.physicsWorld.contactDelegate = self
         
@@ -135,7 +153,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let ballTexture = SKTexture(imageNamed: "Krug")
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
-        ball.position = CGPoint(x: self.frame.size.width / 2 - 600, y: leftDummy.size.height / 2 - 250)
+        ball.position = leftDummy.position
+        ball.position.x += 30
         ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
         ball.zPosition=3
         ball.physicsBody?.mass = 1
@@ -154,7 +173,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(fireButton)
         
+        //Initialisiere den Kraftbalken
+        TextureAtlas = SKTextureAtlas(named: "powerBarImages")
+        for i in 0...TextureAtlas.textureNames.count - 1 {
+            let name = "progress_\(i)"
+            TextureArray.append(SKTexture(imageNamed: name))
+        }
+        powerBar = SKSpriteNode(imageNamed: "progress_0")
+        powerBar.size = CGSize(width: 300, height: 50)
+        powerBar.position = CGPoint(x: 0, y: 250 )
+        powerBar.zPosition = 3
+        self.addChild(powerBar)
+     
+        initHealthBar()
+    }
+    
+    func initHealthBar(){
+        self.addChild(leftDummyHealthBar)
+        self.addChild(rightDummyHealthBar)
         
+        leftDummyHealthBar.position = CGPoint(
+            x: leftDummyHealthLabel.position.x + 7,
+            y: leftDummyHealthLabel.position.y + 10
+        )
+        rightDummyHealthBar.position = CGPoint(
+            x: rightDummyHealthLabel.position.x,
+            y: rightDummyHealthLabel.position.y + 10
+        )
+        
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: playerHP)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
     
     //Wurf des Projektils
@@ -166,8 +214,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let winkel = (90 * 1) / 1.5
         
         ball.physicsBody?.applyImpulse(CGVector(dx: 600, dy: 600))
-        if childNode(withName: "arrow") != nil{
-            arrow.removeFromParent()
+        ball.physicsBody?.categoryBitMask = weaponCategory
+        ball.physicsBody?.contactTestBitMask = dummyCategory
+        ball.physicsBody?.collisionBitMask = 0
+        ball.physicsBody?.usesPreciseCollisionDetection = true
+        arrow.removeFromParent()
+        
+    }
+    
+    @objc func timerCallback(){
+        if counter < 10 {
+            counter += 1
+            print(counter)
         }
     }
     
@@ -175,24 +233,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
-        if touchedNode.name != nil && (childNode(withName: "arrow") == nil)
+        if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil)
         {
-                createArrow()
+            createArrow()
         }
+        else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil){
+            createArrowRight()
+        }
+        
         
         //Button drücken, aber nur wenn Pfeil eingestellt
         if adjustedArrow==true{
-            if fireButton.contains(touch.location(in: self)) {
-                throwProjectile()
-                allowsRotation = true
+            if childNode(withName: "arrow") != nil {
+                if fireButton.contains(touch.location(in: self)) {
+                    powerBar.run(SKAction.animate(with: TextureArray, timePerFrame: 0.2), withKey: "powerBarAction")
+                    counter = 0
+                    buttonTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.timerCallback), userInfo: nil, repeats: true)
+                    allowsRotation = true
+                    
+                }
             }
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch:UITouch = touches.first!
         if childNode(withName: "arrow") != nil {
-            allowsRotation = false;
-            adjustedArrow=true
+            allowsRotation = false
+            adjustedArrow = true
+           
+        }
+        if fireButton.contains(touch.location(in: self)) {
+        buttonTimer.invalidate()
+        powerBar.removeAction(forKey: "powerBarAction")
+         throwProjectile()
         }
     }
     
@@ -203,16 +277,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let pos = touch.location(in: self)
             
             _ = self.atPoint(pos)
-            
-            
+            let touchedNode = self.atPoint(pos)
+                
             let deltaX = self.arrow.position.x - pos.x
             let deltaY = self.arrow.position.y - pos.y
             
-            var angle = atan2(deltaX, deltaY)
-            angle = angle * -1
-            if(0.0 < angle + CGFloat(90 * (Double.pi/180)) && 1.6 > angle + CGFloat(90 * (Double.pi/180))){
-                sprite.zRotation = angle + CGFloat(90 * (Double.pi/180))
-            }
+            angleForArrow = atan2(deltaX, deltaY)
+            if(touchedNode.name == "leftdummy"){
+                    angleForArrow = atan2(deltaX, deltaY)
+                    angleForArrow = angleForArrow * -1
+                    if(0.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.6 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                        sprite.zRotation = angleForArrow + CGFloat(90 * (Double.pi/180))
+                    }
+                }
+                else if(touchedNode.name == "rightdummy"){
+                    angleForArrow = atan2(deltaY, deltaX)
+                    if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                        sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
+                    }
+                }
         }
         }
         
@@ -227,11 +310,71 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         arrow.zPosition=3
         self.addChild(arrow)
         arrow.name = "arrow"
+    }
+    func createArrowRight(){
+        arrow = SKSpriteNode(imageNamed: "pfeil")
+        let centerLeft = rightDummy.position
+        arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
+        arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
+        arrow.setScale(0.05)
+        arrow.zPosition=3
+        self.addChild(arrow)
+        arrow.xScale = arrow.xScale * -1;
+        arrow.name = "arrow"
         
     }
+
+    func didBegin(_ contact: SKPhysicsContact){
+        var firstBody:SKPhysicsBody
+        var secondBody:SKPhysicsBody
+        
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
+            firstBody = contact.bodyA
+            secondBody = contact.bodyB
+        }else {
+            firstBody = contact.bodyB
+            secondBody = contact.bodyA
+        }
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & dummyCategory) != 0 && fired == true{
+            fired = false
+            projectileDidCollideWithDummy(projectileNode: firstBody.node as! SKSpriteNode, dummyNode: secondBody.node as! SKSpriteNode)
+        }
+    }
     
+    func projectileDidCollideWithDummy (projectileNode:SKSpriteNode, dummyNode:SKSpriteNode) {
+        //ball.removeFromParent()
+        rightDummyHealth -= 50
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
+        if rightDummyHealth < 0 {
+            rightDummyHealth = 0
+        }
+    }
+    
+    func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
+        let barSize = CGSize(width: HealthBarWidth, height: HealthBarHeight);
+        
+        let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
+        
+        // create drawing context
+        UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
+        let context = UIGraphicsGetCurrentContext()
+        
+        // draw the health bar with a colored rectangle
+        fillColor.setFill()
+        let barWidth = (barSize.width - 1) * CGFloat(hp) / CGFloat(100)
+        let barRect = CGRect(x: 0.5, y: 0.5, width: barWidth, height: barSize.height - 1)
+        context!.fill(barRect)
+        
+        // extract image
+        let spriteImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        // set sprite texture and size
+        node.texture = SKTexture(image: spriteImage!)
+        node.size = barSize
+    }
+
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
-    
 }
