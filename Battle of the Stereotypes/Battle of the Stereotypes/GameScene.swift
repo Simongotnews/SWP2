@@ -36,6 +36,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Hintergrund
     var background: SKSpriteNode!
+
+    var fired = true
     
     var leftDummyHealthLabel:SKLabelNode!
     var leftDummyHealth:Int = 0 {
@@ -51,13 +53,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    let dummyCategory:UInt32 = 0x1 << 1 // wird später zur Erfassung der Kollision von Spielfiguren mit Wurfgeschossen benötigt
+    let dummyCategory:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
     
     override func didMove(to view: SKView) {
-        
-        
-        
         //initialisiere den Boden
         let groundTexture = SKTexture(imageNamed: "Boden")
         ground = SKSpriteNode(texture: groundTexture)
@@ -75,10 +74,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(background)
         
-        leftDummy = SKSpriteNode(imageNamed: "dummy")
+        let leftDummyTexture = SKTexture(imageNamed: "dummy")
+        leftDummy = SKSpriteNode(texture: leftDummyTexture)
         leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
         
-        leftDummy.physicsBody = SKPhysicsBody(rectangleOf: leftDummy.size)
+        leftDummy.physicsBody = SKPhysicsBody(texture: leftDummyTexture, size: leftDummy.size)
         leftDummy.physicsBody?.isDynamic = true
         leftDummy.physicsBody?.affectedByGravity = false
         leftDummy.physicsBody?.categoryBitMask = dummyCategory
@@ -86,13 +86,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.physicsBody?.collisionBitMask = 0
         leftDummy.zPosition=3
         
-        
         self.addChild(leftDummy)
         
-        rightDummy = SKSpriteNode(imageNamed: "dummy")
+        let rightDummyTexture = SKTexture(imageNamed: "dummy")
+        rightDummy = SKSpriteNode(texture: leftDummyTexture)
         rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 250)
         
-        rightDummy.physicsBody = SKPhysicsBody(rectangleOf: rightDummy.size)
+        rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.affectedByGravity = false
         rightDummy.physicsBody?.isDynamic = true
         
@@ -103,7 +103,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(rightDummy)
         
-        
         leftDummyHealthLabel = SKLabelNode(text: "Health: 100")
         leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 + 50)
         leftDummyHealthLabel.fontName = "Americantypewriter-Bold"
@@ -111,7 +110,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummyHealthLabel.fontColor = UIColor.white
         leftDummyHealthLabel.zPosition=3
         leftDummyHealth = 100
-        
         
         self.addChild(leftDummyHealthLabel)
         
@@ -127,7 +125,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.name = "leftdummy"
         rightDummy.name = "rightdummy"
         
-        
         //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         self.physicsWorld.contactDelegate = self
         
@@ -135,7 +132,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let ballTexture = SKTexture(imageNamed: "Krug")
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
-        ball.position = CGPoint(x: self.frame.size.width / 2 - 600, y: leftDummy.size.height / 2 - 250)
+        ball.position = leftDummy.position
+        ball.position.x += 30
         ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
         ball.zPosition=3
         ball.physicsBody?.mass = 1
@@ -153,8 +151,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fireButton.zPosition=3
         
         self.addChild(fireButton)
-        
-        
     }
     
     func throwProjectile() {
@@ -162,6 +158,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
         ball.physicsBody?.applyImpulse(CGVector(dx: 600, dy: 600))
+        ball.physicsBody?.categoryBitMask = weaponCategory
+        ball.physicsBody?.contactTestBitMask = dummyCategory
+        ball.physicsBody?.collisionBitMask = 0
+        ball.physicsBody?.usesPreciseCollisionDetection = true
         if childNode(withName: "arrow") != nil{
             arrow.removeFromParent()
         }
@@ -200,7 +200,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             _ = self.atPoint(pos)
             
-            
             let deltaX = self.arrow.position.x - pos.x
             let deltaY = self.arrow.position.y - pos.y
             
@@ -223,11 +222,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         arrow.zPosition=3
         self.addChild(arrow)
         arrow.name = "arrow"
+    }
+
+    func didBegin(_ contact: SKPhysicsContact){
+        var firstBody:SKPhysicsBody
+        var secondBody:SKPhysicsBody
         
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
+            firstBody = contact.bodyA
+            secondBody = contact.bodyB
+        }else {
+            firstBody = contact.bodyB
+            secondBody = contact.bodyA
+        }
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & dummyCategory) != 0 && fired == true{
+            fired = false
+            projectileDidCollideWithDummy(projectileNode: firstBody.node as! SKSpriteNode, dummyNode: secondBody.node as! SKSpriteNode)
+        }
     }
     
+    func projectileDidCollideWithDummy (projectileNode:SKSpriteNode, dummyNode:SKSpriteNode) {
+        //ball.removeFromParent()
+        rightDummyHealth -= 10
+        if rightDummyHealth < 0 {
+            rightDummyHealth = 0
+        }
+    }
+
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
-    
 }
