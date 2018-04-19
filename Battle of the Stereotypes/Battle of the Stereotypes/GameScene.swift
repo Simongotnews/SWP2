@@ -8,9 +8,6 @@
 
 import SpriteKit
 import GameplayKit
-import Foundation
-import UIKit
-import _SwiftUIKitOverlayShims
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
@@ -21,14 +18,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
     
-    var leftDummy: SKSpriteNode!
-    var rightDummy: SKSpriteNode!
     var arrow: SKSpriteNode!
     var allowsRotation:Bool = true
-    
     var angleForArrow:CGFloat! = 0.0
     var angleForArrow2:CGFloat! = 0.0
-    
     var adjustedArrow = false
     
     //Wurfgeschoss
@@ -52,7 +45,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var fired = true
     
+    var leftDummy: SKSpriteNode!
+    var rightDummy: SKSpriteNode!
     var leftDummyHealthLabel:SKLabelNode!
+    
     var leftDummyHealth:Int = 0 {
         didSet {
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/100"
@@ -69,9 +65,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let dummyCategory:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
     
-    //let MaxHealth = 100
-    let HealthBarWidth: CGFloat = 240
-    let HealthBarHeight: CGFloat = 40
+    let healthBarWidth: CGFloat = 240
+    let healthBarHeight: CGFloat = 40
     
     let leftDummyHealthBar = SKSpriteNode()
     let rightDummyHealthBar = SKSpriteNode()
@@ -79,7 +74,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var playerHP = 100
     
     override func didMove(to view: SKView) {
-        //initialisiere den Boden
+        //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        self.physicsWorld.contactDelegate = self
+        
+        initBackground()
+        initDummys()
+        initDummyLabels()
+        initBall()
+        initFireButton()
+        initPowerBar()
+        initHealthBar()
+    }
+    
+    func initBackground(){ //initialisiere den Boden und den Hintergrund
         let groundTexture = SKTexture(imageNamed: "Boden")
         ground = SKSpriteNode(texture: groundTexture)
         ground.size = CGSize(width: self.size.width, height: self.size.height/3)
@@ -87,7 +94,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(ground)
         
-        //initialisiere den Hintergrund
         background = SKSpriteNode(imageNamed: "Hintergrund")
         background.size = CGSize(width: self.size.width, height: self.size.height/3)
         background.anchorPoint=CGPoint(x: 0.5, y: 0.5)
@@ -95,9 +101,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         background.zPosition = 1
         
         self.addChild(background)
-        
+    }
+    
+    func initDummys(){
         let leftDummyTexture = SKTexture(imageNamed: "dummy")
         leftDummy = SKSpriteNode(texture: leftDummyTexture)
+        leftDummy.name = "leftdummy"
         leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
         
         leftDummy.physicsBody = SKPhysicsBody(texture: leftDummyTexture, size: leftDummy.size)
@@ -112,19 +121,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let rightDummyTexture = SKTexture(imageNamed: "dummy")
         rightDummy = SKSpriteNode(texture: leftDummyTexture)
+        rightDummy.name = "rightdummy"
         rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 250)
         
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
-        rightDummy.physicsBody?.affectedByGravity = false
         rightDummy.physicsBody?.isDynamic = true
-        
+        rightDummy.physicsBody?.affectedByGravity = false
         rightDummy.physicsBody?.categoryBitMask = dummyCategory
         rightDummy.physicsBody?.contactTestBitMask = weaponCategory
         rightDummy.physicsBody?.collisionBitMask = 0
         rightDummy.zPosition=3
         
         self.addChild(rightDummy)
-        
+    }
+    
+    func initDummyLabels(){
         leftDummyHealthLabel = SKLabelNode(text: "Health: 100")
         leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 + 50)
         leftDummyHealthLabel.fontName = "Americantypewriter-Bold"
@@ -144,37 +155,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummyHealth = 100
         
         self.addChild(rightDummyHealthLabel)
-        leftDummy.name = "leftdummy"
-        rightDummy.name = "rightdummy"
-        
-        //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
-        self.physicsWorld.contactDelegate = self
-        
-        //initialisiere das Wurfgeschoss
+    }
+    
+    func initBall(){ //initialisiere das Wurfgeschoss
         let ballTexture = SKTexture(imageNamed: "Krug")
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
         ball.position = leftDummy.position
         ball.position.x += 30
-        ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
         ball.zPosition=3
+        
+        ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
         ball.physicsBody?.mass = 1
         ball.physicsBody?.allowsRotation=false
         ball.physicsBody?.isDynamic=false
         ball.physicsBody?.affectedByGravity=false
         ball.physicsBody?.collisionBitMask=0x1 << 2
-        
         self.addChild(ball)
-        
-        //initialisiere den Fire Button
+    }
+
+    func initFireButton(){ //initialisiere den Fire Button
         fireButton = SKSpriteNode(imageNamed: "fireButton")
         fireButton.size = CGSize(width: 80, height: 80)
         fireButton.position = CGPoint(x: 0, y: 160)
         fireButton.zPosition=3
-        
         self.addChild(fireButton)
-        
-        //Initialisiere den Kraftbalken
+    }
+    
+    func initPowerBar(){ //Initialisiere den Kraftbalken
         TextureAtlas = SKTextureAtlas(named: "powerBarImages")
         for i in 0...TextureAtlas.textureNames.count - 1 {
             let name = "progress_\(i)"
@@ -185,11 +193,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBar.position = CGPoint(x: 0, y: 250 )
         powerBar.zPosition = 3
         self.addChild(powerBar)
-     
-        initHealthBar()
     }
     
-    func initHealthBar(){
+    func initHealthBar(){ //Initalisiere eine Bar zur Anzeige der verbleibenden Lebenspunkte des jeweiligen Dummys
         self.addChild(leftDummyHealthBar)
         self.addChild(rightDummyHealthBar)
         
@@ -206,12 +212,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
     
-    //Wurf des Projektils
-    func throwProjectile() {
+    func throwProjectile() { //Wurf des Projektils
         if childNode(withName: "arrow") != nil {
             ball.physicsBody?.affectedByGravity=true
             ball.physicsBody?.isDynamic=true
             ball.physicsBody?.allowsRotation=true
+            
             //Berechnung des Winkels
             let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
             let xImpulse = cos(winkel)
@@ -238,12 +244,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touchedNode = self.atPoint(pos)
         if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil)
         {
-            createArrow()
+            createArrow(node: leftDummy)
         }
         else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil){
-            createArrowRight()
+            createArrow(node: rightDummy)
         }
-        
         
         //Button drücken, aber nur wenn Pfeil eingestellt
         if adjustedArrow==true{
@@ -264,7 +269,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if childNode(withName: "arrow") != nil {
             allowsRotation = false
             adjustedArrow = true
-           
         }
         if fireButton.contains(touch.location(in: self)) {
         buttonTimer.invalidate()
@@ -289,45 +293,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
                     if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
-
                         sprite.zRotation = angleForArrow + CGFloat(90 * (Double.pi/180))
                         angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
-                        
                     }
                 }
             else if(touchedNode.name == "rightdummy"){
                 angleForArrow = atan2(deltaY, deltaX)
                 if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
                     sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
+                    }
                 }
-                }
-            
+            }
         }
-        }
-        
     }
     
-    func createArrow(){
+    func createArrow(node: SKSpriteNode){
         arrow = SKSpriteNode(imageNamed: "pfeil")
-        let centerLeft = leftDummy.position
+        let centerLeft = node.position
         arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
         arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
         arrow.setScale(0.05)
         arrow.zPosition=3
-        self.addChild(arrow)
         arrow.name = "arrow"
-    }
-    func createArrowRight(){
-        arrow = SKSpriteNode(imageNamed: "pfeil")
-        let centerLeft = rightDummy.position
-        arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
-        arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
-        arrow.setScale(0.05)
-        arrow.zPosition=3
-        self.addChild(arrow)
-        arrow.xScale = arrow.xScale * -1;
-        arrow.name = "arrow"
+        if(node.name == "rightdummy"){
+            arrow.xScale = arrow.xScale * -1;
+        }
         
+        self.addChild(arrow)
     }
 
     func didBegin(_ contact: SKPhysicsContact){
@@ -347,7 +339,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func projectileDidCollideWithDummy (projectileNode:SKSpriteNode, dummyNode:SKSpriteNode) {
+    func projectileDidCollideWithDummy(projectileNode:SKSpriteNode, dummyNode:SKSpriteNode) {
         //ball.removeFromParent()
         rightDummyHealth -= 50
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
@@ -357,25 +349,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
-        let barSize = CGSize(width: HealthBarWidth, height: HealthBarHeight);
+        let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
         
         let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
-        
-        // create drawing context
+    
         UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
         let context = UIGraphicsGetCurrentContext()
         
-        // draw the health bar with a colored rectangle
         fillColor.setFill()
         let barWidth = (barSize.width - 1) * CGFloat(hp) / CGFloat(100)
         let barRect = CGRect(x: 0.5, y: 0.5, width: barWidth, height: barSize.height - 1)
         context!.fill(barRect)
         
-        // extract image
         let spriteImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        // set sprite texture and size
         node.texture = SKTexture(image: spriteImage!)
         node.size = barSize
     }
