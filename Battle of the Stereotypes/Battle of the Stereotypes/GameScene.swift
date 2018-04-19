@@ -21,7 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var leftDummy: SKSpriteNode!
     var rightDummy: SKSpriteNode!
     var arrow: SKSpriteNode!
-    var allowsRotation:Bool!
+    var allowsRotation:Bool = true
     
     //Wurfgeschoss
     var ball: SKSpriteNode!
@@ -208,6 +208,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
         arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
         arrow.setScale(0.05)
+        arrow.zPosition=3
         self.addChild(arrow)
         arrow.name = "arrow"
         
