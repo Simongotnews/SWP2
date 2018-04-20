@@ -65,6 +65,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let activeDummyCategory:UInt32 = 0x1 << 2
     let unactiveDummyCategory:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
+    let groundCategory:UInt32 = 0x1 << 3
     
     let healthBarWidth: CGFloat = 240
     let healthBarHeight: CGFloat = 40
@@ -91,7 +92,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let groundTexture = SKTexture(imageNamed: "Boden")
         ground = SKSpriteNode(texture: groundTexture)
         ground.size = CGSize(width: self.size.width, height: self.size.height/3)
+        ground.anchorPoint=CGPoint(x: 0.5, y: 0.5)
+        ground.zPosition=2
+        ground.physicsBody = SKPhysicsBody(texture: groundTexture, size: ground.size)
+        ground.physicsBody?.isDynamic=false
+        ground.physicsBody?.categoryBitMask=groundCategory
         ground.position.y -= 60
+        ground.physicsBody?.mass = 100000
         
         self.addChild(ground)
         
@@ -171,7 +178,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.allowsRotation=false
         ball.physicsBody?.isDynamic=false
         ball.physicsBody?.affectedByGravity=false
-        ball.physicsBody?.collisionBitMask=0x1 << 2
+        ball.physicsBody?.categoryBitMask=weaponCategory
+        //ball.physicsBody?.collisionBitMask=0x1 << 2
+        
         self.addChild(ball)
     }
 
@@ -224,9 +233,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let xImpulse = cos(winkel)
             let yImpulse = sqrt(1-pow(xImpulse, 2))
             ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse*1000, dy: yImpulse*1000))
-            ball.physicsBody?.categoryBitMask = weaponCategory
             ball.physicsBody?.contactTestBitMask = unactiveDummyCategory
-            ball.physicsBody?.collisionBitMask = 0
+            ball.physicsBody?.collisionBitMask = groundCategory | unactiveDummyCategory
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
