@@ -11,6 +11,11 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    //Booleans
+    var allowsRotation = true //zeigt ob Geschoss rotieren darf
+    var adjustedArrow = false //zeigt ob Pfeil eingestellt wurde
+    var firedBool = true //zeigt ob Schadensberechnung erfolgen soll
+    
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
     
@@ -19,10 +24,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var spinnyNode : SKShapeNode?
     
     var arrow: SKSpriteNode!
-    var allowsRotation:Bool = true
     var angleForArrow:CGFloat! = 0.0
     var angleForArrow2:CGFloat! = 0.0
-    var adjustedArrow = false
     
     //Wurfgeschoss
     var ball: SKSpriteNode!
@@ -42,8 +45,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Hintergrund
     var background: SKSpriteNode!
-
-    var firedBool = true
     
     var leftDummy: SKSpriteNode!
     var rightDummy: SKSpriteNode!
@@ -62,8 +63,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    let activeDummyCategory:UInt32 = 0x1 << 2
-    let unactiveDummyCategory:UInt32 = 0x1 << 1
+    let leftDummyCategory:UInt32 = 0x1 << 2
+    let rightDummyCategorie:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
     let groundCategory:UInt32 = 0x1 << 3
     
@@ -82,7 +83,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initBackground()
         initDummys()
         initDummyLabels()
-        initBall()
+        //initilialisiere Geschoss für Spieler 1
+        initBall(for: 1)
         initFireButton()
         initPowerBar()
         initHealthBar()
@@ -125,7 +127,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.physicsBody = SKPhysicsBody(texture: leftDummyTexture, size: leftDummy.size)
         leftDummy.physicsBody?.isDynamic = true
         leftDummy.physicsBody?.affectedByGravity = false
-        leftDummy.physicsBody?.categoryBitMask = activeDummyCategory
+        leftDummy.physicsBody?.categoryBitMask = leftDummyCategory
         leftDummy.physicsBody?.contactTestBitMask = weaponCategory
         leftDummy.physicsBody?.collisionBitMask = 0
         leftDummy.zPosition=3
@@ -140,7 +142,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.isDynamic = true
         rightDummy.physicsBody?.affectedByGravity = false
-        rightDummy.physicsBody?.categoryBitMask = unactiveDummyCategory
+        rightDummy.physicsBody?.categoryBitMask = rightDummyCategorie
         rightDummy.physicsBody?.contactTestBitMask = weaponCategory
         rightDummy.physicsBody?.collisionBitMask = 0
         rightDummy.zPosition=3
@@ -170,16 +172,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(rightDummyHealthLabel)
     }
     
-    func initBall(){ //initialisiere das Wurfgeschoss
+    func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
         let ballTexture = SKTexture(imageNamed: "Krug")
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
-        ball.position = leftDummy.position
-        ball.position.x += 30
+        if player==1 {
+            ball.position = leftDummy.position
+            ball.position.x += 30
+        } else {
+            ball.position = rightDummy.position
+            ball.position.x -= 30
+        }
         ball.zPosition=3
         
         ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
         ball.physicsBody?.mass = 1
+        //Geschoss soll mehr "bouncen"
+        ball.physicsBody?.restitution=0.3
         //Am Anfang soll das Wurfgeschoss noch undynamisch sein und nicht beeinträchtigt von Physics
         ball.physicsBody?.allowsRotation=false
         ball.physicsBody?.isDynamic=false
@@ -243,9 +252,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //Boden soll mit Gegner Dummy interagieren
             //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
             //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
-            ball.physicsBody?.contactTestBitMask = groundCategory | unactiveDummyCategory
+            ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategorie
             //es soll eine Kollision mit dem Grund und dem Dummy simulieren
-            ball.physicsBody?.collisionBitMask = groundCategory | unactiveDummyCategory
+            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategorie
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
@@ -329,8 +338,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setCategoryBitmask(activeNode: SKSpriteNode, unactiveNode: SKSpriteNode){
-        activeNode.physicsBody?.categoryBitMask = activeDummyCategory
-        unactiveNode.physicsBody?.categoryBitMask = unactiveDummyCategory
+        activeNode.physicsBody?.categoryBitMask = leftDummyCategory
+        unactiveNode.physicsBody?.categoryBitMask = rightDummyCategorie
     }
     
     func createArrow(node: SKSpriteNode){
@@ -365,21 +374,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firedBool = false
         }
         
-        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & unactiveDummyCategory) != 0 && firedBool == true{
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategorie) != 0 && firedBool == true{
             firedBool = false
             projectileDidCollideWithDummy()
         }
+        
+        //warte eine bestimmte Zeit und initialisiere den anderen Spieler
+        
     }
     
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
-        if(leftDummy.physicsBody?.categoryBitMask == unactiveDummyCategory){
+        if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
             leftDummyHealth -= 50
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
             }
         }
-        else if(rightDummy.physicsBody?.categoryBitMask == unactiveDummyCategory){
+        else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
             rightDummyHealth -= 50
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
