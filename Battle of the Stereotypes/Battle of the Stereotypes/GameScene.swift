@@ -91,8 +91,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func initBackground(){ //initialisiere den Boden und den Hintergrund
         let groundTexture = SKTexture(imageNamed: "Boden")
         ground = SKSpriteNode(texture: groundTexture)
-        ground.size = CGSize(width: self.size.width, height: self.size.height/3)
-        ground.anchorPoint=CGPoint(x: 0.5, y: 0.5)
+        ground.size = CGSize(width: self.size.width, height: self.size.height/2.8)
+        ground.position.y -= 60
+        //Anpassung des Anchorpoints damit Glättung der Kanten nicht auffällt wenn Geschoss aufkommt
+        ground.anchorPoint=CGPoint(x: 0.5, y: 0.48)
         ground.zPosition=2
         ground.physicsBody = SKPhysicsBody(texture: groundTexture, size: ground.size)
         //Boden soll sich nicht verändern
@@ -100,7 +102,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody?.categoryBitMask=groundCategory
         //Grund soll bei Kontakt mit Wurfgeschoss didbegin triggern
         ground.physicsBody?.contactTestBitMask=weaponCategory
-        ground.position.y -= 60
         ground.physicsBody?.mass = 100000
         
         self.addChild(ground)
@@ -109,6 +110,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         background.size = CGSize(width: self.size.width, height: self.size.height/3)
         background.anchorPoint=CGPoint(x: 0.5, y: 0.5)
         background.position=CGPoint(x: 0, y: -60)
+        //Hintergrund ist am weitesten weg bei der Ansicht (1 = niedrigste Einstellung)
         background.zPosition = 1
         
         self.addChild(background)
@@ -133,7 +135,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let rightDummyTexture = SKTexture(imageNamed: "dummy")
         rightDummy = SKSpriteNode(texture: leftDummyTexture)
         rightDummy.name = "rightdummy"
-        rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 275)
+        rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 280)
         
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.isDynamic = true
