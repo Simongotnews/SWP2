@@ -95,8 +95,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.anchorPoint=CGPoint(x: 0.5, y: 0.5)
         ground.zPosition=2
         ground.physicsBody = SKPhysicsBody(texture: groundTexture, size: ground.size)
+        //Boden soll sich nicht verändern
         ground.physicsBody?.isDynamic=false
         ground.physicsBody?.categoryBitMask=groundCategory
+        //Grund soll bei Kontakt mit Wurfgeschoss didbegin triggern
+        ground.physicsBody?.contactTestBitMask=weaponCategory
         ground.position.y -= 60
         ground.physicsBody?.mass = 100000
         
@@ -130,7 +133,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let rightDummyTexture = SKTexture(imageNamed: "dummy")
         rightDummy = SKSpriteNode(texture: leftDummyTexture)
         rightDummy.name = "rightdummy"
-        rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 250)
+        rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 275)
         
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.isDynamic = true
@@ -175,6 +178,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
         ball.physicsBody?.mass = 1
+        //Am Anfang soll das Wurfgeschoss noch undynamisch sein und nicht beeinträchtigt von Physics
         ball.physicsBody?.allowsRotation=false
         ball.physicsBody?.isDynamic=false
         ball.physicsBody?.affectedByGravity=false
@@ -230,10 +234,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             //Berechnung des Winkels
             let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
+            //Berechnung des Impulsvektors
             let xImpulse = cos(winkel)
             let yImpulse = sqrt(1-pow(xImpulse, 2))
             ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse*1000, dy: yImpulse*1000))
-            ball.physicsBody?.contactTestBitMask = unactiveDummyCategory
+            //Boden soll mit Gegner Dummy interagieren
+            //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
+            //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
+            ball.physicsBody?.contactTestBitMask = groundCategory | unactiveDummyCategory
+            //es soll eine Kollision mit dem Grund und dem Dummy simulieren
             ball.physicsBody?.collisionBitMask = groundCategory | unactiveDummyCategory
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
@@ -348,6 +357,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firstBody = contact.bodyB
             secondBody = contact.bodyA
         }
+        
+        //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & groundCategory) != 0 && firedBool == true{
+            firedBool = false
+        }
+        
         if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & unactiveDummyCategory) != 0 && firedBool == true{
             firedBool = false
             projectileDidCollideWithDummy()
