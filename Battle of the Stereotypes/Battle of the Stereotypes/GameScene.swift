@@ -37,11 +37,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var ground: SKSpriteNode!
     
     //Kraftbalken
-    var powerBar = SKSpriteNode()
     var counter: Int = 0
-    var buttonTimer = Timer()
-    var TextureAtlas = SKTextureAtlas()
-    var TextureArray = [SKTexture]()
+    let powerBarGrau = SKShapeNode(rectOf: CGSize(width: 200, height: 25))
+    var powerBarGreen = SKShapeNode(rectOf: CGSize(width: 2, height: 25))
+    var powerLabel = SKLabelNode(fontNamed: "ArialMT")
     
     //Hintergrund
     var background: SKSpriteNode!
@@ -208,16 +207,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func initPowerBar(){ //initialisiere den Kraftbalken
-        TextureAtlas = SKTextureAtlas(named: "powerBarImages")
-        for i in 0...TextureAtlas.textureNames.count - 1 {
-            let name = "progress_\(i)"
-            TextureArray.append(SKTexture(imageNamed: name))
-        }
-        powerBar = SKSpriteNode(imageNamed: "progress_0")
-        powerBar.size = CGSize(width: 300, height: 50)
-        powerBar.position = CGPoint(x: 0, y: 250 )
-        powerBar.zPosition = 3
-        self.addChild(powerBar)
+        powerBarGrau.fillColor = SKColor.gray
+        powerBarGrau.strokeColor = SKColor.clear
+        powerBarGrau.position = CGPoint.zero
+        powerBarGrau.position = CGPoint(x: 0, y: 230)
+        powerBarGreen.zPosition = 3
+        self.addChild(powerBarGrau)
+        
+        powerBarGreen.fillColor = SKColor.green
+        powerBarGreen.strokeColor = SKColor.clear
+        powerBarGreen.position = CGPoint.zero
+        powerBarGreen.position.x = powerBarGrau.position.x - 100
+        powerBarGreen.position.y = powerBarGrau.position.y
+        powerBarGreen.zPosition = 3
+        powerBarGreen.xScale = CGFloat(0)
+        self.addChild(powerBarGreen)
+        
+        powerLabel.fontColor = SKColor.darkGray
+        powerLabel.fontSize = 20
+        powerLabel.position.x = powerBarGrau.position.x
+        powerLabel.position.y = powerBarGrau.position.y + 30
+        powerLabel.zPosition = 3
+        self.addChild(powerLabel)
+    
     }
     
     func initHealthBar(){ //initalisiere eine Bar zur Anzeige der verbleibenden Lebenspunkte des jeweiligen Dummys
@@ -260,12 +272,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             allowsRotation = true
         }
     }
-    
-    @objc func timerCallback(){
-        if counter < 10 {
-            counter += 1
-        }
-    }
+ 
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
@@ -284,9 +291,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if adjustedArrow==true{
             if childNode(withName: "arrow") != nil {
                 if fireButton.contains(touch.location(in: self)) {
-                    powerBar.run(SKAction.animate(with: TextureArray, timePerFrame: 0.2), withKey: "powerBarAction")
-                    counter = 0
-                    buttonTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.timerCallback), userInfo: nil, repeats: true)
+                    let wait = SKAction.wait(forDuration: 0.04)
+                    let block = SKAction.run({
+                        [unowned self] in
+                        if self.counter < 100 {
+                            self.counter += 1
+                            self.powerLabel.text = "\(self.counter) %"
+                            self.powerBarGreen.xScale = CGFloat(self.counter)
+                            self.powerBarGreen.position = CGPoint(x: 0 - CGFloat((100 - self.counter)), y: 230)
+                        }else {
+                            self.removeAction(forKey: "powerBarAction")
+                        }
+                    })
+                    let sequence = SKAction.sequence([wait,block])
+                    run(SKAction.repeatForever(sequence), withKey: "powerBarAction")
                     allowsRotation = true
                     
                 }
@@ -301,9 +319,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             adjustedArrow = true
         }
         if fireButton.contains(touch.location(in: self)) {
-        buttonTimer.invalidate()
-        powerBar.removeAction(forKey: "powerBarAction")
-        throwProjectile()
+            self.removeAction(forKey: "powerBarAction")
+            throwProjectile()
         }
     }
     
