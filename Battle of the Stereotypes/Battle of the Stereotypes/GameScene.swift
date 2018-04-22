@@ -351,6 +351,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             arrow.removeFromParent()
             allowsRotation = true
             playerChangeTurn()
+            forceCounter = 0
+
         }
     }
  
@@ -393,7 +395,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     let sequence = SKAction.sequence([wait,block])
                     run(SKAction.repeatForever(sequence), withKey: "powerBarAction")
                     allowsRotation = true
-                    
+
                 }
             }
         }
