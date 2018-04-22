@@ -282,6 +282,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func runNewGameInitializer()
     {
         currentPlayer = "links"
+        statusTextLabel.text = "Player " + String(currentPlayer) + " ist am Zug"
         initBall(for: currentPlayer)
         leftDummyHealth = 100
         rightDummyHealth = 100
@@ -380,7 +381,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if adjustedArrow==true{
             if childNode(withName: "arrow") != nil {
                 if fireButton.contains(touch.location(in: self)) {
-                    let wait = SKAction.wait(forDuration: 0.04)
+                    let wait = SKAction.wait(forDuration: 0.03)
                     let block = SKAction.run({
                         [unowned self] in
                         if self.forceCounter < 100 {
