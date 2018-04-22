@@ -10,6 +10,10 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    var currentPlayer = "links" // Aktueller Spieler, der am Zug ist. Sollte immer mit rechts, links belegt werden.
+    var statusTextLabel:SKLabelNode! // Label, um den Spielstatus anzuzeigen (Gewonnen, Spieler am Zug etc.)
+    var playAgainLabel:SKLabelNode! // Label, dass am Spielende angezeigt wird
+    var gameHasEnded = false // Boolean, ob das Spiel bereits beendet ist
     
     //Booleans
     var allowsRotation = true //zeigt ob Geschoss rotieren darf
@@ -63,7 +67,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     let leftDummyCategory:UInt32 = 0x1 << 2
-    let rightDummyCategorie:UInt32 = 0x1 << 1
+    let rightDummyCategory:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
     let groundCategory:UInt32 = 0x1 << 3
     
@@ -81,9 +85,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         initBackground()
         initDummys()
+        initStatusTextLabel()
+        initPlayAgainLabel()
         initDummyLabels()
         //initilialisiere Geschoss für Spieler 1
-        initBall(for: 1)
+        initBall(for: currentPlayer)
         initFireButton()
         initPowerBar()
         initHealthBar()
@@ -136,17 +142,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let rightDummyTexture = SKTexture(imageNamed: "dummy")
         rightDummy = SKSpriteNode(texture: leftDummyTexture)
         rightDummy.name = "rightdummy"
-        rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 280)
+        rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 250)
         
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.isDynamic = true
         rightDummy.physicsBody?.affectedByGravity = false
-        rightDummy.physicsBody?.categoryBitMask = rightDummyCategorie
+        rightDummy.physicsBody?.categoryBitMask = rightDummyCategory
         rightDummy.physicsBody?.contactTestBitMask = weaponCategory
         rightDummy.physicsBody?.collisionBitMask = 0
         rightDummy.zPosition=3
         
         self.addChild(rightDummy)
+    }
+    
+    // Initialisiert das Label für den Status des Spiels
+    func initStatusTextLabel(){
+        statusTextLabel = SKLabelNode()
+        statusTextLabel.text="Player " + String(currentPlayer) + " ist am Zug"
+        statusTextLabel.position = CGPoint(x: self.frame.midX ,  y: self.frame.midY)
+        statusTextLabel.fontName = "Americantypewriter-Bold"
+        statusTextLabel.fontSize = 26
+        statusTextLabel.fontColor = UIColor.red
+        statusTextLabel.zPosition = 2
+        self.addChild(statusTextLabel)
+    }
+    
+    // Initialisiert das Label das am Ende des Spiels angezeigt wird
+    func initPlayAgainLabel() {
+        playAgainLabel = SKLabelNode()
+        playAgainLabel.text="Zum Neuspielen auf beliebige Stelle klicken"
+        playAgainLabel.position = CGPoint(x: self.frame.midX ,  y: self.frame.midY - 25 )
+        playAgainLabel.fontName = "Americantypewriter-Bold"
+        playAgainLabel.fontSize = 26
+        playAgainLabel.fontColor = UIColor.red
+        playAgainLabel.zPosition = 2
     }
     
     func initDummyLabels(){
@@ -171,16 +200,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(rightDummyHealthLabel)
     }
     
-    func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
+    func initBall(for player: String){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
         let ballTexture = SKTexture(imageNamed: "Krug")
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
-        if player==1 {
+        if player=="links" {
             ball.position = leftDummy.position
-            ball.position.x += 30
-        } else {
+            ball.position.x += 45
+        } else if(player=="rechts"){
             ball.position = rightDummy.position
-            ball.position.x -= 30
+            ball.position.x -= 45
         }
         ball.zPosition=3
         
@@ -249,6 +278,42 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
     
+    // Initialisiere ein neues Spiel
+    func runNewGameInitializer()
+    {
+        currentPlayer = "links"
+        initBall(for: currentPlayer)
+        leftDummyHealth = 100
+        rightDummyHealth = 100
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
+    }
+    
+    // Gibt den Zug an den nächsten Spieler ab
+    func playerChangeTurn() {
+        if(currentPlayer == "links") {
+            currentPlayer = "rechts"
+            initBall(for: currentPlayer)
+        } else {
+            currentPlayer = "links"
+            initBall(for: currentPlayer)
+        }
+        firedBool=true
+        statusTextLabel.text = "Player " + String(currentPlayer) + " ist am Zug"
+    }
+    
+    // Zeige das Gewonnen Fenster um ein neues Spiel starten zu ermöglichen
+    func showWinScreen()
+    {
+        if(leftDummyHealth==0) {
+            statusTextLabel.text = "Player rechts hat gewonnen!"
+        } else {
+            statusTextLabel.text = "Player links hat gewonnen!"
+        }
+        gameHasEnded = true
+        self.addChild(playAgainLabel)
+    }
+    
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         if childNode(withName: "arrow") != nil {
             ball.physicsBody?.affectedByGravity=true
@@ -265,16 +330,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
             let max = 1700.0
             let force = (Double(forceCounter) * max) / 100
+            if(currentPlayer == "links") {
             ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
+            } else if(currentPlayer == "rechts") {
+                ball.physicsBody?.applyImpulse(CGVector(dx: -xImpulse * force, dy: yImpulse * force))
+            }
             //Boden soll mit Gegner Dummy interagieren
             //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
             //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
-            ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategorie
+            if(currentPlayer == "links") {
+            ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory
             //es soll eine Kollision mit dem Grund und dem Dummy simulieren
-            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategorie
+            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory
+            } else if(currentPlayer == "rechts") {
+                ball.physicsBody?.contactTestBitMask = groundCategory | leftDummyCategory
+                //es soll eine Kollision mit dem Grund und dem Dummy simulieren
+                ball.physicsBody?.collisionBitMask = groundCategory | leftDummyCategory
+            }
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
+            playerChangeTurn()
         }
     }
  
@@ -284,10 +360,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
         if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil){
+            if(currentPlayer != "links") {
+                return
+            }
             setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy)
             createArrow(node: leftDummy)
         }
         else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil){
+            if(currentPlayer != "rechts") {
+                return
+            }
             setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy)
             createArrow(node: rightDummy)
         }
@@ -319,6 +401,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
+        if(gameHasEnded) {
+            self.removeChildren(in: [playAgainLabel])
+            gameHasEnded = false
+            runNewGameInitializer()
+        }
         if childNode(withName: "arrow") != nil {
             allowsRotation = false
             adjustedArrow = true
@@ -342,6 +429,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let deltaY = self.arrow.position.y - pos.y
             
             if(touchedNode.name == "leftdummy"){
+                if(currentPlayer != "links") {
+                    return
+                }
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
                     if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
@@ -350,6 +440,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     }
                 }
             else if(touchedNode.name == "rightdummy"){
+                if(currentPlayer != "rechts") {
+                    return
+                }
                 angleForArrow = atan2(deltaY, deltaX)
                 if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
                     sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
@@ -361,7 +454,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setCategoryBitmask(activeNode: SKSpriteNode, unactiveNode: SKSpriteNode){
         activeNode.physicsBody?.categoryBitMask = leftDummyCategory
-        unactiveNode.physicsBody?.categoryBitMask = rightDummyCategorie
+        unactiveNode.physicsBody?.categoryBitMask = rightDummyCategory
     }
     
     func createArrow(node: SKSpriteNode){
@@ -396,24 +489,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firedBool = false
         }
         
-        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategorie) != 0 && firedBool == true{
+        
+        //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
+        if (((firstBody.categoryBitMask & (weaponCategory|groundCategory)) != 0) && ((secondBody.categoryBitMask & (weaponCategory|groundCategory)) != 0) && (firedBool == true)){
+            firedBool = false
+        }
+        
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategory) != 0 && firedBool == true{
             firedBool = false
             projectileDidCollideWithDummy()
         }
-        
+        // print("didBegin") // Bug: Methode wird aufgerufen wenn Ball zu nahe am Dummy ist
         //warte eine bestimmte Zeit und initialisiere den anderen Spieler
         
     }
     
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
-        if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
+        if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
             leftDummyHealth -= 50
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
             }
         }
-        else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
+        else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
             rightDummyHealth -= 50
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
@@ -421,6 +520,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
+        if(leftDummyHealth==0 || rightDummyHealth==0) {
+            currentPlayer = "none"
+            showWinScreen()
+        }
     }
     
     func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
