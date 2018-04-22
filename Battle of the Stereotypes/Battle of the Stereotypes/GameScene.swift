@@ -296,7 +296,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if adjustedArrow==true{
             if childNode(withName: "arrow") != nil {
                 if fireButton.contains(touch.location(in: self)) {
-                    let wait = SKAction.wait(forDuration: 0.04)
+                    let wait = SKAction.wait(forDuration: 0.03)
                     let block = SKAction.run({
                         [unowned self] in
                         if self.forceCounter < 100 {
