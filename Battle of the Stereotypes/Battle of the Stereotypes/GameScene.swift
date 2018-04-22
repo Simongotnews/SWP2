@@ -38,7 +38,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Kraftbalken
     var forceCounter: Int = 0
-    let powerBarGrau = SKShapeNode(rectOf: CGSize(width: 200, height: 25))
+    let powerBarGray = SKShapeNode(rectOf: CGSize(width: 200, height: 25))
     var powerBarGreen = SKShapeNode(rectOf: CGSize(width: 2, height: 25))
     var powerLabel = SKLabelNode(fontNamed: "ArialMT")
     
@@ -85,7 +85,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //initilialisiere Geschoss für Spieler 1
         initBall(for: 1)
         initFireButton()
-        initPowerBar()
         initHealthBar()
     }
     
@@ -207,26 +206,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func initPowerBar(){ //initialisiere den Kraftbalken
-        powerBarGrau.fillColor = SKColor.gray
-        powerBarGrau.strokeColor = SKColor.clear
-        powerBarGrau.position = CGPoint.zero
-        powerBarGrau.position = CGPoint(x: 0, y: 230)
+        powerBarGray.fillColor = SKColor.gray
+        powerBarGray.strokeColor = SKColor.clear
+        powerBarGray.position = CGPoint.zero
+        powerBarGray.position = CGPoint(x: 0, y: 230)
         powerBarGreen.zPosition = 3
-        self.addChild(powerBarGrau)
+        self.addChild(powerBarGray)
         
         powerBarGreen.fillColor = SKColor.green
         powerBarGreen.strokeColor = SKColor.clear
         powerBarGreen.position = CGPoint.zero
-        powerBarGreen.position.x = powerBarGrau.position.x - 100
-        powerBarGreen.position.y = powerBarGrau.position.y
+        powerBarGreen.position.x = powerBarGray.position.x - 100
+        powerBarGreen.position.y = powerBarGray.position.y
         powerBarGreen.zPosition = 3
         powerBarGreen.xScale = CGFloat(0)
         self.addChild(powerBarGreen)
         
         powerLabel.fontColor = SKColor.darkGray
         powerLabel.fontSize = 20
-        powerLabel.position.x = powerBarGrau.position.x
-        powerLabel.position.y = powerBarGrau.position.y + 30
+        powerLabel.position.x = powerBarGray.position.x
+        powerLabel.position.y = powerBarGray.position.y + 30
         powerLabel.zPosition = 3
         self.addChild(powerLabel)
     
@@ -277,6 +276,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             allowsRotation = true
         }
     }
+    func powerBarRun(){
+        initPowerBar()
+        let wait = SKAction.wait(forDuration: 0.03)
+        let block = SKAction.run({
+            [unowned self] in
+            if self.forceCounter < 100 {
+                self.forceCounter += 1
+                self.powerLabel.text = "\(self.forceCounter) %"
+                self.powerBarGreen.xScale = CGFloat(self.forceCounter)
+                self.powerBarGreen.position = CGPoint(x: 0 - CGFloat((100 - self.forceCounter)), y: 230)
+            }else {
+                self.removeAction(forKey: "powerBarAction")
+            }
+        })
+        let sequence = SKAction.sequence([wait,block])
+        run(SKAction.repeatForever(sequence), withKey: "powerBarAction")
+    }
+    
+    func powerBarReset(){
+        forceCounter = 0
+        powerLabel.removeFromParent()
+        powerBarGray.removeFromParent()
+        powerBarGreen.removeFromParent()
+    }
  
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -296,20 +319,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if adjustedArrow==true{
             if childNode(withName: "arrow") != nil {
                 if fireButton.contains(touch.location(in: self)) {
-                    let wait = SKAction.wait(forDuration: 0.03)
-                    let block = SKAction.run({
-                        [unowned self] in
-                        if self.forceCounter < 100 {
-                            self.forceCounter += 1
-                            self.powerLabel.text = "\(self.forceCounter) %"
-                            self.powerBarGreen.xScale = CGFloat(self.forceCounter)
-                            self.powerBarGreen.position = CGPoint(x: 0 - CGFloat((100 - self.forceCounter)), y: 230)
-                        }else {
-                            self.removeAction(forKey: "powerBarAction")
-                        }
-                    })
-                    let sequence = SKAction.sequence([wait,block])
-                    run(SKAction.repeatForever(sequence), withKey: "powerBarAction")
+                    powerBarRun()
                     allowsRotation = true
                     
                 }
@@ -326,6 +336,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if fireButton.contains(touch.location(in: self)) {
             self.removeAction(forKey: "powerBarAction")
             throwProjectile()
+            powerBarReset()
         }
     }
     
