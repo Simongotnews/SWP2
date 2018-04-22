@@ -37,7 +37,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var ground: SKSpriteNode!
     
     //Kraftbalken
-    var counter: Int = 0
+    var forceCounter: Int = 0
     let powerBarGrau = SKShapeNode(rectOf: CGSize(width: 200, height: 25))
     var powerBarGreen = SKShapeNode(rectOf: CGSize(width: 2, height: 25))
     var powerLabel = SKLabelNode(fontNamed: "ArialMT")
@@ -249,7 +249,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
     
-    func throwProjectile() { //Wurf des Projektils
+    func throwProjectile() { //Wurf des Projektils, Flugbahn
         if childNode(withName: "arrow") != nil {
             ball.physicsBody?.affectedByGravity=true
             ball.physicsBody?.isDynamic=true
@@ -257,10 +257,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             //Berechnung des Winkels
             let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
-            //Berechnung des Impulsvektors
+            //Berechnung des Impulsvektors (nur Richtung)
             let xImpulse = cos(winkel)
             let yImpulse = sqrt(1-pow(xImpulse, 2))
-            ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse*1000, dy: yImpulse*1000))
+            //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
+            //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
+            //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
+            let max = 1700.0
+            let force = (Double(forceCounter) * max) / 100
+            ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
             //Boden soll mit Gegner Dummy interagieren
             //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
             //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
@@ -294,11 +299,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     let wait = SKAction.wait(forDuration: 0.04)
                     let block = SKAction.run({
                         [unowned self] in
-                        if self.counter < 100 {
-                            self.counter += 1
-                            self.powerLabel.text = "\(self.counter) %"
-                            self.powerBarGreen.xScale = CGFloat(self.counter)
-                            self.powerBarGreen.position = CGPoint(x: 0 - CGFloat((100 - self.counter)), y: 230)
+                        if self.forceCounter < 100 {
+                            self.forceCounter += 1
+                            self.powerLabel.text = "\(self.forceCounter) %"
+                            self.powerBarGreen.xScale = CGFloat(self.forceCounter)
+                            self.powerBarGreen.position = CGPoint(x: 0 - CGFloat((100 - self.forceCounter)), y: 230)
                         }else {
                             self.removeAction(forKey: "powerBarAction")
                         }
