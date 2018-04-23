@@ -419,13 +419,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
-            leftDummyHealth -= 50
+            leftDummyHealth -= 10
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
             }
         }
         else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
-            rightDummyHealth -= 50
+            rightDummyHealth -= 10
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
             }
