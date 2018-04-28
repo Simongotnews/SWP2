@@ -2,7 +2,7 @@
 //  GermanMap.swift
 //  Battle of the Stereotypes
 //
-//  Created by student on 27.04.18.
+//  Created by Tobias on 27.04.18.
 //  Copyright © 2018 TobiasGit. All rights reserved.
 //
 
@@ -19,8 +19,8 @@ class GermanMap: SKScene {
     //rechte Hälfte der gesamten Scene
     var rightScene:SKNode!
     
-    var map:SKSpriteNode!
-    var stats:SKSpriteNode!
+    var mapSide:SKSpriteNode!
+    var statsSide:SKSpriteNode!
 
     
     
@@ -30,8 +30,6 @@ class GermanMap: SKScene {
         
         //Splitte die Scene in 2 verschiedene Bereiche (links = Deutschlandkarte, rechts = Statistiken
         splitScene()
-        
-        
         
     }
     
@@ -47,15 +45,15 @@ class GermanMap: SKScene {
         rightScene.position = CGPoint(x: self.size.width / 2, y: 0)
         
         //Erstelle Sprite für Deutschlandkarten Hälfte
-        map = SKSpriteNode(color: UIColor.orange, size: CGSize(width: self.size.width/2, height: self.size.height))
-        map.position = CGPoint(x: self.size.width / 4, y: self.size.height / 2)
+        mapSide = SKSpriteNode(color: UIColor.orange, size: CGSize(width: self.size.width/2, height: self.size.height))
+        mapSide.position = CGPoint(x: self.size.width / 4, y: self.size.height / 2)
         
         //Erstelle Sprite für Statistik Hälfte
-        stats = SKSpriteNode(color: UIColor.lightGray, size: CGSize(width: self.size.width/2, height: self.size.height))
-        stats.position = CGPoint(x: self.size.width / 4, y: self.size.height / 2)
+        statsSide = SKSpriteNode(color: UIColor.lightGray, size: CGSize(width: self.size.width/2, height: self.size.height))
+        statsSide.position = CGPoint(x: self.size.width / 4, y: self.size.height / 2)
         
-        leftScene.addChild(map)
-        rightScene.addChild(stats)
+        leftScene.addChild(mapSide)
+        rightScene.addChild(statsSide)
         
         self.addChild(leftScene)
         self.addChild(rightScene)
