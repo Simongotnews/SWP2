@@ -13,6 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Booleans
     var allowsRotation = true //zeigt ob Geschoss rotieren darf
+    var fireMode = false // true um zu feuern
     var adjustedArrow = false //zeigt ob Pfeil eingestellt wurde
     var firedBool = true //zeigt ob Schadensberechnung erfolgen soll
     
@@ -83,7 +84,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initDummyLabels()
         //initilialisiere Geschoss für Spieler 1
         initBall(for: 1)
-        initFireButton()
         initHealthBar()
     }
     
@@ -195,14 +195,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(ball)
     }
-
-    func initFireButton(){ //initialisiere den Fire Button
-        fireButton = SKSpriteNode(imageNamed: "fireButton")
-        fireButton.size = CGSize(width: 80, height: 80)
-        fireButton.position = CGPoint(x: 0, y: 160)
-        fireButton.zPosition=3
-        self.addChild(fireButton)
-    }
     
     func initPowerBar(){ //initialisiere den Kraftbalken
         powerBarGray.fillColor = SKColor.gray
@@ -295,6 +287,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
+        //Button drücken, aber nur wenn Pfeil eingestellt
+        if adjustedArrow==true{
+            if childNode(withName: "arrow") != nil {
+                if self.contains(touch.location(in: self)) {
+                    fireMode = true;
+                    powerBarRun()
+                    
+                    
+                }
+            }
+        }
         if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil){
             setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy)
             createArrow(node: leftDummy)
@@ -304,16 +307,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             createArrow(node: rightDummy)
         }
         
-        //Button drücken, aber nur wenn Pfeil eingestellt
-        if adjustedArrow==true{
-            if childNode(withName: "arrow") != nil {
-                if fireButton.contains(touch.location(in: self)) {
-                    powerBarRun()
-                    allowsRotation = true
-                    
-                }
-            }
-        }
+        
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -322,10 +316,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             allowsRotation = false
             adjustedArrow = true
         }
-        if fireButton.contains(touch.location(in: self)) {
+        if fireMode == true{
             self.removeAction(forKey: "powerBarAction")
             throwProjectile()
             powerBarReset()
+            fireMode = false;
+            allowsRotation = true
         }
     }
     
