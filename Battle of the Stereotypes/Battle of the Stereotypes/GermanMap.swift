@@ -22,6 +22,10 @@ class GermanMap: SKScene {
     var mapSide:SKSpriteNode!
     var statsSide:SKSpriteNode!
 
+    //playButton
+    var playButton: SKSpriteNode!
+    
+    
     
     
     override func didMove(to view: SKView) {
@@ -30,6 +34,19 @@ class GermanMap: SKScene {
         
         //Splitte die Scene in 2 verschiedene Bereiche (links = Deutschlandkarte, rechts = Statistiken
         splitScene()
+        
+        //füge den Play Button hinzu
+        initPlayButton()
+        
+    }
+    
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch:UITouch = touches.first!
+        //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
+        if playButton.contains(touch.location(in: self)){
+            transitToGameScene()
+        }
         
     }
     
@@ -57,6 +74,20 @@ class GermanMap: SKScene {
         
         self.addChild(leftScene)
         self.addChild(rightScene)
+    }
+    
+    func initPlayButton() {
+        playButton = SKSpriteNode(imageNamed: "play_Button")
+        playButton.setScale(0.5)
+        playButton.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 + rightScene.position.x, y: self.size.height/3)
+        self.addChild(playButton)
+    }
+    
+    func transitToGameScene(){
+        let transition = SKTransition.crossFade(withDuration: 2)
+        let gameScene = SKScene(fileNamed: "GameScene")
+        gameScene?.scaleMode = .aspectFill
+        self.view?.presentScene(gameScene!, transition: transition)
     }
     
     
