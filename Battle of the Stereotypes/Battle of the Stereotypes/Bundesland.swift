@@ -17,6 +17,10 @@ enum BundeslandEnum {
     Saarland, Sachsen, SachsenAnhalt, SchleswigHolstein, Thueringen
 }
 
+enum Farbe{
+    case Blue, Red
+}
+
 class Bundesland: SKSpriteNode {
     
     //Name des Bundeslands
@@ -28,22 +32,25 @@ class Bundesland: SKSpriteNode {
     //Vorhandensein eines Flughafens
     var hasAirport: Bool!
     
+    func toBackground(){
+        self.zPosition = 0
+    }
+    
+    func setColor(){
+        
+    }
+    
+    func setPosition(){
+        self.position = CGPoint(x: 0, y:0)      // Ankerpunkt setzen
+        self.zPosition = 3                      // in Vordergrund bringen
+    }
     
     init(blName: BundeslandEnum, texture: SKTexture, size: CGSize) {
         super.init(texture: texture, color: UIColor.blue, size: size)
         self.blName = blName
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
-    
-    
-    
-
-    
-    
 }
