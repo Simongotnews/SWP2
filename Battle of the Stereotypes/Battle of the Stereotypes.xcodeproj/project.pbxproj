@@ -11,12 +11,17 @@
 		3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FEF20850BE900ADE0A8 /* GameScene.sks */; };
 		3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FF120850BE900ADE0A8 /* Actions.sks */; };
 		3FA47FF420850BE900ADE0A8 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA47FF320850BE900ADE0A8 /* GameScene.swift */; };
-		3FA47FF620850BE900ADE0A8 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA47FF520850BE900ADE0A8 /* GameViewController.swift */; };
+		3FA47FF620850BE900ADE0A8 /* GameViewControllerStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA47FF520850BE900ADE0A8 /* GameViewControllerStart.swift */; };
 		3FA47FF920850BE900ADE0A8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FF720850BE900ADE0A8 /* Main.storyboard */; };
 		3FA47FFB20850BEC00ADE0A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FFA20850BEC00ADE0A8 /* Assets.xcassets */; };
 		3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FFC20850BEC00ADE0A8 /* LaunchScreen.storyboard */; };
 		3FA4800920850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4800820850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift */; };
 		3FA4801420850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */; };
+		3FBA06DC209359DC006BCD9F /* HolzhintergrundWithoutAnything 2.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FBA06DB209359DB006BCD9F /* HolzhintergrundWithoutAnything 2.png */; };
+		3FE4812E208B3B4F00CD7F48 /* Holzhintergrund.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FE4812D208B3B4F00CD7F48 /* Holzhintergrund.png */; };
+		3FEB8A9E208B3EB500C65942 /* Wappen_Bayern.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FEB8A9D208B3EB400C65942 /* Wappen_Bayern.png */; };
+		3FEB8AA2208B477400C65942 /* playbutton_klein4.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FEB8AA1208B477200C65942 /* playbutton_klein4.png */; };
+		3FF92BAA2087882D00C7D38D /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF92BA92087882D00C7D38D /* GameViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,7 +47,7 @@
 		3FA47FEF20850BE900ADE0A8 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
 		3FA47FF120850BE900ADE0A8 /* Actions.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Actions.sks; sourceTree = "<group>"; };
 		3FA47FF320850BE900ADE0A8 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
-		3FA47FF520850BE900ADE0A8 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		3FA47FF520850BE900ADE0A8 /* GameViewControllerStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewControllerStart.swift; sourceTree = "<group>"; };
 		3FA47FF820850BE900ADE0A8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		3FA47FFA20850BEC00ADE0A8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3FA47FFD20850BEC00ADE0A8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -53,6 +58,11 @@
 		3FA4800F20850BEC00ADE0A8 /* Battle of the StereotypesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Battle of the StereotypesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battle_of_the_StereotypesUITests.swift; sourceTree = "<group>"; };
 		3FA4801520850BEC00ADE0A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3FBA06DB209359DB006BCD9F /* HolzhintergrundWithoutAnything 2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "HolzhintergrundWithoutAnything 2.png"; path = "../../../HolzhintergrundWithoutAnything 2.png"; sourceTree = "<group>"; };
+		3FE4812D208B3B4F00CD7F48 /* Holzhintergrund.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Holzhintergrund.png; path = ../../../Holzhintergrund.png; sourceTree = "<group>"; };
+		3FEB8A9D208B3EB400C65942 /* Wappen_Bayern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Wappen_Bayern.png; path = ../../../Wappen_Bayern.png; sourceTree = "<group>"; };
+		3FEB8AA1208B477200C65942 /* playbutton_klein4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playbutton_klein4.png; path = ../../../playbutton_klein4.png; sourceTree = "<group>"; };
+		3FF92BA92087882D00C7D38D /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,9 +90,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F90B9E0208B20A70009E896 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				3FBA06DB209359DB006BCD9F /* HolzhintergrundWithoutAnything 2.png */,
+				3FEB8AA1208B477200C65942 /* playbutton_klein4.png */,
+				3FEB8A9D208B3EB400C65942 /* Wappen_Bayern.png */,
+				3FE4812D208B3B4F00CD7F48 /* Holzhintergrund.png */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
 		3FA47FE120850BE900ADE0A8 = {
 			isa = PBXGroup;
 			children = (
+				3F90B9E0208B20A70009E896 /* Images */,
 				3FA47FEC20850BE900ADE0A8 /* Battle of the Stereotypes */,
 				3FA4800720850BEC00ADE0A8 /* Battle of the StereotypesTests */,
 				3FA4801220850BEC00ADE0A8 /* Battle of the StereotypesUITests */,
@@ -107,8 +129,9 @@
 				3FA47FEF20850BE900ADE0A8 /* GameScene.sks */,
 				3FA47FF120850BE900ADE0A8 /* Actions.sks */,
 				3FA47FF320850BE900ADE0A8 /* GameScene.swift */,
-				3FA47FF520850BE900ADE0A8 /* GameViewController.swift */,
+				3FA47FF520850BE900ADE0A8 /* GameViewControllerStart.swift */,
 				3FA47FF720850BE900ADE0A8 /* Main.storyboard */,
+				3FF92BA92087882D00C7D38D /* GameViewController.swift */,
 				3FA47FFA20850BEC00ADE0A8 /* Assets.xcassets */,
 				3FA47FFC20850BEC00ADE0A8 /* LaunchScreen.storyboard */,
 				3FA47FFF20850BEC00ADE0A8 /* Info.plist */,
@@ -239,10 +262,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				3FA47FF920850BE900ADE0A8 /* Main.storyboard in Resources */,
+				3FEB8AA2208B477400C65942 /* playbutton_klein4.png in Resources */,
 				3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */,
 				3FA47FFB20850BEC00ADE0A8 /* Assets.xcassets in Resources */,
 				3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */,
+				3FBA06DC209359DC006BCD9F /* HolzhintergrundWithoutAnything 2.png in Resources */,
+				3FE4812E208B3B4F00CD7F48 /* Holzhintergrund.png in Resources */,
 				3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */,
+				3FEB8A9E208B3EB500C65942 /* Wappen_Bayern.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,7 +295,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				3FA47FF420850BE900ADE0A8 /* GameScene.swift in Sources */,
-				3FA47FF620850BE900ADE0A8 /* GameViewController.swift in Sources */,
+				3FF92BAA2087882D00C7D38D /* GameViewController.swift in Sources */,
+				3FA47FF620850BE900ADE0A8 /* GameViewControllerStart.swift in Sources */,
 				3FA47FEE20850BE900ADE0A8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -443,13 +471,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+<<<<<<< HEAD
 				DEVELOPMENT_TEAM = G8W2J9MD9D;
+=======
+				DEVELOPMENT_TEAM = L7899KQ34J;
+>>>>>>> Start GUI #4 Versuch2
 				INFOPLIST_FILE = "Battle of the Stereotypes/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+<<<<<<< HEAD
 				PRODUCT_BUNDLE_IDENTIFIER = "-T2DJX4396.-Battle-of-the-Stereotypes";
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = "-T2DJX4396testBattle.Battle-of-the-Stereotypes";
+>>>>>>> Start GUI #4 Versuch2
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -461,13 +497,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+<<<<<<< HEAD
 				DEVELOPMENT_TEAM = G8W2J9MD9D;
+=======
+				DEVELOPMENT_TEAM = L7899KQ34J;
+>>>>>>> Start GUI #4 Versuch2
 				INFOPLIST_FILE = "Battle of the Stereotypes/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+<<<<<<< HEAD
 				PRODUCT_BUNDLE_IDENTIFIER = "-T2DJX4396.-Battle-of-the-Stereotypes";
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = "-T2DJX4396testBattle.Battle-of-the-Stereotypes";
+>>>>>>> Start GUI #4 Versuch2
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 2;
