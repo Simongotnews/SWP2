@@ -8,8 +8,16 @@
 
 import SpriteKit
 import GameplayKit
+import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    
+    //Sound
+    var audioPlayer = AVAudioPlayer()
+    var hintergrundMusik: URL?
+
+    let musikAnAus = SKSpriteNode(imageNamed: "Krug")
+    var status = true
     
     //Booleans
     var allowsRotation = true //zeigt ob Geschoss rotieren darf
@@ -86,7 +94,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //initilialisiere Geschoss für Spieler 1
         initBall(for: 1)
         initHealthBar()
+        
+        //Sound
+        //...
+        hintergrundMusik = Bundle.main.url(forResource: "New2", withExtension: "wav")
+        
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+        }catch{
+            print("Datei nicht gefunden")
+        }
+        //Wie oft abgespielt werden soll (-1 unendlich oft)
+        audioPlayer.numberOfLoops = 3
+        //Performance verbessern von Audioplayer
+        audioPlayer.prepareToPlay()
+        
+        audioPlayer.play()
+        
+
+        musikAnAus.position = CGPoint(x: 0, y: 160)
+        self.addChild(musikAnAus)
     }
+    
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
         let groundTexture = SKTexture(imageNamed: "Boden")
@@ -266,6 +295,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
+            
+            //Sound bei Wurf
+            ball.run(SKAction.playSoundFileNamed("wurf", waitForCompletion: true))
+            
+            
         }
     }
     func powerBarRun(){
@@ -313,9 +347,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy)
             createArrow(node: leftDummy)
         }
-        else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil){
-            setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy)
-            createArrow(node: rightDummy)
+        
+        //Sound An/Aus stellen
+        for touch in touches {
+        
+            let poition = touch.location(in: self)
+            
+            if (atPoint(poition) == musikAnAus && status){
+                audioPlayer.pause()
+                status = false
+            }else if (atPoint(poition) == musikAnAus && !status){
+                audioPlayer.play()
+                status = true
+            }
+        
         }
         
         
@@ -401,11 +446,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
         if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & groundCategory) != 0 && firedBool == true{
             firedBool = false
+            
+            //Sound bei Treffer auf Boden
+            ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
         }
         
         if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategorie) != 0 && firedBool == true{
             firedBool = false
             projectileDidCollideWithDummy()
+            
+            //Sound bei Treffer
+            ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
         }
         
         //warte eine bestimmte Zeit und initialisiere den anderen Spieler

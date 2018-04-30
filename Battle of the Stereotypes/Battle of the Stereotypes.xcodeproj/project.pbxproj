@@ -22,6 +22,11 @@
 		3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FFC20850BEC00ADE0A8 /* LaunchScreen.storyboard */; };
 		3FA4800920850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4800820850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift */; };
 		3FA4801420850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */; };
+		3FB54A632097402F00CF4454 /* New.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3FB54A622097402F00CF4454 /* New.wav */; };
+		3FDF64112096A54700A43CEA /* wurf.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3FDF640F2096A54700A43CEA /* wurf.mp3 */; };
+		3FDF64122096A54700A43CEA /* treffer.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3FDF64102096A54700A43CEA /* treffer.mp3 */; };
+		3FDF64142096A55300A43CEA /* TestAudio.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3FDF64132096A55300A43CEA /* TestAudio.mp3 */; };
+		3FDF64162096AA6700A43CEA /* New2.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3FDF64152096AA6700A43CEA /* New2.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +68,11 @@
 		3FA4800F20850BEC00ADE0A8 /* Battle of the StereotypesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Battle of the StereotypesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battle_of_the_StereotypesUITests.swift; sourceTree = "<group>"; };
 		3FA4801520850BEC00ADE0A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3FB54A622097402F00CF4454 /* New.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = New.wav; sourceTree = "<group>"; };
+		3FDF640F2096A54700A43CEA /* wurf.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = wurf.mp3; sourceTree = "<group>"; };
+		3FDF64102096A54700A43CEA /* treffer.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = treffer.mp3; sourceTree = "<group>"; };
+		3FDF64132096A55300A43CEA /* TestAudio.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = TestAudio.mp3; sourceTree = "<group>"; };
+		3FDF64152096AA6700A43CEA /* New2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = New2.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +123,7 @@
 		3FA47FEC20850BE900ADE0A8 /* Battle of the Stereotypes */ = {
 			isa = PBXGroup;
 			children = (
+				3FDF64062096850800A43CEA /* Audio */,
 				3FA47FED20850BE900ADE0A8 /* AppDelegate.swift */,
 				3FA47FF520850BE900ADE0A8 /* GameViewController.swift */,
 				3FA47FEF20850BE900ADE0A8 /* GameScene.sks */,
@@ -147,6 +158,18 @@
 				3FA4801520850BEC00ADE0A8 /* Info.plist */,
 			);
 			path = "Battle of the StereotypesUITests";
+			sourceTree = "<group>";
+		};
+		3FDF64062096850800A43CEA /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				3FDF64132096A55300A43CEA /* TestAudio.mp3 */,
+				3FDF64102096A54700A43CEA /* treffer.mp3 */,
+				3FB54A622097402F00CF4454 /* New.wav */,
+				3FDF640F2096A54700A43CEA /* wurf.mp3 */,
+				3FDF64152096AA6700A43CEA /* New2.wav */,
+			);
+			path = Audio;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -253,12 +276,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FB54A632097402F00CF4454 /* New.wav in Resources */,
 				3FA47FF920850BE900ADE0A8 /* Main.storyboard in Resources */,
 				3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */,
 				3FA47FFB20850BEC00ADE0A8 /* Assets.xcassets in Resources */,
 				3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */,
 				3F2DF3012093B6B600FC7469 /* GermanMap.sks in Resources */,
+				3FDF64112096A54700A43CEA /* wurf.mp3 in Resources */,
+				3FDF64162096AA6700A43CEA /* New2.wav in Resources */,
 				3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */,
+				3FDF64122096A54700A43CEA /* treffer.mp3 in Resources */,
+				3FDF64142096A55300A43CEA /* TestAudio.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
