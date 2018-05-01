@@ -15,7 +15,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Sound
     var audioPlayer = AVAudioPlayer()
     var hintergrundMusik: URL?
-
+    
+    
     let musikAnAus = SKSpriteNode(imageNamed: "Krug")
     var status = true
     
