@@ -7,9 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+
 		3F2C0BB32098616800159B42 /* playbutton_klein4.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F2C0BB22098616800159B42 /* playbutton_klein4.png */; };
 		3F2C0BB5209861A500159B42 /* Wappen_Bayern.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F2C0BB4209861A500159B42 /* Wappen_Bayern.png */; };
 		3F2C0BB7209861D600159B42 /* Holzhintergrund.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F2C0BB6209861D600159B42 /* Holzhintergrund.png */; };
+
 		3F2DF3012093B6B600FC7469 /* GermanMap.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3F2DF3002093B6B600FC7469 /* GermanMap.sks */; };
 		3F2DF3032093B6F700FC7469 /* GermanMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF3022093B6F700FC7469 /* GermanMap.swift */; };
 		3F2DF3142094907A00FC7469 /* Bundesland.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF3132094907A00FC7469 /* Bundesland.swift */; };
@@ -45,9 +47,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+
 		3F2C0BB22098616800159B42 /* playbutton_klein4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playbutton_klein4.png; path = ../../../playbutton_klein4.png; sourceTree = "<group>"; };
 		3F2C0BB4209861A500159B42 /* Wappen_Bayern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Wappen_Bayern.png; path = ../../../Bilder/Wappen_Bayern.png; sourceTree = "<group>"; };
 		3F2C0BB6209861D600159B42 /* Holzhintergrund.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Holzhintergrund.png; path = ../../../Bilder/Holzhintergrund.png; sourceTree = "<group>"; };
+
 		3F2DF3002093B6B600FC7469 /* GermanMap.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GermanMap.sks; sourceTree = "<group>"; };
 		3F2DF3022093B6F700FC7469 /* GermanMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GermanMap.swift; sourceTree = "<group>"; };
 		3F2DF3132094907A00FC7469 /* Bundesland.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundesland.swift; sourceTree = "<group>"; };
@@ -483,6 +487,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 
+
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = G8W2J9MD9D;
 
@@ -491,6 +496,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+
 
 				PRODUCT_BUNDLE_IDENTIFIER = "-T2DJX4396.-Battle-of-the-Stereotypes";
 
@@ -510,12 +516,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = G8W2J9MD9D;
 
-				
 				INFOPLIST_FILE = "Battle of the Stereotypes/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+
 
 				PRODUCT_BUNDLE_IDENTIFIER = "-T2DJX4396.-Battle-of-the-Stereotypes";
 
