@@ -5,6 +5,7 @@
 //  Created by student on 16.04.18.
 //  Copyright © 2018 Simongotnews. All rights reserved.
 //
+//Hello World Test
 
 import SpriteKit
 import GameplayKit
@@ -16,6 +17,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var fireMode = false // true um zu feuern
     var adjustedArrow = false //zeigt ob Pfeil eingestellt wurde
     var firedBool = true //zeigt ob Schadensberechnung erfolgen soll
+    
+    var test = true
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
