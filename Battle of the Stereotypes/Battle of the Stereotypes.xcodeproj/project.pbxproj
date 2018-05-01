@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F2C0BB32098616800159B42 /* playbutton_klein4.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F2C0BB22098616800159B42 /* playbutton_klein4.png */; };
+		3F2C0BB5209861A500159B42 /* Wappen_Bayern.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F2C0BB4209861A500159B42 /* Wappen_Bayern.png */; };
+		3F2C0BB7209861D600159B42 /* Holzhintergrund.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F2C0BB6209861D600159B42 /* Holzhintergrund.png */; };
 		3F2DF3012093B6B600FC7469 /* GermanMap.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3F2DF3002093B6B600FC7469 /* GermanMap.sks */; };
 		3F2DF3032093B6F700FC7469 /* GermanMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF3022093B6F700FC7469 /* GermanMap.swift */; };
 		3F2DF3142094907A00FC7469 /* Bundesland.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF3132094907A00FC7469 /* Bundesland.swift */; };
@@ -42,6 +45,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F2C0BB22098616800159B42 /* playbutton_klein4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playbutton_klein4.png; path = ../../../playbutton_klein4.png; sourceTree = "<group>"; };
+		3F2C0BB4209861A500159B42 /* Wappen_Bayern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Wappen_Bayern.png; path = ../../../Bilder/Wappen_Bayern.png; sourceTree = "<group>"; };
+		3F2C0BB6209861D600159B42 /* Holzhintergrund.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Holzhintergrund.png; path = ../../../Bilder/Holzhintergrund.png; sourceTree = "<group>"; };
 		3F2DF3002093B6B600FC7469 /* GermanMap.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GermanMap.sks; sourceTree = "<group>"; };
 		3F2DF3022093B6F700FC7469 /* GermanMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GermanMap.swift; sourceTree = "<group>"; };
 		3F2DF3132094907A00FC7469 /* Bundesland.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundesland.swift; sourceTree = "<group>"; };
@@ -90,6 +96,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F2C0BB12098613700159B42 /* Bilder */ = {
+			isa = PBXGroup;
+			children = (
+				3F2C0BB6209861D600159B42 /* Holzhintergrund.png */,
+				3F2C0BB4209861A500159B42 /* Wappen_Bayern.png */,
+				3F2C0BB22098616800159B42 /* playbutton_klein4.png */,
+			);
+			path = Bilder;
+			sourceTree = "<group>";
+		};
 		3FA47FE120850BE900ADE0A8 = {
 			isa = PBXGroup;
 			children = (
@@ -97,6 +113,7 @@
 				3FA4800720850BEC00ADE0A8 /* Battle of the StereotypesTests */,
 				3FA4801220850BEC00ADE0A8 /* Battle of the StereotypesUITests */,
 				3FA47FEB20850BE900ADE0A8 /* Products */,
+				3F2C0BB12098613700159B42 /* Bilder */,
 			);
 			sourceTree = "<group>";
 		};
@@ -253,12 +270,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F2C0BB7209861D600159B42 /* Holzhintergrund.png in Resources */,
+				3F2C0BB32098616800159B42 /* playbutton_klein4.png in Resources */,
 				3FA47FF920850BE900ADE0A8 /* Main.storyboard in Resources */,
 				3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */,
 				3FA47FFB20850BEC00ADE0A8 /* Assets.xcassets in Resources */,
 				3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */,
 				3F2DF3012093B6B600FC7469 /* GermanMap.sks in Resources */,
 				3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */,
+				3F2C0BB5209861A500159B42 /* Wappen_Bayern.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
