@@ -18,7 +18,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var adjustedArrow = false //zeigt ob Pfeil eingestellt wurde
     var firedBool = true //zeigt ob Schadensberechnung erfolgen soll
     
-    var test = true
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
