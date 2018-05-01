@@ -41,7 +41,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var forceCounter: Int = 0
     let powerBarGray = SKShapeNode(rectOf: CGSize(width: 200, height: 25))
     var powerBarGreen = SKShapeNode(rectOf: CGSize(width: 2, height: 25))
-    var powerLabel = SKLabelNode(fontNamed: "ArialMT")
     
     //Hintergrund
     var background: SKSpriteNode!
@@ -213,14 +212,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBarGreen.zPosition = 3
         powerBarGreen.xScale = CGFloat(0)
         self.addChild(powerBarGreen)
-        
-        powerLabel.fontColor = SKColor.darkGray
-        powerLabel.fontSize = 20
-        powerLabel.position.x = powerBarGray.position.x
-        powerLabel.position.y = powerBarGray.position.y + 30
-        powerLabel.zPosition = 3
-        self.addChild(powerLabel)
-    
     }
     
     func initHealthBar(){ //initalisiere eine Bar zur Anzeige der verbleibenden Lebenspunkte des jeweiligen Dummys
@@ -275,7 +266,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             [unowned self] in
             if self.forceCounter < 100 {
                 self.forceCounter += 1
-                self.powerLabel.text = "\(self.forceCounter) %"
                 self.powerBarGreen.xScale = CGFloat(self.forceCounter)
                 self.powerBarGreen.position = CGPoint(x: 0 - CGFloat((100 - self.forceCounter)), y: 230)
             }else {
@@ -288,7 +278,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func powerBarReset(){
         forceCounter = 0
-        powerLabel.removeFromParent()
         powerBarGray.removeFromParent()
         powerBarGreen.removeFromParent()
     }
@@ -415,13 +404,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
-            leftDummyHealth -= 50
+            leftDummyHealth -= 10
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
             }
         }
         else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
-            rightDummyHealth -= 50
+            rightDummyHealth -= 10
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
             }
