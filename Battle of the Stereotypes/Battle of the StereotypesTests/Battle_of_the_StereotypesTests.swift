@@ -2,7 +2,7 @@
 //  Battle_of_the_StereotypesTests.swift
 //  Battle of the StereotypesTests
 //
-//  Created by student on 16.04.18.
+//  Created by Aybu on 16.04.18.
 //  Copyright © 2018 Simongotnews. All rights reserved.
 //
 
