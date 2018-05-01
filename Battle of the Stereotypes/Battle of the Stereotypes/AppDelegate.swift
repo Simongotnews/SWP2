@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Battle of the Stereotypes
 //
-//  Created by student on 16.04.18.
+//  Created by Aybu on 16.04.18.
 //  Copyright © 2018 Simongotnews. All rights reserved.
 //
 
