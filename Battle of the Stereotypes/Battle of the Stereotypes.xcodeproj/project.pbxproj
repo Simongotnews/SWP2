@@ -24,6 +24,7 @@
 		3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FFC20850BEC00ADE0A8 /* LaunchScreen.storyboard */; };
 		3FA4800920850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4800820850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift */; };
 		3FA4801420850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */; };
+		3FECB6EF20989F5C00256C41 /* PlayersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FECB6EE20989F5C00256C41 /* PlayersViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		3FA4800F20850BEC00ADE0A8 /* Battle of the StereotypesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Battle of the StereotypesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battle_of_the_StereotypesUITests.swift; sourceTree = "<group>"; };
 		3FA4801520850BEC00ADE0A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3FECB6EE20989F5C00256C41 /* PlayersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayersViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +135,7 @@
 				3F2DF317209490A100FC7469 /* Fighter.swift */,
 				3F1FEF0F209756190049F94F /* GameState.swift */,
 				3F1FEF112097563D0049F94F /* GameCenterHelper.swift */,
+				3FECB6EE20989F5C00256C41 /* PlayersViewController.swift */,
 			);
 			path = "Battle of the Stereotypes";
 			sourceTree = "<group>";
@@ -292,6 +295,7 @@
 				3FA47FF420850BE900ADE0A8 /* GameScene.swift in Sources */,
 				3FA47FF620850BE900ADE0A8 /* GameViewController.swift in Sources */,
 				3F2DF318209490A100FC7469 /* Fighter.swift in Sources */,
+				3FECB6EF20989F5C00256C41 /* PlayersViewController.swift in Sources */,
 				3F1FEF122097563D0049F94F /* GameCenterHelper.swift in Sources */,
 				3F2DF3032093B6F700FC7469 /* GermanMap.swift in Sources */,
 				3F2DF3142094907A00FC7469 /* Bundesland.swift in Sources */,
