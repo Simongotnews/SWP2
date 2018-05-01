@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F1FEF10209756190049F94F /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FEF0F209756190049F94F /* GameState.swift */; };
+		3F1FEF122097563D0049F94F /* GameCenterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FEF112097563D0049F94F /* GameCenterHelper.swift */; };
 		3F2DF3012093B6B600FC7469 /* GermanMap.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3F2DF3002093B6B600FC7469 /* GermanMap.sks */; };
 		3F2DF3032093B6F700FC7469 /* GermanMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF3022093B6F700FC7469 /* GermanMap.swift */; };
 		3F2DF3142094907A00FC7469 /* Bundesland.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF3132094907A00FC7469 /* Bundesland.swift */; };
@@ -42,6 +44,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F1FEF0F209756190049F94F /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
+		3F1FEF112097563D0049F94F /* GameCenterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCenterHelper.swift; sourceTree = "<group>"; };
 		3F2DF3002093B6B600FC7469 /* GermanMap.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GermanMap.sks; sourceTree = "<group>"; };
 		3F2DF3022093B6F700FC7469 /* GermanMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GermanMap.swift; sourceTree = "<group>"; };
 		3F2DF3132094907A00FC7469 /* Bundesland.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundesland.swift; sourceTree = "<group>"; };
@@ -127,6 +131,8 @@
 				3F2DF3132094907A00FC7469 /* Bundesland.swift */,
 				3F2DF3152094909200FC7469 /* Player.swift */,
 				3F2DF317209490A100FC7469 /* Fighter.swift */,
+				3F1FEF0F209756190049F94F /* GameState.swift */,
+				3F1FEF112097563D0049F94F /* GameCenterHelper.swift */,
 			);
 			path = "Battle of the Stereotypes";
 			sourceTree = "<group>";
@@ -286,8 +292,10 @@
 				3FA47FF420850BE900ADE0A8 /* GameScene.swift in Sources */,
 				3FA47FF620850BE900ADE0A8 /* GameViewController.swift in Sources */,
 				3F2DF318209490A100FC7469 /* Fighter.swift in Sources */,
+				3F1FEF122097563D0049F94F /* GameCenterHelper.swift in Sources */,
 				3F2DF3032093B6F700FC7469 /* GermanMap.swift in Sources */,
 				3F2DF3142094907A00FC7469 /* Bundesland.swift in Sources */,
+				3F1FEF10209756190049F94F /* GameState.swift in Sources */,
 				3F2DF3162094909200FC7469 /* Player.swift in Sources */,
 				3FA47FEE20850BE900ADE0A8 /* AppDelegate.swift in Sources */,
 			);
