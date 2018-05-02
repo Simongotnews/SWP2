@@ -94,7 +94,7 @@ class GermanMap: SKScene {
         //berlin?.toBackground()
         //schlesswigHolstein?.toBackground()
         //nordrheinWestfalen?.toBackground()
-        //allToRed()
+        allToBlue()
         //badenWuertemberg?.switchColorToBlue()
         
         self.addChild(leftScene)
@@ -205,7 +205,7 @@ class GermanMap: SKScene {
         mapSide.addChild(schlesswigHolstein!)
         
         // Thueringen:
-        thueringen = Bundesland(blName: BundeslandEnum.Bremen, texture: SKTexture(imageNamed: "Thueringen_red"),
+        thueringen = Bundesland(blName: BundeslandEnum.Thueringen, texture: SKTexture(imageNamed: "Thueringen_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         thueringen?.setPosition()
         mapSide.addChild(thueringen!)

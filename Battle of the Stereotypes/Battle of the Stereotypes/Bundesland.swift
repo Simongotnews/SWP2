@@ -14,7 +14,7 @@ import GameplayKit
 enum BundeslandEnum {
     case BadenWuerttemberg, Bayern, Berlin, Brandenburg, Bremen, Hamburg,
     Hessen, MecklenburgVorpommern, Niedersachsen, NordrheinWestfalen, RheinlandPfalz,
-    Saarland, Sachsen, SachsenAnhalt, SchleswigHolstein, Thueringen
+    Saarland, Sachsen, SachsenAnhalt, SchleswigHolstein, Thueringen, Mallorca
 }
 
 enum Farbe{
@@ -69,13 +69,18 @@ class Bundesland: SKSpriteNode {
             case .SchleswigHolstein:
                 super.texture = SKTexture(imageNamed: "SchlesswigHolstein_blue")
             case .Thueringen:
+                print("switched Color of Thueringen to blue")
                 super.texture = SKTexture(imageNamed: "Thueringen_blue")
+            case .Mallorca:
+                print("Mallorca ist doch garkein Bundesland der BRD...")
             default:
                 print("Bundesland nicht vorhanden!")
         }
     }
     
     func switchColorToRed(){
+        print(self.blName)
+        
         switch self.blName{
             case .BadenWuerttemberg:
                 super.texture = SKTexture(imageNamed: "BadenWuertemberg_red")
@@ -108,7 +113,10 @@ class Bundesland: SKSpriteNode {
             case .SchleswigHolstein:
                 super.texture = SKTexture(imageNamed: "SchlesswigHolstein_red")
             case .Thueringen:
+                print("switched Color of Thueringen to red")
                 super.texture = SKTexture(imageNamed: "Thueringen_red")
+            case .Mallorca:
+                print("Mallorca ist doch garkein Bundesland der BRD...")
             default:
                 print("Bundesland nicht vorhanden!")
         }
