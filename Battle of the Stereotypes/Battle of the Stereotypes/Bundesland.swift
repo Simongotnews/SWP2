@@ -13,7 +13,7 @@ import GameplayKit
 //Enum für alle Bundesländer
 enum BundeslandEnum {
     case BadenWuerttemberg, Bayern, Berlin, Brandenburg, Bremen, Hamburg,
-    Hessen, MecklenburgVorpommern, Niedersachsen, NordrheinWestfalen, RheinlandPhalz,
+    Hessen, MecklenburgVorpommern, Niedersachsen, NordrheinWestfalen, RheinlandPfalz,
     Saarland, Sachsen, SachsenAnhalt, SchleswigHolstein, Thueringen
 }
 
@@ -37,38 +37,38 @@ class Bundesland: SKSpriteNode {
     }
     
     func switchColorToBlue(){
-        switch self.blName.hashValue{
-            case 0:
+        switch self.blName{
+            case .BadenWuerttemberg:
                 super.texture = SKTexture(imageNamed: "BadenWuertemberg_blue")
-            case 1:
+            case .Bayern:
                 super.texture = SKTexture(imageNamed: "Bayern_blue")
-            case 2:
+            case .Berlin:
                 super.texture = SKTexture(imageNamed: "Berlin_blue")
-            case 3:
+            case .Brandenburg:
                 super.texture = SKTexture(imageNamed: "Brandenburg_blue")
-            case 4:
+            case .Bremen:
                 super.texture = SKTexture(imageNamed: "Bremen_blue")
-            case 5:
+            case .Hamburg:
                 super.texture = SKTexture(imageNamed: "Hamburg_blue")
-            case 6:
+            case .Hessen:
                 super.texture = SKTexture(imageNamed: "Hessen_blue")
-            case 7:
+            case .MecklenburgVorpommern:
                 super.texture = SKTexture(imageNamed: "MecklenburgVorpommern_blue")
-            case 8:
+            case .Niedersachsen:
                 super.texture = SKTexture(imageNamed: "Niedersachsen_blue")
-            case 9:
+            case .NordrheinWestfalen:
                 super.texture = SKTexture(imageNamed: "NRW_blue")
-            case 10:
+            case .RheinlandPfalz:
                 super.texture = SKTexture(imageNamed: "RheinlandPfalz_blue")
-            case 11:
+            case .Saarland:
                 super.texture = SKTexture(imageNamed: "Saarland_blue")
-            case 12:
+            case .Sachsen:
                 super.texture = SKTexture(imageNamed: "Sachsen_blue")
-            case 13:
+            case .SachsenAnhalt:
                 super.texture = SKTexture(imageNamed: "SachsenAnhalt_blue")
-            case 14:
+            case .SchleswigHolstein:
                 super.texture = SKTexture(imageNamed: "SchlesswigHolstein_blue")
-            case 15:
+            case .Thueringen:
                 super.texture = SKTexture(imageNamed: "Thueringen_blue")
             default:
                 print("Bundesland nicht vorhanden!")
@@ -76,41 +76,41 @@ class Bundesland: SKSpriteNode {
     }
     
     func switchColorToRed(){
-        switch self.blName.hashValue{
-        case 0:
-            super.texture = SKTexture(imageNamed: "BadenWuertemberg_red")
-        case 1:
-            super.texture = SKTexture(imageNamed: "Bayern_red")
-        case 2:
-            super.texture = SKTexture(imageNamed: "Berlin_red")
-        case 3:
-            super.texture = SKTexture(imageNamed: "Brandenburg_red")
-        case 4:
-            super.texture = SKTexture(imageNamed: "Bremen_red")
-        case 5:
-            super.texture = SKTexture(imageNamed: "Hamburg_red")
-        case 6:
-            super.texture = SKTexture(imageNamed: "Hessen_red")
-        case 7:
-            super.texture = SKTexture(imageNamed: "MecklenburgVorpommern_red")
-        case 8:
-            super.texture = SKTexture(imageNamed: "Niedersachsen_red")
-        case 9:
-            super.texture = SKTexture(imageNamed: "NRW_red")
-        case 10:
-            super.texture = SKTexture(imageNamed: "RheinlandPfalz_red")
-        case 11:
-            super.texture = SKTexture(imageNamed: "Saarland_red")
-        case 12:
-            super.texture = SKTexture(imageNamed: "Sachsen_red")
-        case 13:
-            super.texture = SKTexture(imageNamed: "SachsenAnhalt_red")
-        case 14:
-            super.texture = SKTexture(imageNamed: "SchlesswigHolstein_red")
-        case 15:
-            super.texture = SKTexture(imageNamed: "Thueringen_red")
-        default:
-            print("Bundesland nicht vorhanden!")
+        switch self.blName{
+            case .BadenWuerttemberg:
+                super.texture = SKTexture(imageNamed: "BadenWuertemberg_red")
+            case .Bayern:
+                super.texture = SKTexture(imageNamed: "Bayern_red")
+            case .Berlin:
+                super.texture = SKTexture(imageNamed: "Berlin_red")
+            case .Brandenburg:
+                super.texture = SKTexture(imageNamed: "Brandenburg_red")
+            case .Bremen:
+                super.texture = SKTexture(imageNamed: "Bremen_red")
+            case .Hamburg:
+                super.texture = SKTexture(imageNamed: "Hamburg_red")
+            case .Hessen:
+                super.texture = SKTexture(imageNamed: "Hessen_red")
+            case .MecklenburgVorpommern:
+                super.texture = SKTexture(imageNamed: "MecklenburgVorpommern_red")
+            case .Niedersachsen:
+                super.texture = SKTexture(imageNamed: "Niedersachsen_red")
+            case .NordrheinWestfalen:
+                super.texture = SKTexture(imageNamed: "NRW_red")
+            case .RheinlandPfalz:
+                super.texture = SKTexture(imageNamed: "RheinlandPfalz_red")
+            case .Saarland:
+                super.texture = SKTexture(imageNamed: "Saarland_red")
+            case .Sachsen:
+                super.texture = SKTexture(imageNamed: "Sachsen_red")
+            case .SachsenAnhalt:
+                super.texture = SKTexture(imageNamed: "SachsenAnhalt_red")
+            case .SchleswigHolstein:
+                super.texture = SKTexture(imageNamed: "SchlesswigHolstein_red")
+            case .Thueringen:
+                super.texture = SKTexture(imageNamed: "Thueringen_red")
+            default:
+                print("Bundesland nicht vorhanden!")
         }
     }
     
