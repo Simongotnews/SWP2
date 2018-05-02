@@ -23,8 +23,10 @@ enum Farbe{
 
 class Bundesland: SKSpriteNode {
     
-    //Name des Bundeslands
-    var blName: BundeslandEnum!
+    //Name des Bundeslands als Enum (wichtig für eindeutige Identifikation)
+    var blNameEnum: BundeslandEnum!
+    //Name des Bundeslands als String (für spätere Verwendung wichtig)
+    var blNameString: String!
     //Truppen des Spielers in diesem Bundesland
     var anzahlTruppen: Int!
     //gehört es dem eigenen Spieler -> je nachdem muss richtig eingefärbt werden
@@ -36,8 +38,11 @@ class Bundesland: SKSpriteNode {
         self.zPosition = 0
     }
     
+    
+    
+    
     func switchColorToBlue(){
-        switch self.blName{
+        switch self.blNameEnum{
             case .BadenWuerttemberg:
                 super.texture = SKTexture(imageNamed: "BadenWuertemberg_blue")
             case .Bayern:
@@ -79,9 +84,9 @@ class Bundesland: SKSpriteNode {
     }
     
     func switchColorToRed(){
-        print(self.blName)
+        print(self.blNameEnum)
         
-        switch self.blName{
+        switch self.blNameEnum{
             case .BadenWuerttemberg:
                 super.texture = SKTexture(imageNamed: "BadenWuertemberg_red")
             case .Bayern:
@@ -129,7 +134,43 @@ class Bundesland: SKSpriteNode {
     
     init(blName: BundeslandEnum, texture: SKTexture, size: CGSize) {
         super.init(texture: texture, color: UIColor.blue, size: size)
-        self.blName = blName
+        self.blNameEnum = blName
+        //initialize the string name from the enum
+        if blName == BundeslandEnum.BadenWuerttemberg {
+            blNameString = "Baden-Württemberg"
+        } else if blName == BundeslandEnum.Bayern {
+            blNameString = "Bayern"
+        } else if blName == BundeslandEnum.Berlin {
+            blNameString = "Berlin"
+        } else if blName == BundeslandEnum.Brandenburg {
+            blNameString = "Brandenburg"
+        } else if blName == BundeslandEnum.Bremen {
+            blNameString = "Bremen"
+        } else if blName == BundeslandEnum.Hamburg {
+            blNameString = "Hamburg"
+        } else if blName == BundeslandEnum.Hessen {
+            blNameString = "Hessen"
+        } else if blName == BundeslandEnum.MecklenburgVorpommern {
+            blNameString = "Mecklenburg-Vorpommern"
+        } else if blName == BundeslandEnum.Niedersachsen {
+            blNameString = "Niedersachsen"
+        } else if blName == BundeslandEnum.NordrheinWestfalen {
+            blNameString = "Nordrhein-Westfalen"
+        } else if blName == BundeslandEnum.RheinlandPfalz {
+            blNameString = "Rheinland-Pfalz"
+        } else if blName == BundeslandEnum.Saarland {
+            blNameString = "Saarland"
+        } else if blName == BundeslandEnum.Sachsen {
+            blNameString = "Sachsen"
+        } else if blName == BundeslandEnum.SachsenAnhalt {
+            blNameString = "Sachsen-Anhalt"
+        } else if blName == BundeslandEnum.SchleswigHolstein {
+            blNameString = "Schleswig-Holstein"
+        } else if blName == BundeslandEnum.Thueringen {
+            blNameString = "Thüringen"
+        } else {
+            blNameString = "Mallorca"
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {

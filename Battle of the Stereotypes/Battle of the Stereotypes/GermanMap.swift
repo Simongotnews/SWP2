@@ -264,6 +264,10 @@ class GermanMap: SKScene {
         self.view?.presentScene(gameScene!, transition: transition)
     }
     
+    func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
+        
+    }
+    
     
 }
 
