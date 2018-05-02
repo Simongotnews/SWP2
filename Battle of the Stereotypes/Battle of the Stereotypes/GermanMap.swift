@@ -94,11 +94,11 @@ class GermanMap: SKScene {
         rightScene.position = CGPoint(x: self.size.width / 2, y: 0)
         
         //Erstelle Sprite für Deutschlandkarten Hälfte
-        mapSide = SKSpriteNode(color: UIColor.white, size: CGSize(width: self.size.width/2, height: self.size.height))
+        mapSide = SKSpriteNode(color: UIColor.white, size: CGSize(width: self.size.width/2, height: self.size.height/2))
         mapSide.position = CGPoint(x: self.size.width / 4, y: self.size.height / 2)
         
         //Erstelle Sprite für Statistik Hälfte
-        statsSide = SKSpriteNode(color: UIColor.lightGray, size: CGSize(width: self.size.width/2, height: self.size.height))
+        statsSide = SKSpriteNode(color: UIColor.lightGray, size: CGSize(width: self.size.width/2, height: self.size.height/2))
         statsSide.position = CGPoint(x: self.size.width / 4, y: self.size.height / 2)
         
         leftScene.addChild(mapSide)
