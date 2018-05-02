@@ -81,15 +81,21 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             let matchData = currentMatch.matchData
             currentMatch.loadMatchData(completionHandler: nil)
             gameState = GameState.decodeGameState(data: matchData!)
+            if(isLocalPlayersTurn()) {
+                sendExchangeRequest()
+            }
         }
         print("[" + String(describing: self) + "] Turn Event erhalten")
     }
     
     // Spieler erhält einen Exchange Request
     func player(_ player: GKPlayer, receivedExchangeRequest exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
-        GameState.decodeExchangeRequest(data: exchange.data!)
-        let exchangeReply = GameState.StructExchangeReply()
-        exchange.reply(withLocalizableMessageKey: "XY", arguments: ["XY","Y"], data: GameState.encodeExchangeReply(exchangeRequest: exchangeReply), completionHandler: {(error: Error?) -> Void in
+        var request : GameState.StructExchangeRequest = GameState.decodeExchangeRequest(data: exchange.data!)
+        print("Request erhalten mit Zahl: " + String(request.numberToExchange))
+        var exchangeReply = GameState.StructExchangeReply()
+        exchangeReply.numberToReply = 60
+        print("Versende Reply mit: " + String(exchangeReply.numberToReply))
+        exchange.reply(withLocalizableMessageKey: "XY", arguments: ["XY","Y"], data: GameState.encodeExchangeReply(exchangeReply: exchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
             } else {
@@ -107,7 +113,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     // Spieler erhält eine Antwort auf einen Exchange Request
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
         for reply in replies {
-            GameState.decodeExchangeReply(data: reply.data!)
+            var reply = GameState.decodeExchangeReply(data: reply.data!)
+            print("Reply erhalten mit : " + String(reply.numberToReply))
         }
     }
     
@@ -206,7 +213,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     {
         var nextParticipant : GKTurnBasedParticipant
         nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
-        let exchangeRequest = GameState.StructExchangeRequest()
+        var exchangeRequest = GameState.StructExchangeRequest()
+        exchangeRequest.numberToExchange = 43
+        print("Verschicke Request mit: " + String(exchangeRequest.numberToExchange))
         currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeExchangeRequest(exchangeRequest: exchangeRequest), localizableMessageKey: "XYZ", arguments: ["X","Y"], timeout: TimeInterval(5.0), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich

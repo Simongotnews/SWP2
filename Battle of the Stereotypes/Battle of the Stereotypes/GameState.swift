@@ -22,11 +22,11 @@ class GameState {
     }
     
     struct StructExchangeRequest {
-        // 
+        var numberToExchange = 5
     }
     
     struct StructExchangeReply {
-        //
+        var numberToReply = 10
     }
     
     // Methode zum Verpacken/Kodieren von GameState in ein Data Objekt, um beispielsweise GameState zu verschicken
@@ -63,28 +63,40 @@ class GameState {
     // Methode zum Verpacken/Kodieren von ExchangeRequest in ein Data Objekt, um beispielsweise ExchangeRequest zu verschicken
     static func encodeExchangeRequest(exchangeRequest: StructExchangeRequest) -> Data
     {
-        // füge Logik hier hinzu
-        return String("Hallo Welt").data(using: String.Encoding.utf8)!
+        var sendString : String = ""
+        let seperator : String = "|"
+        sendString = sendString + String(exchangeRequest.numberToExchange)
+        return sendString.data(using: String.Encoding.utf8)!
     }
     
     // Methode zum Entpacken/Dekodieren von ExchangeRequests, in der Regel um empfangenes Data Objekt in ExchangeRequest zu wandeln
     static func decodeExchangeRequest(data: Data) -> StructExchangeRequest
     {
-        // füge Logik hier hinzu
-        return StructExchangeRequest()
+        var exchangeRequest : StructExchangeRequest = StructExchangeRequest()
+        let seperator : String = "|"
+        let dataAsString : NSString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)!
+        let dataAsStringArray : [String] = dataAsString.components(separatedBy: seperator)
+        exchangeRequest.numberToExchange = Int(dataAsStringArray[0])!
+        return exchangeRequest
     }
     
     // Methode zum Verpacken/Kodieren von ExchangeReply in ein Data Objekt, um beispielsweise ExchangeReply zu verschicken
-    static func encodeExchangeReply(exchangeRequest: StructExchangeReply) -> Data
+    static func encodeExchangeReply(exchangeReply: StructExchangeReply) -> Data
     {
-        // füge Logik hier hinzu
-        return String("Hallo Welt").data(using: String.Encoding.utf8)!
+        var sendString : String = ""
+        let seperator : String = "|"
+        sendString = sendString + String(exchangeReply.numberToReply)
+        return sendString.data(using: String.Encoding.utf8)!
     }
     
     // Methode zum Entpacken/Dekodieren von ExchangeReplys, in der Regel um empfangenes Data Objekt in ExchangeReply zu wandeln
     static func decodeExchangeReply(data: Data) -> StructExchangeReply
     {
-        // füge Logik hier hinzu
-        return StructExchangeReply()
+        var exchangeReply : StructExchangeReply = StructExchangeReply()
+        let seperator : String = "|"
+        let dataAsString : NSString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)!
+        let dataAsStringArray : [String] = dataAsString.components(separatedBy: seperator)
+        exchangeReply.numberToReply = Int(dataAsStringArray[0])!
+        return exchangeReply
     }
 }
