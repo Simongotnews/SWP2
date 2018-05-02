@@ -11,10 +11,36 @@ import SpriteKit
 import GameplayKit
 
 //Enum für alle Bundesländer
-enum BundeslandEnum {
+enum BundeslandEnum: CustomStringConvertible{
+    
     case BadenWuerttemberg, Bayern, Berlin, Brandenburg, Bremen, Hamburg,
     Hessen, MecklenburgVorpommern, Niedersachsen, NordrheinWestfalen, RheinlandPfalz,
     Saarland, Sachsen, SachsenAnhalt, SchleswigHolstein, Thueringen, Mallorca
+    
+    // Benennungsvariable der Bundeslaender:
+    var description: String {
+        switch self {
+            // Bundeslandbenennung:
+            case .BadenWuerttemberg:        return "BadenWuertemberg"
+            case .Bayern:                   return "Bayern"
+            case .Berlin:                   return "Berlin"
+            case .Bremen:                   return "Bremen"
+            case .Brandenburg:              return "Brandenburg"
+            case .Hamburg:                  return "Hamburg"
+            case .Hessen:                   return "Hessen"
+            case .MecklenburgVorpommern:    return "MecklenburgVorpommern"
+            case .Niedersachsen:            return "Niedersachsen"
+            case .NordrheinWestfalen:       return "NordrheinWestfalen"
+            case .RheinlandPfalz:           return "RheinlandPfalz"
+            case .Saarland:                 return "Saarland"
+            case .Sachsen:                  return "Sachsen"
+            case .SachsenAnhalt:            return "SachsenAnhalt"
+            case .SchleswigHolstein:        return "SchleswigHolstein"
+            case .Thueringen:               return "Thueringen"
+            case .Mallorca:                 return "Mallorca"
+            default:                        return "kein BL!"
+        }
+    }
 }
 
 enum Farbe{
@@ -26,7 +52,7 @@ class Bundesland: SKSpriteNode {
     //Name des Bundeslands als Enum (wichtig für eindeutige Identifikation)
     var blNameEnum: BundeslandEnum!
     //Name des Bundeslands als String (für spätere Verwendung wichtig)
-    var blNameString: String!
+    var blNameString: String!   // Zuweisung erfolgt automatisch durch Initialisierung der Klasse.
     //Truppen des Spielers in diesem Bundesland
     var anzahlTruppen: Int!
     //gehört es dem eigenen Spieler -> je nachdem muss richtig eingefärbt werden
@@ -37,9 +63,6 @@ class Bundesland: SKSpriteNode {
     func toBackground(){
         self.zPosition = 0
     }
-    
-    
-    
     
     func switchColorToBlue(){
         switch self.blNameEnum{
@@ -74,7 +97,6 @@ class Bundesland: SKSpriteNode {
             case .SchleswigHolstein:
                 super.texture = SKTexture(imageNamed: "SchlesswigHolstein_blue")
             case .Thueringen:
-                print("switched Color of Thueringen to blue")
                 super.texture = SKTexture(imageNamed: "Thueringen_blue")
             case .Mallorca:
                 print("Mallorca ist doch garkein Bundesland der BRD...")
@@ -118,7 +140,6 @@ class Bundesland: SKSpriteNode {
             case .SchleswigHolstein:
                 super.texture = SKTexture(imageNamed: "SchlesswigHolstein_red")
             case .Thueringen:
-                print("switched Color of Thueringen to red")
                 super.texture = SKTexture(imageNamed: "Thueringen_red")
             case .Mallorca:
                 print("Mallorca ist doch garkein Bundesland der BRD...")
@@ -135,6 +156,8 @@ class Bundesland: SKSpriteNode {
     init(blName: BundeslandEnum, texture: SKTexture, size: CGSize) {
         super.init(texture: texture, color: UIColor.blue, size: size)
         self.blNameEnum = blName
+        self.blNameString = self.blNameEnum.description // weise den Namen zu
+        
         //initialize the string name from the enum
         if blName == BundeslandEnum.BadenWuerttemberg {
             blNameString = "Baden-Württemberg"
