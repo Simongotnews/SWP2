@@ -176,7 +176,7 @@ class GermanMap: SKScene {
         mapSide.addChild(nordrheinWestfalen!)
         
         // Rheinland-Pfalz:
-        rheinlandPfalz = Bundesland(blName: BundeslandEnum.RheinlandPhalz, texture: SKTexture(imageNamed: "RheinlandPfalz_red"),
+        rheinlandPfalz = Bundesland(blName: BundeslandEnum.RheinlandPfalz, texture: SKTexture(imageNamed: "RheinlandPfalz_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         rheinlandPfalz?.setPosition()
         mapSide.addChild(rheinlandPfalz!)
