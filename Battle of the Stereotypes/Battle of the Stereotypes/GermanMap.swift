@@ -25,6 +25,19 @@ class GermanMap: SKScene {
     //playButton
     var playButton: SKSpriteNode!
     
+    //SpriteNodes für Methode showBlAfterArrowSelect
+    //werden angezeigt wenn Pfeil vom Spieler zu gegnerischen Bundesland gezogen wird
+    
+    //globaler Root Node auf der Statistiken Hälfte
+    var statsSideRootNode: SKNode!
+    //Label für erstes Bundesland und Hintergrund
+    var labelBl1: SKLabelNode!
+    var backGroundBl1: SKShapeNode!
+    //Label für zweites Bundesland und Hintergrund
+    var labelBl2: SKLabelNode!
+    var backGroundBl2: SKShapeNode!
+    var vsLabel: SKLabelNode!
+    
     var mapSize:(width:CGFloat, height:CGFloat) = (0.0, 0.0)  // globale Groeße welche in allen Funktionen verwendet werden kann.
     
     // Bundeslaender deklarieren:
@@ -54,6 +67,7 @@ class GermanMap: SKScene {
         
         //füge den Play Button hinzu
         initPlayButton()
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -62,6 +76,9 @@ class GermanMap: SKScene {
         if playButton.contains(touch.location(in: self)){
             transitToGameScene()
         }
+        
+        statsSideRootNode?.removeFromParent()
+        showBlAfterArrowSelect(mecklenburgVorpommern!, against: niedersachsen!)
     }
     
     func splitScene() {
@@ -265,6 +282,64 @@ class GermanMap: SKScene {
     }
     
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
+        //falls es den Knoten schon gibt -> lösche ihn, denn die komplette Animtion und alle Kinder dieser Node sollen erneut erscheinen, wenn der Pfeil erneut gezogen wird
+        statsSideRootNode?.removeFromParent()
+        
+        //Knoten zu dem alle folgenden Elemente relativ sind durch Kindbeziehung
+        statsSideRootNode = SKNode()
+        statsSideRootNode.position = CGPoint(x: 0, y: 100)
+        statsSide.addChild(statsSideRootNode)
+        
+        //Erstelle Label und Hintergrund für eigenes Bundesland (bl1)
+        labelBl1 = SKLabelNode(text: bl1.blNameString)
+        labelBl1.position = CGPoint(x: 0, y: 0)
+        labelBl1.fontName = "AvenirNext-Bold"
+        labelBl1.fontSize = 23
+        
+        backGroundBl1 = SKShapeNode()
+        backGroundBl1.path = UIBezierPath(roundedRect: CGRect(x:(labelBl1.frame.origin.x) - 15, y: (labelBl1.frame.origin.y) - 8, width: ((labelBl1.frame.size.width) + 30), height: ((labelBl1.frame.size.height) + 18 )), cornerRadius: 59).cgPath
+        backGroundBl1.position = CGPoint(x: 0, y: 0)
+        backGroundBl1.fillColor = UIColor.blue
+        backGroundBl1.strokeColor = UIColor.black
+        backGroundBl1.lineWidth = 5
+        backGroundBl1.addChild(labelBl1)
+        //setze Sichtbarkeit auf 0 (wegen Fade In Effekt später)
+        backGroundBl1.alpha = 0
+        
+        statsSideRootNode.addChild(backGroundBl1)
+        
+        //Erstelle "vs" Label
+        vsLabel = SKLabelNode(text: "VS")
+        vsLabel.position = CGPoint(x: 0, y: -70)
+        vsLabel.fontName = "AvenirNext-Bold"
+        vsLabel.fontSize = 40
+        vsLabel.alpha = 0
+        
+        //füge zu globalen Node hinzu
+        statsSideRootNode.addChild(vsLabel)
+        
+        //Erstelle Gegnerbundesland und Hintergrund
+        labelBl2 = SKLabelNode(text: bl2.blNameString)
+        labelBl2.position = CGPoint(x: 0, y: 0)
+        labelBl2.fontName = "AvenirNext-Bold"
+        labelBl2.fontSize = 23
+        
+        backGroundBl2 = SKShapeNode()
+        backGroundBl2.path = UIBezierPath(roundedRect: CGRect(x:(labelBl2.frame.origin.x) - 15, y: (labelBl2.frame.origin.y) - 8, width: ((labelBl2.frame.size.width) + 30), height: ((labelBl2.frame.size.height) + 14 )), cornerRadius: 59).cgPath
+        backGroundBl2.position = CGPoint(x: 0, y: -120)
+        backGroundBl2.fillColor = UIColor.red
+        backGroundBl2.strokeColor = UIColor.black
+        backGroundBl2.lineWidth = 5
+        backGroundBl2.addChild(labelBl2)
+        backGroundBl2.alpha = 0
+        
+        //füge zu globalen Node hinzu
+        statsSideRootNode.addChild(backGroundBl2)
+        
+        //erstelle Fade In Effekte für alle 3 Elemente
+        let fadeIn = SKAction.fadeIn(withDuration: 0.8)
+        backGroundBl1.run(fadeIn, completion: { self.vsLabel.run(fadeIn, completion: { self.backGroundBl2.run(fadeIn) })})
+       
         
     }
     
