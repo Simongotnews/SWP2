@@ -250,6 +250,9 @@ class GermanMap: SKScene {
     }
     
     func transitToGameScene(){
+        //if(!GameCenterHelper.getInstance().isGameCenterRunning()) {
+        //    return
+        //}
         let transition = SKTransition.crossFade(withDuration: 2)
         let gameScene = SKScene(fileNamed: "GameScene")
         gameScene?.scaleMode = .aspectFill

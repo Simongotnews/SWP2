@@ -2,23 +2,31 @@
 //  GameState.swift
 //  Battle of the Stereotypes
 //
-//  Created by student on 30.04.18.
+//  Created by andre-jar on 30.04.18.
 //  Copyright © 2018 Simongotnews. All rights reserved.
 //
 
 import Foundation
 
-// Klasse für den Spielstatus, der auf dem GameCenter gespeichert werden soll
+// Klasse für den Spielstatus, der auf dem GameCenter gespeichert werden soll und Exchange Requests
 class GameState {
     struct StructGameState {
-        // Entweder setzen oder raten
-        var gameStatus = "setzen"
-        // Gesetzte Zahlen, wenn -1 dann keine gesetzte Zahl bisher
-        var setNumber = [-1, -1]
-        // Geratene Zahl, wenn -1 dann keine geratene Zahl bisher
-        var betNumber = [-1, -1]
-        // Verbleibende Münzen
-        var remainingCoins = [3, 3]
+        // letzter X-Impuls für den Schussvektor
+        var lastXImpulse = 0
+        // letzer Y-Impuls für den Schussvektor
+        var lastYImpulse = 0
+        // Leben der beiden Spieler
+        var playerHealth = [100, 100]
+        // Status des Spiels, beispielsweise "schießen" oder "karte"
+        var gameStatus = "schießen"
+    }
+    
+    struct StructExchangeRequest {
+        // 
+    }
+    
+    struct StructExchangeReply {
+        //
     }
     
     // Methode zum Verpacken/Kodieren von GameState in ein Data Objekt, um beispielsweise GameState zu verschicken
@@ -28,18 +36,13 @@ class GameState {
         let seperator : String = "|"
         sendString = sendString + gameState.gameStatus
         sendString = sendString + seperator
-        sendString = sendString + String(gameState.betNumber[0])
+        sendString = sendString + String(gameState.lastXImpulse)
         sendString = sendString + seperator
-        sendString = sendString + String(gameState.betNumber[1])
+        sendString = sendString + String(gameState.lastYImpulse)
         sendString = sendString + seperator
-        sendString = sendString + String(gameState.setNumber[0])
+        sendString = sendString + String(gameState.playerHealth[0])
         sendString = sendString + seperator
-        sendString = sendString + String(gameState.setNumber[1])
-        sendString = sendString + seperator
-        sendString = sendString + String(gameState.remainingCoins[0])
-        sendString = sendString + seperator
-        sendString = sendString + String(gameState.remainingCoins[1])
-        print("Size: " + String(sendString.data(using: String.Encoding.utf8)!.count))
+        sendString = sendString + String(gameState.playerHealth[1])
         return sendString.data(using: String.Encoding.utf8)!
     }
     
@@ -50,12 +53,38 @@ class GameState {
         let dataAsString : NSString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)!
         let dataAsStringArray : [String] = dataAsString.components(separatedBy: seperator)
         gameState.gameStatus = dataAsStringArray[0]
-        gameState.betNumber[0] = Int(dataAsStringArray[1])!
-        gameState.betNumber[1] = Int(dataAsStringArray[2])!
-        gameState.setNumber[0] = Int(dataAsStringArray[3])!
-        gameState.setNumber[1] = Int(dataAsStringArray[4])!
-        gameState.remainingCoins[0] = Int(dataAsStringArray[5])!
-        gameState.remainingCoins[1] = Int(dataAsStringArray[6])!
+        gameState.lastXImpulse = Int(dataAsStringArray[1])!
+        gameState.lastYImpulse = Int(dataAsStringArray[2])!
+        gameState.playerHealth[0] = Int(dataAsStringArray[3])!
+        gameState.playerHealth[1] = Int(dataAsStringArray[4])!
         return gameState
+    }
+    
+    // Methode zum Verpacken/Kodieren von ExchangeRequest in ein Data Objekt, um beispielsweise ExchangeRequest zu verschicken
+    static func encodeExchangeRequest(exchangeRequest: StructExchangeRequest) -> Data
+    {
+        // füge Logik hier hinzu
+        return String("Hallo Welt").data(using: String.Encoding.utf8)!
+    }
+    
+    // Methode zum Entpacken/Dekodieren von ExchangeRequests, in der Regel um empfangenes Data Objekt in ExchangeRequest zu wandeln
+    static func decodeExchangeRequest(data: Data) -> StructExchangeRequest
+    {
+        // füge Logik hier hinzu
+        return StructExchangeRequest()
+    }
+    
+    // Methode zum Verpacken/Kodieren von ExchangeReply in ein Data Objekt, um beispielsweise ExchangeReply zu verschicken
+    static func encodeExchangeReply(exchangeRequest: StructExchangeReply) -> Data
+    {
+        // füge Logik hier hinzu
+        return String("Hallo Welt").data(using: String.Encoding.utf8)!
+    }
+    
+    // Methode zum Entpacken/Dekodieren von ExchangeReplys, in der Regel um empfangenes Data Objekt in ExchangeReply zu wandeln
+    static func decodeExchangeReply(data: Data) -> StructExchangeReply
+    {
+        // füge Logik hier hinzu
+        return StructExchangeReply()
     }
 }
