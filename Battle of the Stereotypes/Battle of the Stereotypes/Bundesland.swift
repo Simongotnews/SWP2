@@ -158,7 +158,7 @@ class Bundesland: SKSpriteNode {
         self.blNameEnum = blName
         self.blNameString = self.blNameEnum.description // weise den Namen zu
         
-        //initialize the string name from the enum
+        //initialisiere den String mit Hilfe des Enums
         if blName == BundeslandEnum.BadenWuerttemberg {
             blNameString = "Baden-Württemberg"
         } else if blName == BundeslandEnum.Bayern {

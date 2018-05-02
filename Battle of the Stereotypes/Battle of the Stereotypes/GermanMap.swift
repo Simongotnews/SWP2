@@ -24,6 +24,8 @@ class GermanMap: SKScene {
 
     //playButton
     var playButton: SKSpriteNode!
+    //entsprechende Abfrage, ob gedrückt werden darf
+    var playButtonPressable = false
     
     //SpriteNodes für Methode showBlAfterArrowSelect
     //werden angezeigt wenn Pfeil vom Spieler zu gegnerischen Bundesland gezogen wird
@@ -65,16 +67,15 @@ class GermanMap: SKScene {
         //Splitte die Scene in 2 verschiedene Bereiche (links = Deutschlandkarte, rechts = Statistiken
         splitScene()
         
-        //füge den Play Button hinzu
-        initPlayButton()
-        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
-        if playButton.contains(touch.location(in: self)){
-            transitToGameScene()
+        if playButtonPressable {
+            if playButton.contains(touch.location(in: statsSideRootNode)) {
+                transitToGameScene()
+            }
         }
         
         statsSideRootNode?.removeFromParent()
@@ -270,8 +271,8 @@ class GermanMap: SKScene {
     func initPlayButton() {
         playButton = SKSpriteNode(imageNamed: "play_Button")
         playButton.setScale(0.5)
-        playButton.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 + rightScene.position.x, y: self.size.height/3)
-        self.addChild(playButton)
+        playButton.position = CGPoint(x: 0, y: -250)
+        statsSideRootNode.addChild(playButton)
     }
     
     func transitToGameScene(){
@@ -338,9 +339,12 @@ class GermanMap: SKScene {
         
         //erstelle Fade In Effekte für alle 3 Elemente
         let fadeIn = SKAction.fadeIn(withDuration: 0.8)
+        //führe Effekt hintereinander aus
         backGroundBl1.run(fadeIn, completion: { self.vsLabel.run(fadeIn, completion: { self.backGroundBl2.run(fadeIn) })})
        
-        
+        initPlayButton()
+        //playButton wird freigeschaltet und kann gedrückt werden
+        playButtonPressable = true
     }
     
     
