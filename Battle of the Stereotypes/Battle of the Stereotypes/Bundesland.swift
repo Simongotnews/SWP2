@@ -59,6 +59,8 @@ class Bundesland: SKSpriteNode {
     var isMine: Bool!
     //Vorhandensein eines Flughafens
     var hasAirport: Bool!
+    //Nachbarländer
+    var nachbarBlArray: [Bundesland]!
     
     func toBackground(){
         self.zPosition = 0
@@ -157,6 +159,7 @@ class Bundesland: SKSpriteNode {
         super.init(texture: texture, color: UIColor.blue, size: size)
         self.blNameEnum = blName
         self.blNameString = self.blNameEnum.description // weise den Namen zu
+        self.name = self.blNameString!
 
         //initialisiere den String mit Hilfe des Enums
         if blName == BundeslandEnum.BadenWuerttemberg {
@@ -199,4 +202,5 @@ class Bundesland: SKSpriteNode {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
 }

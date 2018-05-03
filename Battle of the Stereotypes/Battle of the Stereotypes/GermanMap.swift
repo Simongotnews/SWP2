@@ -55,8 +55,29 @@ class GermanMap: SKScene {
     var saarland:Bundesland?
     var sachsen:Bundesland?
     var sachsenAnhalt:Bundesland?
-    var schlesswigHolstein:Bundesland?
+    var schleswigHolstein:Bundesland?
     var thueringen:Bundesland?
+    
+    // Labels für die Anzeige der Truppenstärke deklarieren:
+    var badenWuertembergAnzahlTruppenLabel: SKLabelNode!
+    var bayernAnzahlTruppenLabel: SKLabelNode!
+    var berlinTruppen: SKLabelNode!
+    var brandenburgTruppen: SKLabelNode!
+    var bremenTruppen: SKLabelNode!
+    var hamburgTruppen: SKLabelNode!
+    var hessenTruppen: SKLabelNode!
+    var mecklenburgVorpommernTruppen: SKLabelNode!
+    var niedersachsenTruppen: SKLabelNode!
+    var nordrheinWestfalenTruppen: SKLabelNode!
+    var rheinlandPfalzTruppen: SKLabelNode!
+    var saarlandTruppen: SKLabelNode!
+    var sachsenTruppen: SKLabelNode!
+    var sachsenAnhaltTruppen: SKLabelNode!
+    var schleswigHolsteinTruppen: SKLabelNode!
+    var thueringenTruppen: SKLabelNode!
+    
+    var blAngreifer: Bundesland?
+    var blVerteidiger: Bundesland?
     
     override func didMove(to view: SKView) {
         //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
@@ -64,7 +85,6 @@ class GermanMap: SKScene {
         
         //Splitte die Scene in 2 verschiedene Bereiche (links = Deutschlandkarte, rechts = Statistiken
         splitScene()
-        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -78,7 +98,26 @@ class GermanMap: SKScene {
         }
         
         statsSideRootNode?.removeFromParent()
-        showBlAfterArrowSelect(mecklenburgVorpommern!, against: niedersachsen!)
+        
+        blAngreifer = nil
+        let bundeslandName = atPoint(touch.location(in: self)).name
+        if(bundeslandName != nil){
+            blAngreifer = getBundesland(bundeslandName!)
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch:UITouch = touches.first!
+        let bundeslandName = atPoint(touch.location(in: self)).name
+        
+        blVerteidiger = nil
+        if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
+            blVerteidiger = getBundesland(bundeslandName!)
+        }
+        
+        if(blVerteidiger != nil && blAngreifer != nil){
+        showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
+        }
     }
     
     func splitScene() {
@@ -109,7 +148,7 @@ class GermanMap: SKScene {
         // testweise BL in den Hintergrund schicken:
         //hessen?.toBackground()
         //berlin?.toBackground()
-        //schlesswigHolstein?.toBackground()
+        //schleswigHolstein?.toBackground()
         //nordrheinWestfalen?.toBackground()
         allToBlue()
         //badenWuertemberg?.switchColorToBlue()
@@ -137,12 +176,24 @@ class GermanMap: SKScene {
         // BW:
         badenWuertemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuertemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         badenWuertemberg?.setPosition()
+        badenWuertemberg?.anzahlTruppen = 8
+        let badenWuerttembergAnzahlTruppen = String(badenWuertemberg?.anzahlTruppen ?? Int())
+        badenWuertembergAnzahlTruppenLabel = SKLabelNode(text: badenWuerttembergAnzahlTruppen)
+        badenWuertembergAnzahlTruppenLabel.name = badenWuertemberg?.blNameString
+        badenWuertembergAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 435 + rightScene.position.x, y: self.size.height/3 + 40)
+        setTruppenAnzahlLabel(badenWuertembergAnzahlTruppenLabel)
         mapSide.addChild(badenWuertemberg!)
         
         // Bayern:
         bayern = Bundesland(blName: BundeslandEnum.Bayern, texture: SKTexture(imageNamed: "Bayern_blue"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         bayern?.setPosition()
+        bayern?.anzahlTruppen = 9
+        let bayernAnzahlTruppen = String(bayern?.anzahlTruppen ?? Int())
+        bayernAnzahlTruppenLabel = SKLabelNode(text: bayernAnzahlTruppen)
+        bayernAnzahlTruppenLabel.name = bayern?.blNameString
+        bayernAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 330 + rightScene.position.x, y: self.size.height/3 + 55)
+        setTruppenAnzahlLabel(bayernAnzahlTruppenLabel)
         mapSide.addChild(bayern!)
         
         // Berlin:
@@ -217,15 +268,23 @@ class GermanMap: SKScene {
         mapSide.addChild(sachsenAnhalt!)
         
         // Schlesswig-Holstein:
-        schlesswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: "SchlesswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
-        schlesswigHolstein?.setPosition()
-        mapSide.addChild(schlesswigHolstein!)
+        schleswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: "SchlesswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        schleswigHolstein?.setPosition()
+        mapSide.addChild(schleswigHolstein!)
         
         // Thueringen:
         thueringen = Bundesland(blName: BundeslandEnum.Thueringen, texture: SKTexture(imageNamed: "Thueringen_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         thueringen?.setPosition()
         mapSide.addChild(thueringen!)
+    }
+    
+    func setTruppenAnzahlLabel(_ truppenLabel: SKLabelNode!){
+        truppenLabel.fontName = "AvenirNext-Bold"
+        truppenLabel.fontSize = 36
+        truppenLabel.fontColor = UIColor.white
+        truppenLabel.zPosition=4
+        self.addChild(truppenLabel)
     }
     
     func allToRed(){
@@ -243,7 +302,7 @@ class GermanMap: SKScene {
         self.saarland?.switchColorToRed()
         self.sachsen?.switchColorToRed()
         self.sachsenAnhalt?.switchColorToRed()
-        self.schlesswigHolstein?.switchColorToRed()
+        self.schleswigHolstein?.switchColorToRed()
         self.thueringen?.switchColorToRed()
     }
    
@@ -262,10 +321,9 @@ class GermanMap: SKScene {
         self.saarland?.switchColorToBlue()
         self.sachsen?.switchColorToBlue()
         self.sachsenAnhalt?.switchColorToBlue()
-        self.schlesswigHolstein?.switchColorToBlue()
+        self.schleswigHolstein?.switchColorToBlue()
         self.thueringen?.switchColorToBlue()
     }
-    
     
     func initPlayButton() {
         playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
@@ -344,6 +402,41 @@ class GermanMap: SKScene {
         initPlayButton()
     }
     
-    
+    func getBundesland(_ blName: String) -> Bundesland? {
+        if blName == "Baden-Württemberg" {
+            return badenWuertemberg!
+        } else if blName == "Bayern" {
+            return bayern!
+        } else if blName == "Berlin" {
+            return berlin!
+        } else if blName == "Brandenburg" {
+            return brandenburg!
+        } else if blName == "Bremen" {
+            return bremen!
+        } else if blName == "Hamburg" {
+            return hamburg!
+        } else if blName == "Hessen" {
+            return hessen!
+        } else if blName == "Mecklenburg-Vorpommern" {
+            return mecklenburgVorpommern!
+        } else if blName == "Niedersachsen" {
+            return niedersachsen!
+        } else if blName == "Nordrhein-Westfalen" {
+            return nordrheinWestfalen!
+        } else if blName == "Rheinland-Pfalz" {
+            return rheinlandPfalz!
+        } else if blName == "Saarland" {
+            return saarland!
+        } else if blName == "Sachsen" {
+            return sachsen!
+        } else if blName == "Sachsen-Anhalt" {
+            return sachsenAnhalt!
+        } else if blName == "Schleswig-Holstein" {
+            return schleswigHolstein!
+        } else if blName == "Thüringen" {
+            return thueringen!
+        } else{
+            return nil
+        }
+    }
 }
-
