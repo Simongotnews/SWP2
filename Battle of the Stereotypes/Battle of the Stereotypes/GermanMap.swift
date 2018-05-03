@@ -23,9 +23,7 @@ class GermanMap: SKScene {
     var statsSide:SKSpriteNode!
 
     //playButton
-    var playButton: SKSpriteNode!
-    //entsprechende Abfrage, ob gedrückt werden darf
-    var playButtonPressable = false
+    var playButton: Button!
     
     //SpriteNodes für Methode showBlAfterArrowSelect
     //werden angezeigt wenn Pfeil vom Spieler zu gegnerischen Bundesland gezogen wird
@@ -72,9 +70,10 @@ class GermanMap: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
-        if playButtonPressable {
-            if playButton.contains(touch.location(in: statsSideRootNode)) {
+        if playButton != nil {
+            if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
                 transitToGameScene()
+                return
             }
         }
         
@@ -269,8 +268,8 @@ class GermanMap: SKScene {
     
     
     func initPlayButton() {
-        playButton = SKSpriteNode(imageNamed: "play_Button")
-        playButton.setScale(0.5)
+        playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
+        playButton.setScale(1.1)
         playButton.position = CGPoint(x: 0, y: -250)
         statsSideRootNode.addChild(playButton)
     }
@@ -343,8 +342,6 @@ class GermanMap: SKScene {
         backGroundBl1.run(fadeIn, completion: { self.vsLabel.run(fadeIn, completion: { self.backGroundBl2.run(fadeIn) })})
        
         initPlayButton()
-        //playButton wird freigeschaltet und kann gedrückt werden
-        playButtonPressable = true
     }
     
     
