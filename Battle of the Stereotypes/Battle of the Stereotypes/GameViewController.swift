@@ -11,7 +11,8 @@ import SpriteKit
 import GameplayKit
 
 class GameViewController: UIViewController {
-
+    static var germanMapScene : GermanMap!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,6 +33,7 @@ class GameViewController: UIViewController {
                 // Set the scale mode to scale to fit the window
                 sceneNode.scaleMode = .aspectFill
                 
+                GameViewController.germanMapScene = sceneNode
                 // Present the scene
                 if let view = self.view as! SKView? {
                     view.presentScene(sceneNode)

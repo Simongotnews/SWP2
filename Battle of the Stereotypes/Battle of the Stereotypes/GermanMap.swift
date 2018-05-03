@@ -10,6 +10,8 @@ import SpriteKit
 import GameplayKit
 
 class GermanMap: SKScene {
+    // Battle Scene
+    var gameScene : GameScene!
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
@@ -254,7 +256,7 @@ class GermanMap: SKScene {
         //    return
         //}
         let transition = SKTransition.crossFade(withDuration: 2)
-        let gameScene = SKScene(fileNamed: "GameScene")
+        gameScene = SKScene(fileNamed: "GameScene") as! GameScene
         gameScene?.scaleMode = .aspectFill
         self.view?.presentScene(gameScene!, transition: transition)
     }

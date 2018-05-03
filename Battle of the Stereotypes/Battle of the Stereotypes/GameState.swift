@@ -7,14 +7,11 @@
 //
 
 import Foundation
+import GameplayKit
 
 // Klasse für den Spielstatus, der auf dem GameCenter gespeichert werden soll und Exchange Requests
 class GameState {
     struct StructGameState {
-        // letzter X-Impuls für den Schussvektor
-        var lastXImpulse = 0
-        // letzer Y-Impuls für den Schussvektor
-        var lastYImpulse = 0
         // Leben der beiden Spieler
         var playerHealth = [100, 100]
         // Status des Spiels, beispielsweise "schießen" oder "karte"
@@ -22,11 +19,17 @@ class GameState {
     }
     
     struct StructExchangeRequest {
-        var numberToExchange = 5
+        // Kraftbar Zähler
+        var forceCounter : Int = 0
+        // Winkel für den Pfeil
+        var angleForArrow : Float = 0.0
+        // Schaden
+        var damage : Int = 0
     }
     
     struct StructExchangeReply {
-        var numberToReply = 10
+        // Schuss ist abgefeuert
+        var projectileHit = false
     }
     
     // Methode zum Verpacken/Kodieren von GameState in ein Data Objekt, um beispielsweise GameState zu verschicken
@@ -35,10 +38,6 @@ class GameState {
         var sendString : String = ""
         let seperator : String = "|"
         sendString = sendString + gameState.gameStatus
-        sendString = sendString + seperator
-        sendString = sendString + String(gameState.lastXImpulse)
-        sendString = sendString + seperator
-        sendString = sendString + String(gameState.lastYImpulse)
         sendString = sendString + seperator
         sendString = sendString + String(gameState.playerHealth[0])
         sendString = sendString + seperator
@@ -53,10 +52,8 @@ class GameState {
         let dataAsString : NSString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)!
         let dataAsStringArray : [String] = dataAsString.components(separatedBy: seperator)
         gameState.gameStatus = dataAsStringArray[0]
-        gameState.lastXImpulse = Int(dataAsStringArray[1])!
-        gameState.lastYImpulse = Int(dataAsStringArray[2])!
-        gameState.playerHealth[0] = Int(dataAsStringArray[3])!
-        gameState.playerHealth[1] = Int(dataAsStringArray[4])!
+        gameState.playerHealth[0] = Int(dataAsStringArray[1])!
+        gameState.playerHealth[1] = Int(dataAsStringArray[2])!
         return gameState
     }
     
@@ -65,7 +62,11 @@ class GameState {
     {
         var sendString : String = ""
         let seperator : String = "|"
-        sendString = sendString + String(exchangeRequest.numberToExchange)
+        sendString = sendString + String(exchangeRequest.angleForArrow)
+        sendString = sendString + seperator
+        sendString = sendString + String(exchangeRequest.forceCounter)
+        sendString = sendString + seperator
+        sendString = sendString + String(exchangeRequest.damage)
         return sendString.data(using: String.Encoding.utf8)!
     }
     
@@ -76,7 +77,9 @@ class GameState {
         let seperator : String = "|"
         let dataAsString : NSString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)!
         let dataAsStringArray : [String] = dataAsString.components(separatedBy: seperator)
-        exchangeRequest.numberToExchange = Int(dataAsStringArray[0])!
+        exchangeRequest.angleForArrow = Float(dataAsStringArray[0])!
+        exchangeRequest.forceCounter = Int(dataAsStringArray[1])!
+        exchangeRequest.damage = Int(dataAsStringArray[2])!
         return exchangeRequest
     }
     
@@ -84,8 +87,8 @@ class GameState {
     static func encodeExchangeReply(exchangeReply: StructExchangeReply) -> Data
     {
         var sendString : String = ""
-        let seperator : String = "|"
-        sendString = sendString + String(exchangeReply.numberToReply)
+        let _ : String = "|"
+        sendString = sendString + String(exchangeReply.projectileHit)
         return sendString.data(using: String.Encoding.utf8)!
     }
     
@@ -96,7 +99,7 @@ class GameState {
         let seperator : String = "|"
         let dataAsString : NSString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)!
         let dataAsStringArray : [String] = dataAsString.components(separatedBy: seperator)
-        exchangeReply.numberToReply = Int(dataAsStringArray[0])!
+        exchangeReply.projectileHit = Bool(dataAsStringArray[0])!
         return exchangeReply
     }
 }

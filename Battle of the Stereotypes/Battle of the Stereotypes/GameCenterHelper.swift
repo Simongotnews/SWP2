@@ -17,10 +17,15 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     var currentMatch : GKTurnBasedMatch!
     // Variable ob GameCenter aktiv ist
     var gamecenterEnabled = false
+    // ExchangeReply
+    var exchangeReply = GameState.StructExchangeReply()
+    // ExchangeRequest
+    var exchangeRequest = GameState.StructExchangeRequest()
     // Spielstatus
     var gameState : GameState.StructGameState = GameState.StructGameState()
     // Singleton Instanz
     static let sharedInstance = GameCenterHelper()
+    
     
     private override init() {
         // private, da Singleton
@@ -82,7 +87,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             currentMatch.loadMatchData(completionHandler: nil)
             gameState = GameState.decodeGameState(data: matchData!)
             if(isLocalPlayersTurn()) {
-                sendExchangeRequest()
+                // TODO: Hier anzeigen, das man am Zug ist
             }
         }
         print("[" + String(describing: self) + "] Turn Event erhalten")
@@ -90,11 +95,19 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     // Spieler erhält einen Exchange Request
     func player(_ player: GKPlayer, receivedExchangeRequest exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
+        print("Hier")
         var request : GameState.StructExchangeRequest = GameState.decodeExchangeRequest(data: exchange.data!)
-        print("Request erhalten mit Zahl: " + String(request.numberToExchange))
-        var exchangeReply = GameState.StructExchangeReply()
-        exchangeReply.numberToReply = 60
-        print("Versende Reply mit: " + String(exchangeReply.numberToReply))
+        var forceCounter = request.forceCounter
+        var angleForArrow = request.angleForArrow
+        var damage = request.damage
+        
+        // Hier Schuss simulieren
+        GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
+        GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
+        GameViewController.germanMapScene.gameScene.projectileDidCollideWithDummy()
+        
+        exchangeReply.projectileHit = true
+        print("Versende Reply mit: " + String(exchangeReply.projectileHit))
         exchange.reply(withLocalizableMessageKey: "XY", arguments: ["XY","Y"], data: GameState.encodeExchangeReply(exchangeReply: exchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
@@ -113,8 +126,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     // Spieler erhält eine Antwort auf einen Exchange Request
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
         for reply in replies {
-            var reply = GameState.decodeExchangeReply(data: reply.data!)
-            print("Reply erhalten mit : " + String(reply.numberToReply))
+            let reply = GameState.decodeExchangeReply(data: reply.data!)
+            print("Reply erhalten mit : " + String(reply.projectileHit))
+            if(reply.projectileHit == true) {
+                endTurn()
+            }
         }
     }
     
@@ -213,9 +229,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     {
         var nextParticipant : GKTurnBasedParticipant
         nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
-        var exchangeRequest = GameState.StructExchangeRequest()
-        exchangeRequest.numberToExchange = 43
-        print("Verschicke Request mit: " + String(exchangeRequest.numberToExchange))
+        
+        
         currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeExchangeRequest(exchangeRequest: exchangeRequest), localizableMessageKey: "XYZ", arguments: ["X","Y"], timeout: TimeInterval(5.0), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
@@ -224,6 +239,12 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print(error as Any)
             }
         })
+    }
+    
+    // Methode, um einen ExchangeRequest mit einem ExchangeReply zu beantworten
+    func replyExchangeRequest()
+    {
+        
     }
     
     // Methode wenn der lokale Spieler seinen Zug beendet hat

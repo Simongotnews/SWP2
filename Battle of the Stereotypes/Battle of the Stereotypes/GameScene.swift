@@ -10,6 +10,8 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    // Statusanzeige
+    var statusLabel: SKLabelNode!
     
     //Booleans
     var allowsRotation = true //zeigt ob Geschoss rotieren darf
@@ -82,6 +84,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         initBackground()
         initDummys()
+        initStatusLabel()
         initDummyLabels()
         //initilialisiere Geschoss für Spieler 1
         initBall(for: 1)
@@ -146,6 +149,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.zPosition=3
         
         self.addChild(rightDummy)
+    }
+    
+    // Initialisierung für die Statusanzeige
+    func initStatusLabel()
+    {
+        statusLabel = SKLabelNode(text: "Spieler: DU (links)")
+        statusLabel.position = CGPoint(x: self.frame.size.width / 2 , y: self.frame.size.height / 2)
+        statusLabel.fontName = "Americantypewriter-Bold"
+        statusLabel.fontSize = 26
+        statusLabel.fontColor = UIColor.red
+        statusLabel.zPosition=3
     }
     
     func initDummyLabels(){
@@ -240,6 +254,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
     
+    func updateStatusLabel()
+    {
+        var statusText : String = ""
+        if(GameCenterHelper.getInstance().isLocalPlayersTurn()) {
+            statusText = statusText + "Spieler: DU "
+        } else {
+            statusText = statusText + "Spieler: Gegner "
+        }
+        if(GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0) {
+            statusText = statusText + "(links)"
+        } else {
+            statusText = statusText + "(rechts)"
+        }
+        statusLabel.text = statusText
+    }
+    
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         if childNode(withName: "arrow") != nil {
             ball.physicsBody?.affectedByGravity=true
@@ -257,6 +287,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let max = 1700.0
             let force = (Double(forceCounter) * max) / 100
             ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
+            
+            // Zum Verschicken des ExchangeRequests
+            GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
+            GameCenterHelper.getInstance().exchangeRequest.forceCounter = forceCounter
+            
             //Boden soll mit Gegner Dummy interagieren
             //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
             //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
@@ -348,7 +383,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let deltaX = self.arrow.position.x - pos.x
             let deltaY = self.arrow.position.y - pos.y
             
-            if(touchedNode.name == "leftdummy"){
+            if(touchedNode.name == "leftdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 && GameCenterHelper.getInstance().isLocalPlayersTurn()){
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
                     if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
@@ -356,7 +391,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
                     }
                 }
-            else if(touchedNode.name == "rightdummy"){
+            else if(touchedNode.name == "rightdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1 && GameCenterHelper.getInstance().isLocalPlayersTurn()){
                 angleForArrow = atan2(deltaY, deltaX)
                 if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
                     sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
@@ -372,6 +407,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createArrow(node: SKSpriteNode){
+                            GameCenterHelper.getInstance().sendExchangeRequest()
         arrow = SKSpriteNode(imageNamed: "pfeil")
         let centerLeft = node.position
         arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
@@ -397,7 +433,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firstBody = contact.bodyB
             secondBody = contact.bodyA
         }
-        
+        GameCenterHelper.getInstance().exchangeRequest.damage = 0
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
         if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & groundCategory) != 0 && firedBool == true{
             firedBool = false
@@ -407,6 +443,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firedBool = false
             projectileDidCollideWithDummy()
         }
+        GameCenterHelper.getInstance().sendExchangeRequest()
         
         //warte eine bestimmte Zeit und initialisiere den anderen Spieler
         
@@ -426,6 +463,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 rightDummyHealth = 0
             }
         }
+        GameCenterHelper.getInstance().exchangeRequest.damage = 50
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
     }
