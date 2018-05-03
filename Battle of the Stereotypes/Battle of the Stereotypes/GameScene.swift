@@ -416,19 +416,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-            leftDummyHealth -= 50
+            leftDummyHealth -= 100
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
             }
         }
         else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-            rightDummyHealth -= 50
+            rightDummyHealth -= 100
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
             }
         }
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
+        
+        if(leftDummyHealth == 0 || rightDummyHealth == 0){
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
+                self.transitToGermanMap()
+            })
+        }
     }
     
     func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
@@ -454,5 +460,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
-  
+    
+    func transitToGermanMap(){
+        let transition = SKTransition.crossFade(withDuration: 2)
+        let germanMapScene = SKScene(fileNamed: "GermanMap")
+        germanMapScene?.scaleMode = .aspectFill
+        self.view?.presentScene(germanMapScene!, transition: transition)
+    }
 }
