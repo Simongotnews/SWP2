@@ -272,6 +272,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func throwProjectile() { //Wurf des Projektils, Flugbahn
+        print("Werfe Geschoss")
         if childNode(withName: "arrow") != nil {
             ball.physicsBody?.affectedByGravity=true
             ball.physicsBody?.isDynamic=true
@@ -441,13 +442,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
         if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & groundCategory) != 0 && firedBool == true{
             firedBool = false
+            GameCenterHelper.getInstance().sendExchangeRequest()
+
         }
         
         if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategorie) != 0 && firedBool == true{
             firedBool = false
             projectileDidCollideWithDummy()
+            GameCenterHelper.getInstance().sendExchangeRequest()
+
         }
-        GameCenterHelper.getInstance().sendExchangeRequest()
         
         //warte eine bestimmte Zeit und initialisiere den anderen Spieler
         
