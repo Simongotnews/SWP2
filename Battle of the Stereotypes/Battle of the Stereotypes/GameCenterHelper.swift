@@ -2,7 +2,7 @@
 //  GameCenterHelper.swift
 //  Battle of the Stereotypes
 //
-//  Created by student on 30.04.18.
+//  Created by andre-jar on 30.04.18.
 //  Copyright © 2018 Simongotnews. All rights reserved.
 //
 
@@ -17,10 +17,15 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     var currentMatch : GKTurnBasedMatch!
     // Variable ob GameCenter aktiv ist
     var gamecenterEnabled = false
+    // ExchangeReply
+    var exchangeReply = GameState.StructExchangeReply()
+    // ExchangeRequest
+    var exchangeRequest = GameState.StructExchangeRequest()
     // Spielstatus
     var gameState : GameState.StructGameState = GameState.StructGameState()
     // Singleton Instanz
     static let sharedInstance = GameCenterHelper()
+    
     
     private override init() {
         // private, da Singleton
@@ -65,9 +70,75 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         underlyingViewController.dismiss(animated: true, completion: nil)
     }
     
+    // Funktion wird aufgerufen, wenn Spieler das Match verlässt
+    func turnBasedMatchmakerViewController(_ viewController: GKTurnBasedMatchmakerViewController, playerQuitFor match: GKTurnBasedMatch) {
+        print("[" + String(describing: self) + "]" + "Match wurde beendet durch Player Quit")
+        match.endMatchInTurn(withMatch: GameState.encodeGameState(gameState: gameState), completionHandler: nil)
+    }
+    
+    // GKLocalPlayerListener Methoden
+    
+    // Methode zum Turnevent abhandeln
+    func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
+        currentMatch=match
+        // Abfrage nötig weil schon vor dem aktiven Match TurnEvents stattfinden können
+        if(match.participants![0].lastTurnDate != nil) {
+            let matchData = currentMatch.matchData
+            currentMatch.loadMatchData(completionHandler: nil)
+            gameState = GameState.decodeGameState(data: matchData!)
+            if(isLocalPlayersTurn()) {
+                // TODO: Hier anzeigen, das man am Zug ist
+            }
+        }
+        print("[" + String(describing: self) + "] Turn Event erhalten")
+    }
+    
+    // Spieler erhält einen Exchange Request
+    func player(_ player: GKPlayer, receivedExchangeRequest exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
+        print("Hier")
+        var request : GameState.StructExchangeRequest = GameState.decodeExchangeRequest(data: exchange.data!)
+        var forceCounter = request.forceCounter
+        var angleForArrow = request.angleForArrow
+        var damage = request.damage
+        
+        // Hier Schuss simulieren
+        GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
+        GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
+        GameViewController.germanMapScene.gameScene.projectileDidCollideWithDummy()
+        
+        exchangeReply.projectileHit = true
+        print("Versende Reply mit: " + String(exchangeReply.projectileHit))
+        exchange.reply(withLocalizableMessageKey: "XY", arguments: ["XY","Y"], data: GameState.encodeExchangeReply(exchangeReply: exchangeReply), completionHandler: {(error: Error?) -> Void in
+            if(error == nil ) {
+                // Operation erfolgreich
+            } else {
+                print("[" + String(describing: self) + "]" + "Fehler beim ExchangeRequest beantworten")
+                print(error as Any)
+            }
+        })
+    }
+    
+    // Spieler erhält Information das der Exchange abgebrochen wurde
+    func player(_ player: GKPlayer, receivedExchangeCancellation exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
+        
+    }
+    
+    // Spieler erhält eine Antwort auf einen Exchange Request
+    func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
+        for reply in replies {
+            let reply = GameState.decodeExchangeReply(data: reply.data!)
+            print("Reply erhalten mit : " + String(reply.projectileHit))
+            if(reply.projectileHit == true) {
+                endTurn()
+            }
+        }
+    }
+    
+    // Eigene Methoden
+    
     // Gibt den Index des lokalen Spieler zum Match zurück. Falls der Spieler nicht teil des Matches ist oder das Spiel nicht läuft oder er nicht authentifiziert ist, gibt es -1 zurück
     func getIndexOfLocalPlayer() -> Int {
-        if(!gamecenterIsActive() || !gamecenterGameIsRunning()) {
+        if(!gamecenterIsActive() || !isGameRunning()) {
             return -1
         }
         for participant in currentMatch.participants! {
@@ -79,9 +150,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     }
     
     // Gibt an ob der lokale Spieler gerade am Zug ist
-    func islocalPlayersTurn() -> Bool
+    func isLocalPlayersTurn() -> Bool
     {
-        if(!gamecenterIsActive() || !gamecenterGameIsRunning()) {
+        if(!gamecenterIsActive() || !isGameRunning()) {
             return false
         }
         if(currentMatch.currentParticipant?.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
@@ -90,14 +161,31 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             return false
         }
     }
-    
-    // Beendet das Spiel
-    func endGame()
-    {
-        currentMatch.endMatchInTurn(withMatch: GameState.encodeGameState(gameState: gameState), completionHandler: nil)
+
+    // Authentifizierung des lokalen Spielers
+    func authenticateLocalPlayer() {
+        let localPlayer: GKLocalPlayer = GKLocalPlayer.localPlayer()
+        
+        localPlayer.authenticateHandler = {(ViewController, error) -> Void in
+            if((ViewController) != nil) {
+                // Zeige den Login Screen wenn der Spieler nicht eingeloggt ist
+                self.underlyingViewController.present(ViewController!, animated: true, completion: nil)
+            } else if (localPlayer.isAuthenticated) {
+                // Wenn Spieler bereits authentifiziert und eingeloggt, lade MatchMaker und GameCenter Funktionen
+                self.gamecenterEnabled = true
+                localPlayer.unregisterAllListeners()
+                localPlayer.register(self)
+                self.findBattleMatch()
+            } else {
+                // Game center nicht auf aktuellem Gerät aktiviert
+                self.gamecenterEnabled = false
+                print("[" + String(describing: self) + "] Lokaler Spieler konnte nicht autentifiziert werden")
+                print(error as Any)
+            }
+        }
     }
     
-    // Prüft ob Gamecenter aktiv ist und gibt false zurück wenn nicht
+    // Prüft ob Gamecenter aktiv ist bzw. ob der Spieler sich eingeloggt hat und gibt false zurück wenn nicht
     func gamecenterIsActive() -> Bool
     {
         if(gamecenterEnabled == false) {
@@ -109,7 +197,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     }
     
     // Prüft ob ein Spiel am Laufen ist und gibt false zurück wenn nicht
-    func gamecenterGameIsRunning() -> Bool
+    func isGameRunning() -> Bool
     {
         if(currentMatch == nil) {
             print("[" + String(describing: self) + "] Aktion kann nicht ohne ein gestartetes Spiel zu haben ausgeführt werden")
@@ -136,55 +224,38 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         underlyingViewController.present(matchMakerViewController, animated: true)
     }
     
-    // Authentifizierung des lokalen Spielers
-    func authenticateLocalPlayer() {
-        let localPlayer: GKLocalPlayer = GKLocalPlayer.localPlayer()
+    // Methode, wenn der lokale Spieler einen Exchange Request schicken will
+    func sendExchangeRequest()
+    {
+        var nextParticipant : GKTurnBasedParticipant
+        nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
         
-        localPlayer.authenticateHandler = {(ViewController, error) -> Void in
-            if((ViewController) != nil) {
-                // Zeige den Login Screen wenn der Spieler nicht eingeloggt ist
-                self.underlyingViewController.present(ViewController!, animated: true, completion: nil)
-            } else if (localPlayer.isAuthenticated) {
-                // Wenn Spieler bereits authentifiziert und eingeloggt, lade MatchMaker und GameCenter Funktionen
-                self.gamecenterEnabled = true
-                localPlayer.unregisterAllListeners()
-                localPlayer.register(self)
-                self.findBattleMatch()
+        
+        currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeExchangeRequest(exchangeRequest: exchangeRequest), localizableMessageKey: "XYZ", arguments: ["X","Y"], timeout: TimeInterval(5.0), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
+            if(error == nil ) {
+                // Operation erfolgreich
             } else {
-                // Game center nicht auf aktuellem Gerät aktiviert
-                self.gamecenterEnabled = false
-                print("[" + String(describing: self) + "] Lokaler Spieler konnte nicht autentifiziert werden")
+                print("[" + String(describing: self) + "]" + "Fehler beim ExchangeRequest senden")
                 print(error as Any)
             }
-        }
+        })
     }
     
-    // Methode zum Turnevent abhandeln
-    func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
-        currentMatch=match
-        // Abfrage nötig weil schon vor dem aktiven Match TurnEvents stattfinden können
-        if(match.participants![0].lastTurnDate != nil) {
-            let matchData = currentMatch.matchData
-            currentMatch.loadMatchData(completionHandler: nil)
-            gameState = GameState.decodeGameState(data: matchData!)
-        }
-        print("Betnumber von Spieler 0: " + String(gameState.betNumber[0]))
-        print("Betnumber von Spieler 1: " + String(gameState.betNumber[1]))
-        print("Setnumber von Spieler 0:" + String(gameState.setNumber[0]))
-        print("Setnumber von Spieler 1:" + String(gameState.setNumber[1]))
-        print("[" + String(describing: self) + "] Turn Event erhalten")
-    }
-    
-    // Beispielmethode wenn der lokale Spieler seinen Zug beendet hat
-    func turnEnded()
+    // Methode, um einen ExchangeRequest mit einem ExchangeReply zu beantworten
+    func replyExchangeRequest()
     {
-        if(!gamecenterGameIsRunning()) {
+        
+    }
+    
+    // Methode wenn der lokale Spieler seinen Zug beendet hat
+    func endTurn()
+    {
+        if(!isGameRunning()) {
             return
         }
         print("Turn Ended")
-        let currentIndexOfPlayer : Int = getIndexOfLocalPlayer()
         var nextParticipant : GKTurnBasedParticipant
-        nextParticipant = currentMatch.participants![((currentIndexOfPlayer + 1) % (currentMatch.participants?.count)!)]
+        nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
         currentMatch.endTurn(withNextParticipants: [nextParticipant], turnTimeout: TimeInterval(5.0), match:         GameState.encodeGameState(gameState: gameState), completionHandler: { (error: Error?) in
             if(error == nil ) {
                 // Operation erfolgreich
@@ -193,12 +264,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print(error as Any)
             }
         })
-    }
-    
-    // Funktion wird aufgerufen, wenn Spieler das Match verlässt
-    func turnBasedMatchmakerViewController(_ viewController: GKTurnBasedMatchmakerViewController, playerQuitFor match: GKTurnBasedMatch) {
-        print("[" + String(describing: self) + "]" + "Match wurde beendet durch Player Quit")
-        match.endMatchInTurn(withMatch: GameState.encodeGameState(gameState: gameState), completionHandler: nil)
     }
     
     // Temporäre Funktion um Matches vom GameCenter zu löschen
@@ -226,15 +291,21 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         })
     }
     
+    // Beendet das Spiel
+    func endGame()
+    {
+        currentMatch.endMatchInTurn(withMatch: GameState.encodeGameState(gameState: gameState), completionHandler: nil)
+    }
+    
     // Methode um die MatchOutcomes zu setzen, also das Ergebnis für den Spieler wie beispielsweise gewonnen oder verloren
-    func setMatchOutcome()
+    func setMatchOutcomes()
     {
         print("Versuche Match Outcomes zu setzen")
         print("Match Outcome setzen")
         for participant in currentMatch.participants! {
             participant.matchOutcome = GKTurnBasedMatchOutcome.none
-            if(participant.player?.playerID == GKLocalPlayer.localPlayer().playerID && gameState.remainingCoins[(currentMatch.participants?.index(of: participant))!] == 0) {
-                participant.matchOutcome = GKTurnBasedMatchOutcome.won
+            if(participant.player?.playerID == GKLocalPlayer.localPlayer().playerID && gameState.playerHealth[(currentMatch.participants?.index(of: participant))!] == 0) {
+                participant.matchOutcome = GKTurnBasedMatchOutcome.lost
                 currentMatch.endMatchInTurn(withMatch: GameState.encodeGameState(gameState: gameState), completionHandler: {(error: Error?) -> Void in
                     print("Error in endMatch")
                     print(error as Any)
