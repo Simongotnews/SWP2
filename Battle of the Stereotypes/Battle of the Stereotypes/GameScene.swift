@@ -192,10 +192,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.size = CGSize(width: 30, height: 30)
         if player==1 {
             ball.position = leftDummy.position
-            ball.position.x += 30
+            ball.position.x += 45
         } else {
             ball.position = rightDummy.position
-            ball.position.x -= 30
+            ball.position.x -= 45
         }
         ball.zPosition=3
         
@@ -409,7 +409,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createArrow(node: SKSpriteNode){
-                            GameCenterHelper.getInstance().sendExchangeRequest()
         arrow = SKSpriteNode(imageNamed: "pfeil")
         let centerLeft = node.position
         arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
