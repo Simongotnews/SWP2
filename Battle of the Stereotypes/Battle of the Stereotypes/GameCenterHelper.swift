@@ -13,6 +13,8 @@ import GameKit
 class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatchmakerViewControllerDelegate,GKLocalPlayerListener {
     // ViewController, der darunterliegt. Sollte nicht mit nil belegt werden, da sonst die Anwendung abstürzt
     var underlyingViewController : UIViewController!
+    // wartet auf ExchangeReply
+    var isWaitingOnReply = false
     // aktuelles Match
     var currentMatch : GKTurnBasedMatch!
     // Variable ob GameCenter aktiv ist
@@ -126,12 +128,14 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     // Spieler erhält eine Antwort auf einen Exchange Request
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
+        isWaitingOnReply = false
         for reply in replies {
             let reply = GameState.decodeExchangeReply(data: reply.data!)
             print("Reply erhalten mit : " + String(reply.projectileHit))
             if(reply.projectileHit == true) {
                 endTurn()
             }
+            endTurn()
         }
     }
     
@@ -235,17 +239,12 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeExchangeRequest(exchangeRequest: exchangeRequest), localizableMessageKey: "XYZ", arguments: ["X","Y"], timeout: TimeInterval(5.0), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
+                self.isWaitingOnReply = true
             } else {
                 print("[" + String(describing: self) + "]" + "Fehler beim ExchangeRequest senden")
                 print(error as Any)
             }
         })
-    }
-    
-    // Methode, um einen ExchangeRequest mit einem ExchangeReply zu beantworten
-    func replyExchangeRequest()
-    {
-        
     }
     
     // Methode wenn der lokale Spieler seinen Zug beendet hat

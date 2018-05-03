@@ -383,7 +383,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let deltaX = self.arrow.position.x - pos.x
             let deltaY = self.arrow.position.y - pos.y
             
-            if(touchedNode.name == "leftdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 && GameCenterHelper.getInstance().isLocalPlayersTurn()){
+            if(touchedNode.name == "leftdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 && GameCenterHelper.getInstance().isLocalPlayersTurn() && !GameCenterHelper.getInstance().isWaitingOnReply){
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
                     if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
@@ -391,7 +391,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
                     }
                 }
-            else if(touchedNode.name == "rightdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1 && GameCenterHelper.getInstance().isLocalPlayersTurn()){
+            else if(touchedNode.name == "rightdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1 && GameCenterHelper.getInstance().isLocalPlayersTurn() && !GameCenterHelper.getInstance().isWaitingOnReply){
                 angleForArrow = atan2(deltaY, deltaX)
                 if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
                     sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
