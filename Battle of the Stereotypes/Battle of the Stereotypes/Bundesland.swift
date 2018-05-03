@@ -157,7 +157,7 @@ class Bundesland: SKSpriteNode {
         super.init(texture: texture, color: UIColor.blue, size: size)
         self.blNameEnum = blName
         self.blNameString = self.blNameEnum.description // weise den Namen zu
-        
+
         //initialisiere den String mit Hilfe des Enums
         if blName == BundeslandEnum.BadenWuerttemberg {
             blNameString = "Baden-Württemberg"
