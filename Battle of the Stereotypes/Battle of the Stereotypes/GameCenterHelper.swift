@@ -104,8 +104,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         // Hier Schuss simulieren
         GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
         GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
-        GameViewController.germanMapScene.gameScene.projectileDidCollideWithDummy()
-        
+        if(damage != 0) {
+            GameViewController.germanMapScene.gameScene.projectileDidCollideWithDummy()
+        }
         exchangeReply.projectileHit = true
         print("Versende Reply mit: " + String(exchangeReply.projectileHit))
         exchange.reply(withLocalizableMessageKey: "XY", arguments: ["XY","Y"], data: GameState.encodeExchangeReply(exchangeReply: exchangeReply), completionHandler: {(error: Error?) -> Void in
