@@ -41,7 +41,7 @@ class GermanMap: SKScene {
     var mapSize:(width:CGFloat, height:CGFloat) = (0.0, 0.0)  // globale Groeße welche in allen Funktionen verwendet werden kann.
     
     // Bundeslaender deklarieren:
-    var badenWuertemberg:Bundesland?
+    var badenWuerttemberg:Bundesland?
     var bayern:Bundesland?
     var berlin:Bundesland?
     var brandenburg:Bundesland?
@@ -59,7 +59,7 @@ class GermanMap: SKScene {
     var thueringen:Bundesland?
     
     // Labels für die Anzeige der Truppenstärke deklarieren:
-    var badenWuertembergAnzahlTruppenLabel: SKLabelNode!
+    var badenWuerttembergAnzahlTruppenLabel: SKLabelNode!
     var bayernAnzahlTruppenLabel: SKLabelNode!
     var berlinTruppen: SKLabelNode!
     var brandenburgTruppen: SKLabelNode!
@@ -174,15 +174,15 @@ class GermanMap: SKScene {
         // Hinzufuegen der einzelnen BL an der korrekten Stelle als Klasse Bundesland:
         // HINWEIS: die groesse der einzelnen Kartenelemente richtet sich nach der Size der Hintergrundmap!
         // BW:
-        badenWuertemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuertemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
-        badenWuertemberg?.setPosition()
-        badenWuertemberg?.anzahlTruppen = 8
-        let badenWuerttembergAnzahlTruppen = String(badenWuertemberg?.anzahlTruppen ?? Int())
-        badenWuertembergAnzahlTruppenLabel = SKLabelNode(text: badenWuerttembergAnzahlTruppen)
-        badenWuertembergAnzahlTruppenLabel.name = badenWuertemberg?.blNameString
-        badenWuertembergAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 435 + rightScene.position.x, y: self.size.height/3 + 40)
-        setTruppenAnzahlLabel(badenWuertembergAnzahlTruppenLabel)
-        mapSide.addChild(badenWuertemberg!)
+        badenWuerttemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuerttemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        badenWuerttemberg?.setPosition()
+        badenWuerttemberg?.anzahlTruppen = 8
+        let badenWuerttembergAnzahlTruppen = String(badenWuerttemberg?.anzahlTruppen ?? Int())
+        badenWuerttembergAnzahlTruppenLabel = SKLabelNode(text: badenWuerttembergAnzahlTruppen)
+        badenWuerttembergAnzahlTruppenLabel.name = badenWuerttemberg?.blNameString
+        badenWuerttembergAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 435 + rightScene.position.x, y: self.size.height/3 + 40)
+        setTruppenAnzahlLabel(badenWuerttembergAnzahlTruppenLabel)
+        mapSide.addChild(badenWuerttemberg!)
         
         // Bayern:
         bayern = Bundesland(blName: BundeslandEnum.Bayern, texture: SKTexture(imageNamed: "Bayern_blue"),
@@ -268,7 +268,7 @@ class GermanMap: SKScene {
         mapSide.addChild(sachsenAnhalt!)
         
         // Schlesswig-Holstein:
-        schleswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: "SchlesswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        schleswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: "SchleswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         schleswigHolstein?.setPosition()
         mapSide.addChild(schleswigHolstein!)
         
@@ -288,7 +288,7 @@ class GermanMap: SKScene {
     }
     
     func allToRed(){
-        self.badenWuertemberg?.switchColorToRed()
+        self.badenWuerttemberg?.switchColorToRed()
         self.bayern?.switchColorToRed()
         self.berlin?.switchColorToRed()
         self.brandenburg?.switchColorToRed()
@@ -307,7 +307,7 @@ class GermanMap: SKScene {
     }
    
     func allToBlue(){
-        self.badenWuertemberg?.switchColorToBlue()
+        self.badenWuerttemberg?.switchColorToBlue()
         self.bayern?.switchColorToBlue()
         self.berlin?.switchColorToBlue()
         self.brandenburg?.switchColorToBlue()
@@ -404,7 +404,7 @@ class GermanMap: SKScene {
     
     func getBundesland(_ blName: String) -> Bundesland? {
         if blName == "Baden-Württemberg" {
-            return badenWuertemberg!
+            return badenWuerttemberg!
         } else if blName == "Bayern" {
             return bayern!
         } else if blName == "Berlin" {
