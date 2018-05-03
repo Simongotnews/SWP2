@@ -66,7 +66,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     let leftDummyCategory:UInt32 = 0x1 << 2
-    let rightDummyCategorie:UInt32 = 0x1 << 1
+    let rightDummyCategory:UInt32 = 0x1 << 1
     let weaponCategory:UInt32 = 0x1 << 0
     let groundCategory:UInt32 = 0x1 << 3
     
@@ -143,7 +143,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.isDynamic = true
         rightDummy.physicsBody?.affectedByGravity = false
-        rightDummy.physicsBody?.categoryBitMask = rightDummyCategorie
+        rightDummy.physicsBody?.categoryBitMask = rightDummyCategory
         rightDummy.physicsBody?.contactTestBitMask = weaponCategory
         rightDummy.physicsBody?.collisionBitMask = 0
         rightDummy.zPosition=3
@@ -297,9 +297,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //Boden soll mit Gegner Dummy interagieren
             //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
             //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
-            ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategorie
+            ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory
             //es soll eine Kollision mit dem Grund und dem Dummy simulieren
-            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategorie
+            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
@@ -409,7 +409,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setCategoryBitmask(activeNode: SKSpriteNode, unactiveNode: SKSpriteNode){
         activeNode.physicsBody?.categoryBitMask = leftDummyCategory
-        unactiveNode.physicsBody?.categoryBitMask = rightDummyCategorie
+        unactiveNode.physicsBody?.categoryBitMask = rightDummyCategory
     }
     
     func createArrow(node: SKSpriteNode){
@@ -446,7 +446,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         }
         
-        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategorie) != 0 && firedBool == true{
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategory) != 0 && firedBool == true{
             firedBool = false
             projectileDidCollideWithDummy()
             GameCenterHelper.getInstance().sendExchangeRequest()
@@ -459,13 +459,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
-        if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
+        if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
             leftDummyHealth -= 50
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
             }
         }
-        else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategorie){
+        else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
             rightDummyHealth -= 50
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
