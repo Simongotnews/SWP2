@@ -21,6 +21,7 @@ class GameViewController: UIViewController {
         if let scene = GKScene(fileNamed: "GermanMap") {
             
             GameCenterHelper.getInstance().underlyingViewController=self
+            print("Trying: Authentification")
             GameCenterHelper.getInstance().authenticateLocalPlayer()
             // Alle Games, an denen man teilnimmt vom GameCenter löschen für Testzwecke
             // GameCenterHelper.getInstance().removeGames()

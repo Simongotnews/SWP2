@@ -36,7 +36,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     {
         // TODO: Sicherstellen, dass die Instanz immer vorhanden ist, da sonst die Anwendung abstürzt
         if(sharedInstance.underlyingViewController == nil) {
-            print("Warnung! Kein View Controller für den GameCenterHelper gesetzt")
+            //print("Warnung! Kein View Controller für den GameCenterHelper gesetzt")
         }
         return GameCenterHelper.sharedInstance
     }
@@ -159,6 +159,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     // Gibt den Index des lokalen Spieler zum Match zurück. Falls der Spieler nicht teil des Matches ist oder das Spiel nicht läuft oder er nicht authentifiziert ist, gibt es -1 zurück
     func getIndexOfLocalPlayer() -> Int {
         if(!gamecenterIsActive() || !isGameRunning()) {
+            print("Fehler: getIndexOfLocalPlayer: Game Center inactive or Game not running")
             return -1
         }
         for participant in currentMatch.participants! {
@@ -173,11 +174,17 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func isLocalPlayersTurn() -> Bool
     {
         if(!gamecenterIsActive() || !isGameRunning()) {
-            return false
+            print("Fehler: isLocalPlayersTurn: Game Center inactive or Game not running")
+            if (!gamecenterIsActive()){
+                findBattleMatch()
+            } else {
+                return false
+            }
         }
         if(currentMatch.currentParticipant?.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
             return true
         } else {
+            print("Fehler: isLocalPlayersTurn: else-Error")
             return false
         }
     }
@@ -189,9 +196,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         localPlayer.authenticateHandler = {(ViewController, error) -> Void in
             if((ViewController) != nil) {
                 // Zeige den Login Screen wenn der Spieler nicht eingeloggt ist
+                print("Notification: authenticateLocalPlayer")
                 self.underlyingViewController.present(ViewController!, animated: true, completion: nil)
             } else if (localPlayer.isAuthenticated) {
                 // Wenn Spieler bereits authentifiziert und eingeloggt, lade MatchMaker und GameCenter Funktionen
+                print("Notification: authenticateLocalPlayer: Spieler bereits authentifiziert")
                 self.gamecenterEnabled = true
                 localPlayer.unregisterAllListeners()
                 localPlayer.register(self)
@@ -199,7 +208,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             } else {
                 // Game center nicht auf aktuellem Gerät aktiviert
                 self.gamecenterEnabled = false
-                print("Fehler: Lokaler Spieler konnte nicht autentifiziert werden")
+                print("Fehler: authenticateLocalPlayer: Lokaler Spieler konnte nicht autentifiziert werden")
                 print(error as Any)
             }
         }
@@ -231,6 +240,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func findBattleMatch()
     {
         if(!gamecenterIsActive()) {
+            print("Fehler: findBattleMatch: GameCenter inactive")
             return
         }
         print("Beitreten eines... Battle Match")
