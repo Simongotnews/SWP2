@@ -21,7 +21,7 @@ enum BundeslandEnum: CustomStringConvertible{
     var description: String {
         switch self {
             // Bundeslandbenennung:
-            case .BadenWuerttemberg:        return "BadenWuertemberg"
+            case .BadenWuerttemberg:        return "BadenWuerttemberg"
             case .Bayern:                   return "Bayern"
             case .Berlin:                   return "Berlin"
             case .Bremen:                   return "Bremen"
@@ -59,6 +59,8 @@ class Bundesland: SKSpriteNode {
     var isMine: Bool!
     //Vorhandensein eines Flughafens
     var hasAirport: Bool!
+    //Nachbarländer
+    var nachbarBlArray: [Bundesland]!
     
     func toBackground(){
         self.zPosition = 0
@@ -67,7 +69,7 @@ class Bundesland: SKSpriteNode {
     func switchColorToBlue(){
         switch self.blNameEnum{
             case .BadenWuerttemberg:
-                super.texture = SKTexture(imageNamed: "BadenWuertemberg_blue")
+                super.texture = SKTexture(imageNamed: "BadenWuerttemberg_blue")
             case .Bayern:
                 super.texture = SKTexture(imageNamed: "Bayern_blue")
             case .Berlin:
@@ -95,7 +97,7 @@ class Bundesland: SKSpriteNode {
             case .SachsenAnhalt:
                 super.texture = SKTexture(imageNamed: "SachsenAnhalt_blue")
             case .SchleswigHolstein:
-                super.texture = SKTexture(imageNamed: "SchlesswigHolstein_blue")
+                super.texture = SKTexture(imageNamed: "SchleswigHolstein_blue")
             case .Thueringen:
                 super.texture = SKTexture(imageNamed: "Thueringen_blue")
             case .Mallorca:
@@ -110,7 +112,7 @@ class Bundesland: SKSpriteNode {
         
         switch self.blNameEnum{
             case .BadenWuerttemberg:
-                super.texture = SKTexture(imageNamed: "BadenWuertemberg_red")
+                super.texture = SKTexture(imageNamed: "BadenWuerttemberg_red")
             case .Bayern:
                 super.texture = SKTexture(imageNamed: "Bayern_red")
             case .Berlin:
@@ -138,7 +140,7 @@ class Bundesland: SKSpriteNode {
             case .SachsenAnhalt:
                 super.texture = SKTexture(imageNamed: "SachsenAnhalt_red")
             case .SchleswigHolstein:
-                super.texture = SKTexture(imageNamed: "SchlesswigHolstein_red")
+                super.texture = SKTexture(imageNamed: "SchleswigHolstein_red")
             case .Thueringen:
                 super.texture = SKTexture(imageNamed: "Thueringen_red")
             case .Mallorca:
@@ -157,6 +159,7 @@ class Bundesland: SKSpriteNode {
         super.init(texture: texture, color: UIColor.blue, size: size)
         self.blNameEnum = blName
         self.blNameString = self.blNameEnum.description // weise den Namen zu
+        self.name = self.blNameString!
 
         //initialisiere den String mit Hilfe des Enums
         if blName == BundeslandEnum.BadenWuerttemberg {
@@ -199,4 +202,5 @@ class Bundesland: SKSpriteNode {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
 }
