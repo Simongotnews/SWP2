@@ -353,8 +353,8 @@ class GermanMap: SKScene {
     
     func initStatistics() {
         //Erstelle Tabelle mit allen Einträgen
-        var keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetze Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
-        var values: [String] = ["16", "73", "0", "59", "0", "2"]
+        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetze Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
+        let values: [String] = ["16", "73", "0", "59", "0", "2"]
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
         statsSide.addChild(table)
