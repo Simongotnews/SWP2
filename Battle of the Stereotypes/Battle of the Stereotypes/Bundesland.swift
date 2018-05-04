@@ -2,7 +2,7 @@
 //  Bundesland.swift
 //  Battle of the Stereotypes
 //
-//  Created by Tobias on 28.04.18.
+//  Created by TobiasGit on 28.04.18.
 //  Copyright © 2018 Simongotnews. All rights reserved.
 //
 

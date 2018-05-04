@@ -2,7 +2,7 @@
 //  GermanMap.swift
 //  Battle of the Stereotypes
 //
-//  Created by Tobias on 27.04.18.
+//  Created by TobiasGit on 27.04.18.
 //  Copyright © 2018 TobiasGit. All rights reserved.
 //
 
@@ -25,11 +25,14 @@ class GermanMap: SKScene {
     //playButton
     var playButton: Button!
     
-    //SpriteNodes für Methode showBlAfterArrowSelect
+    //Tabelle für Methode initStatistics
+    var table: Table!
+    
+    //Nodes für Methode showBlAfterArrowSelect
     //werden angezeigt wenn Pfeil vom Spieler zu gegnerischen Bundesland gezogen wird
     
-    //globaler Root Node auf der Statistiken Hälfte
-    var statsSideRootNode: SKNode!
+    //globaler Root Node auf der Statistiken Hälfte, wenn Pfeil ausgewählt wurde
+    var statsSideRootNode2: SKNode!
     //Label für erstes Bundesland und Hintergrund
     var labelBl1: SKLabelNode!
     var backGroundBl1: SKShapeNode!
@@ -65,19 +68,33 @@ class GermanMap: SKScene {
         //Splitte die Scene in 2 verschiedene Bereiche (links = Deutschlandkarte, rechts = Statistiken
         splitScene()
         
+        setBGMap()
+        initBundeslaender()
+        
+        // testweise BL in den Hintergrund schicken:
+        //hessen?.toBackground()
+        //berlin?.toBackground()
+        //schlesswigHolstein?.toBackground()
+        //nordrheinWestfalen?.toBackground()
+        allToBlue()
+        //badenWuertemberg?.switchColorToBlue()
+        
+        //initialisiere Statistiken
+        initStatistics()
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
-            if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
+            if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode2)) {
                 transitToGameScene()
                 return
             }
         }
         
-        statsSideRootNode?.removeFromParent()
+        statsSideRootNode2?.removeFromParent()
         showBlAfterArrowSelect(mecklenburgVorpommern!, against: niedersachsen!)
     }
     
@@ -93,7 +110,7 @@ class GermanMap: SKScene {
         rightScene.position = CGPoint(x: self.size.width / 2, y: 0)
         
         //Erstelle Sprite für Deutschlandkarten Hälfte
-        mapSide = SKSpriteNode(color: UIColor.white, size: CGSize(width: self.size.width/2, height: self.size.height/2))
+        mapSide = SKSpriteNode(color: UIColor.lightGray, size: CGSize(width: self.size.width/2, height: self.size.height/2))
         mapSide.position = CGPoint(x: self.size.width / 4, y: self.size.height / 2)
         
         //Erstelle Sprite für Statistik Hälfte
@@ -102,17 +119,6 @@ class GermanMap: SKScene {
         
         leftScene.addChild(mapSide)
         rightScene.addChild(statsSide)
-        
-        setBGMap()
-        initBundeslaender()
-        
-        // testweise BL in den Hintergrund schicken:
-        //hessen?.toBackground()
-        //berlin?.toBackground()
-        //schlesswigHolstein?.toBackground()
-        //nordrheinWestfalen?.toBackground()
-        allToBlue()
-        //badenWuertemberg?.switchColorToBlue()
         
         self.addChild(leftScene)
         self.addChild(rightScene)
@@ -271,7 +277,7 @@ class GermanMap: SKScene {
         playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
         playButton.setScale(1.1)
         playButton.position = CGPoint(x: 0, y: -250)
-        statsSideRootNode.addChild(playButton)
+        statsSideRootNode2.addChild(playButton)
     }
     
     func transitToGameScene(){
@@ -283,12 +289,13 @@ class GermanMap: SKScene {
     
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
         //falls es den Knoten schon gibt -> lösche ihn, denn die komplette Animtion und alle Kinder dieser Node sollen erneut erscheinen, wenn der Pfeil erneut gezogen wird
-        statsSideRootNode?.removeFromParent()
+        statsSideRootNode2?.removeFromParent()
+        table?.removeFromParent()
         
         //Knoten zu dem alle folgenden Elemente relativ sind durch Kindbeziehung
-        statsSideRootNode = SKNode()
-        statsSideRootNode.position = CGPoint(x: 0, y: 100)
-        statsSide.addChild(statsSideRootNode)
+        statsSideRootNode2 = SKNode()
+        statsSideRootNode2.position = CGPoint(x: 0, y: 100)
+        statsSide.addChild(statsSideRootNode2)
         
         //Erstelle Label und Hintergrund für eigenes Bundesland (bl1)
         labelBl1 = SKLabelNode(text: bl1.blNameString)
@@ -306,7 +313,7 @@ class GermanMap: SKScene {
         //setze Sichtbarkeit auf 0 (wegen Fade In Effekt später)
         backGroundBl1.alpha = 0
         
-        statsSideRootNode.addChild(backGroundBl1)
+        statsSideRootNode2.addChild(backGroundBl1)
         
         //Erstelle "vs" Label
         vsLabel = SKLabelNode(text: "VS")
@@ -316,7 +323,7 @@ class GermanMap: SKScene {
         vsLabel.alpha = 0
         
         //füge zu globalen Node hinzu
-        statsSideRootNode.addChild(vsLabel)
+        statsSideRootNode2.addChild(vsLabel)
         
         //Erstelle Gegnerbundesland und Hintergrund
         labelBl2 = SKLabelNode(text: bl2.blNameString)
@@ -334,7 +341,7 @@ class GermanMap: SKScene {
         backGroundBl2.alpha = 0
         
         //füge zu globalen Node hinzu
-        statsSideRootNode.addChild(backGroundBl2)
+        statsSideRootNode2.addChild(backGroundBl2)
         
         //erstelle Fade In Effekte für alle 3 Elemente
         let fadeIn = SKAction.fadeIn(withDuration: 0.8)
@@ -344,6 +351,13 @@ class GermanMap: SKScene {
         initPlayButton()
     }
     
-    
+    func initStatistics() {
+        //Erstelle Tabelle mit allen Einträgen
+        var keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetze Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
+        var values: [String] = ["16", "73", "0", "59", "0", "2"]
+        table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
+        table.createTable()
+        statsSide.addChild(table)
+    }
 }
 
