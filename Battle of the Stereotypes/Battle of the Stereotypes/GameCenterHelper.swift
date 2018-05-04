@@ -164,6 +164,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         for participant in currentMatch.participants! {
             if(participant.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
+                //if(currentMatch.participants!.index(of: participant)! % 2 == 0){
+                //    GameViewController.germanMapScene.gameScene.isActive = true
+                //    } else {
+                //    GameViewController.germanMapScene.gameScene.isActive = false
+                //}
                 return currentMatch.participants!.index(of: participant)!
             }
         }
@@ -182,9 +187,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
         }
         if(currentMatch.currentParticipant?.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
+            GameViewController.germanMapScene.gameScene.isActive = true
             return true
         } else {
-            print("Fehler: isLocalPlayersTurn: else-Error")
+            GameViewController.germanMapScene.gameScene.isActive = false
             return false
         }
     }
@@ -283,7 +289,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
         currentMatch.endTurn(withNextParticipants: [nextParticipant], turnTimeout: TimeInterval(5.0), match:         GameState.encodeGameState(gameState: gameState), completionHandler: { (error: Error?) in
             if(error == nil ) {
-                // Operation erfolgreich
+                GameViewController.germanMapScene.gameScene.isActive = false                // Operation erfolgreich
             } else {
                 print("Fehler gefunden beim Turn beenden")
                 print(error as Any)
