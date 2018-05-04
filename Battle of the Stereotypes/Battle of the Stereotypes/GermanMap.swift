@@ -117,6 +117,27 @@ class GermanMap: SKScene {
         
         statsSideRootNode2?.removeFromParent()
         showBlAfterArrowSelect(mecklenburgVorpommern!, against: niedersachsen!)
+        
+        
+        blAngreifer = nil
+        let bundeslandName = atPoint(touch.location(in: self)).name
+        if(bundeslandName != nil){
+            blAngreifer = getBundesland(bundeslandName!)
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch:UITouch = touches.first!
+        let bundeslandName = atPoint(touch.location(in: self)).name
+        
+        blVerteidiger = nil
+        if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
+            blVerteidiger = getBundesland(bundeslandName!)
+        }
+        
+        if(blVerteidiger != nil && blAngreifer != nil){
+        showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
+        }
     }
     
     func splitScene() {
@@ -140,6 +161,17 @@ class GermanMap: SKScene {
         
         leftScene.addChild(mapSide)
         rightScene.addChild(statsSide)
+        
+        setBGMap()
+        initBundeslaender()
+        
+        // testweise BL in den Hintergrund schicken:
+        //hessen?.toBackground()
+        //berlin?.toBackground()
+        //schleswigHolstein?.toBackground()
+        //nordrheinWestfalen?.toBackground()
+        allToBlue()
+        //badenWuertemberg?.switchColorToBlue()
         
         self.addChild(leftScene)
         self.addChild(rightScene)
@@ -398,5 +430,43 @@ class GermanMap: SKScene {
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
         statsSide.addChild(table)
+    }
+    
+    func getBundesland(_ blName: String) -> Bundesland? {
+        if blName == "Baden-Württemberg" {
+            return badenWuerttemberg!
+        } else if blName == "Bayern" {
+            return bayern!
+        } else if blName == "Berlin" {
+            return berlin!
+        } else if blName == "Brandenburg" {
+            return brandenburg!
+        } else if blName == "Bremen" {
+            return bremen!
+        } else if blName == "Hamburg" {
+            return hamburg!
+        } else if blName == "Hessen" {
+            return hessen!
+        } else if blName == "Mecklenburg-Vorpommern" {
+            return mecklenburgVorpommern!
+        } else if blName == "Niedersachsen" {
+            return niedersachsen!
+        } else if blName == "Nordrhein-Westfalen" {
+            return nordrheinWestfalen!
+        } else if blName == "Rheinland-Pfalz" {
+            return rheinlandPfalz!
+        } else if blName == "Saarland" {
+            return saarland!
+        } else if blName == "Sachsen" {
+            return sachsen!
+        } else if blName == "Sachsen-Anhalt" {
+            return sachsenAnhalt!
+        } else if blName == "Schleswig-Holstein" {
+            return schleswigHolstein!
+        } else if blName == "Thüringen" {
+            return thueringen!
+        } else{
+            return nil
+        }
     }
 }
