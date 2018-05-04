@@ -18,6 +18,8 @@ class GameState {
         var gameStatus = "schießen"
     }
     
+    var changehelper : Bool = true
+    
     struct StructExchangeRequest {
         // Kraftbar Zähler
         var forceCounter : Int = 0
