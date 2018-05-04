@@ -37,6 +37,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Boden des Spiels
     var ground: SKSpriteNode!
     
+    //backButton
+    var backButton: Button!
+    
     //Kraftbalken
     var forceCounter: Int = 0
     let powerBarGray = SKShapeNode(rectOf: CGSize(width: 200, height: 25))
@@ -81,6 +84,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsWorld.contactDelegate = self
         
         initBackground()
+        initBackButton()
         initDummys()
         initDummyLabels()
         //initilialisiere Geschoss für Spieler 1
@@ -197,6 +201,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(ball)
     }
     
+    func initBackButton() { //initialisiere den Zurück-zur-Bundesländerübersicht-Button
+        backButton = Button(texture: SKTexture(imageNamed: "back_button4"), size: CGSize(width: 60, height: 40), isPressable: true)
+        backButton.setScale(1.1)
+        backButton.position = CGPoint(x: -325, y: 230)
+        self.addChild(backButton)
+    }
+    
     func initPowerBar(){ //initialisiere den Kraftbalken
         powerBarGray.fillColor = SKColor.gray
         powerBarGray.strokeColor = SKColor.clear
@@ -239,6 +250,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: playerHP)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
+    
+    
+    
     
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         if childNode(withName: "arrow") != nil {
@@ -299,6 +313,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
+        
+        //wenn Back-Button gedrückt wurde, zur Bundesländer-Übersicht wechseln
+        if backButton != nil {
+            if backButton.isPressable == true && backButton.contains(touch.location(in: self)) {
+                transitToGermanMap()
+                return
+            }
+        }
+        
         //Button drücken, aber nur wenn Pfeil eingestellt
         if adjustedArrow==true{
             if childNode(withName: "arrow") != nil {
