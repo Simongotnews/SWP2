@@ -11,6 +11,7 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    var table: Table!
     //Booleans
     var allowsRotation = true //zeigt ob Geschoss rotieren darf
     var fireMode = false // true um zu feuern
@@ -309,7 +310,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
  
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
@@ -485,9 +486,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func transitToGermanMap(){
-        let transition = SKTransition.crossFade(withDuration: 2)
         let germanMapScene = SKScene(fileNamed: "GermanMap")
         germanMapScene?.scaleMode = .aspectFill
-        self.view?.presentScene(germanMapScene!, transition: transition)
+        var tmp: Int? = Int(table.values[3])!
+        if tmp! > 0 {
+            tmp! -= 1
+        }
+        table.values[3] = String(tmp!)
+        (germanMapScene as! GermanMap).setTable(t: table)
+        self.view?.presentScene(germanMapScene!)
+    }
+    
+    func setTable(t: Table){
+        table = t
     }
 }

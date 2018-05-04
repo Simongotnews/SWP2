@@ -102,7 +102,6 @@ class GermanMap: SKScene {
         
         //initialisiere Statistiken
         initStatistics()
-        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -354,11 +353,12 @@ class GermanMap: SKScene {
     
     func transitToGameScene(){
         let transition = SKTransition.crossFade(withDuration: 2)
-        let gameScene = SKScene(fileNamed: "GameScene")
+        let gameScene = GameScene(fileNamed: "GameScene")
         gameScene?.scaleMode = .aspectFill
+        gameScene?.setTable(t: table)
         self.view?.presentScene(gameScene!, transition: transition)
     }
-    
+ 
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
         //falls es den Knoten schon gibt -> lösche ihn, denn die komplette Animtion und alle Kinder dieser Node sollen erneut erscheinen, wenn der Pfeil erneut gezogen wird
         statsSideRootNode2?.removeFromParent()
@@ -425,10 +425,15 @@ class GermanMap: SKScene {
     
     func initStatistics() {
         //Erstelle Tabelle mit allen Einträgen
+        
         let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetze Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
-        let values: [String] = ["16", "73", "0", "59", "0", "2"]
+        var values: [String] = ["16", "73", "0", "59", "0", "2"]
+        if table != nil{
+            values = table.values
+        }
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
+        
         statsSide.addChild(table)
     }
     
@@ -468,5 +473,9 @@ class GermanMap: SKScene {
         } else{
             return nil
         }
+    }
+    
+    func setTable(t: Table){
+        table = t
     }
 }
