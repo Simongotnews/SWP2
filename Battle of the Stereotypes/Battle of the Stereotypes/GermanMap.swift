@@ -115,7 +115,6 @@ class GermanMap: SKScene {
         }
         
         statsSideRootNode2?.removeFromParent()
-        showBlAfterArrowSelect(mecklenburgVorpommern!, against: niedersachsen!)
         
         
         blAngreifer = nil
