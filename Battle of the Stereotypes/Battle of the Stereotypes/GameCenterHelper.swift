@@ -62,6 +62,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     private func turnBasedMatchmakerViewController(_ viewController: GKMatchmakerViewController, didFind match: GKTurnBasedMatch) {
         print("MatchMakerViewController Match gefunden")
         currentMatch = match
+        if(isLocalPlayersTurn()) {
+            GameViewController.germanMapScene.gameScene.isActive = true
+        } else {
+            GameViewController.germanMapScene.gameScene.isActive = false
+        }
         // TODO: Ab hier ermöglichen das eigentliche Spiel zu spielen
     }
     
@@ -87,10 +92,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             let matchData = currentMatch.matchData
             currentMatch.loadMatchData(completionHandler: nil)
             gameState = GameState.decodeGameState(data: matchData!)
-            if(isLocalPlayersTurn()) {
-                // TODO: Hier anzeigen, das man am Zug ist
-            }
         }
+        //
         print("Turn Event erhalten")
     }
     
@@ -188,10 +191,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
         }
         if(currentMatch.currentParticipant?.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
-            GameViewController.germanMapScene.gameScene.isActive = true
             return true
         } else {
-            GameViewController.germanMapScene.gameScene.isActive = false
             return false
         }
     }

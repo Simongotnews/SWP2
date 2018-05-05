@@ -261,7 +261,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func updateStatusLabel()
     {
         var statusText : String = ""
-        if(GameCenterHelper.getInstance().isLocalPlayersTurn()) {
+        if(isActive) {
             statusText = statusText + "Spieler: DU "
         } else {
             statusText = statusText + "Spieler: Gegner "
@@ -281,6 +281,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 GameCenterHelper.getInstance().sendExchangeRequest()
                 self.isActive = false
+                self.updateStatusLabel()
             } }
             GameCenterHelper.getInstance().exchangeRequest.damage = 0
             ball.physicsBody?.affectedByGravity=true
