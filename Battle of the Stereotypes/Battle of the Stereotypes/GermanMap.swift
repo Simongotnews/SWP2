@@ -415,7 +415,7 @@ class GermanMap: SKScene {
         labelBl2.fontSize = 23
         
         backGroundBl2 = SKShapeNode()
-        backGroundBl2.path = UIBezierPath(roundedRect: CGRect(x:(labelBl2.frame.origin.x) - 15, y: (labelBl2.frame.origin.y) - 8, width: ((labelBl2.frame.size.width) + 30), height: ((labelBl2.frame.size.height) + 14 )), cornerRadius: 59).cgPath
+        backGroundBl2.path = UIBezierPath(roundedRect: CGRect(x:(labelBl2.frame.origin.x) - 15, y: (labelBl2.frame.origin.y) - 8, width: ((labelBl2.frame.size.width) + 30), height: ((labelBl2.frame.size.height) + 18 )), cornerRadius: 59).cgPath
         backGroundBl2.position = CGPoint(x: 0, y: -120)
         backGroundBl2.fillColor = UIColor.red
         backGroundBl2.strokeColor = UIColor.black
