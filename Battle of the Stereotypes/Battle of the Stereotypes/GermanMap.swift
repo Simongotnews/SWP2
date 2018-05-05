@@ -407,7 +407,6 @@ class GermanMap: SKScene {
         badenWuerttemberg?.blNachbarn.append(bayern!)
         badenWuerttemberg?.blNachbarn.append(hessen!)
         badenWuerttemberg?.blNachbarn.append(rheinlandPfalz!)
-        badenWuerttemberg?.blNachbarn.append(thueringen!)
         bayern?.blNachbarn.append(badenWuerttemberg!)
         bayern?.blNachbarn.append(hessen!)
         bayern?.blNachbarn.append(sachsen!)
