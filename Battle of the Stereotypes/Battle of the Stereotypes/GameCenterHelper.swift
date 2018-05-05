@@ -65,10 +65,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         if(isLocalPlayersTurn()) {
             GameViewController.germanMapScene.gameScene.isActive = true
             GameViewController.germanMapScene.gameScene.updateStatusLabel()
+            GameViewController.germanMapScene.gameScene.hasTurn = true
         } else {
             GameViewController.germanMapScene.gameScene.isActive = false
             GameViewController.germanMapScene.gameScene.updateStatusLabel()
-        }
+            GameViewController.germanMapScene.gameScene.hasTurn = false        }
         // TODO: Ab hier ermöglichen das eigentliche Spiel zu spielen
     }
     

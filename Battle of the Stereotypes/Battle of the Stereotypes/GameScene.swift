@@ -33,7 +33,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var angleForArrow2:CGFloat! = 0.0
     
     //Wurfgeschoss
-    var ball: SKSpriteNode!
+    //var ball: SKSpriteNode!
     
     //Fire Button zum Einstellen der Kraft beim Wurf
     var fireButton: SKSpriteNode!
@@ -189,7 +189,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
         let ballTexture = SKTexture(imageNamed: "Krug")
-        ball = SKSpriteNode(texture: ballTexture)
+        var ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
         if player==1 {
             ball.position = leftDummy.position
@@ -276,17 +276,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         print("Werfe Geschoss")
-        if childNode(withName: "arrow") != nil {
+        //if childNode(withName: "arrow") != nil {
             if(isActive) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 GameCenterHelper.getInstance().sendExchangeRequest()
                 self.isActive = false
                 self.updateStatusLabel()
-            } }
+                }
+            }
             GameCenterHelper.getInstance().exchangeRequest.damage = 0
-            ball.physicsBody?.affectedByGravity=true
-            ball.physicsBody?.isDynamic=true
-            ball.physicsBody?.allowsRotation=true
+        self.children.last?.physicsBody?.affectedByGravity=true
+            self.children.last?.physicsBody?.isDynamic=true
+            self.children.last?.physicsBody?.allowsRotation=true
             
             //Berechnung des Winkels
             let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
@@ -298,7 +299,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
             let max = 1700.0
             let force = (Double(forceCounter) * max) / 100
-            ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
+        self.children.last?.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
             
             // Zum Verschicken des ExchangeRequests
             GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
@@ -307,13 +308,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //Boden soll mit Gegner Dummy interagieren
             //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
             //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
-            ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory | leftDummyCategory
+        self.children.last?.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory | leftDummyCategory
             //es soll eine Kollision mit dem Grund und dem Dummy simulieren
             //ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory //Anmerkung Skeltek: Wozu soll das gut sein?
-            ball.physicsBody?.usesPreciseCollisionDetection = true
+        self.children.last?.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
-        }
+        //}
     }
     func powerBarRun(){
         initPowerBar()
@@ -446,53 +447,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             secondBody = contact.bodyB
 
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
-        //if ((firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask &   groundCategory) != 0 && (firedBool == true))   //Skeltek: Es geht besser
         print("Checking whether contact is ground category")
         if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0 && (firedBool == true))          {
             print("changing Weapons Category to 'Ground'")
             firstBody.categoryBitMask = groundCategory
             secondBody.categoryBitMask = groundCategory //Skeltek: Geschoss soll zu 'Boden' deklariert werden
-            
             //firedBool = false //Skeltek: Test, später wieder aktivieren
-            
-            
         }
         
         if ((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0 && ((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0 && firedBool == true{
             firedBool = false
-            projectileDidCollideWithDummy(contact)
+//Hier sollte Schadensabfertigung nur aufgerufen werden falls active
+                projectileDidCollideWithDummy(contact)
+
             //GameCenterHelper.getInstance().sendExchangeRequest()
 
         }
-        
-        //warte eine bestimmte Zeit und initialisiere den anderen Spieler
-        
     }
     
     func projectileDidCollideWithDummy(_ contact: SKPhysicsContact) {
         print("projectile Collided with Dummy!")
         //ball.removeFromParent()
-        if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
+        //Wenn Dummy getroffen, entsprechend Schaden verursachen //Skel: Später noch 'isAcive' hinzufügen
+        if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0)){
             leftDummyHealth -= 50
             GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
-        if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
+        if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & rightDummyCategory) != 0)){
             rightDummyHealth -= 50
             GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
-        
-        //if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-        //    leftDummyHealth -= 50
-        //    if leftDummyHealth < 0 {
-        //        leftDummyHealth = 0
-        //    }
-        //}
-        //else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-        //    rightDummyHealth -= 50
-        //    if rightDummyHealth < 0 {
-        //        rightDummyHealth = 0
-        //    }
-        //}
+        if (!isActive){
+            //TODO Schaden übernehmen und auf Spieler anwenden
+            
+        }
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
     }
