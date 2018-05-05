@@ -82,6 +82,10 @@ class GermanMap: SKScene {
     var blAngreifer: Bundesland?
     var blVerteidiger: Bundesland?
     
+    var pfeil: SKShapeNode!
+    var touchesBeganLocation: CGPoint!
+    var touchesEndedLocation: CGPoint!
+    
     override func didMove(to view: SKView) {
         //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
         self.anchorPoint = CGPoint(x: 0, y: 0)
@@ -106,6 +110,8 @@ class GermanMap: SKScene {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
+        touchesBeganLocation = touch.location(in: self)
+        
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode2)) {
@@ -122,10 +128,15 @@ class GermanMap: SKScene {
         if(bundeslandName != nil){
             blAngreifer = getBundesland(bundeslandName!)
         }
+        if(pfeil != nil){
+            pfeil.removeFromParent()
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
+        touchesEndedLocation = touch.location(in: self)
+        
         let bundeslandName = atPoint(touch.location(in: self)).name
         
         blVerteidiger = nil
@@ -134,7 +145,8 @@ class GermanMap: SKScene {
         }
         
         if(blVerteidiger != nil && blAngreifer != nil){
-        showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
+            setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
+            showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
         }
     }
     
@@ -477,4 +489,17 @@ class GermanMap: SKScene {
     func setTable(t: Table){
         table = t
     }
+    
+    func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
+        let pfeilKoordinaten = UIBezierPath.pfeil(from: CGPoint(x:startLocation.x + 10, y:startLocation.y), to: CGPoint(x:endLocation.x, y: endLocation.y),tailWidth: 10, headWidth: 25, headLength: 40)
+        
+        pfeil = SKShapeNode(path: pfeilKoordinaten.cgPath)
+        pfeil.fillColor = UIColor.orange
+        pfeil.lineWidth = 3
+        pfeil.zPosition = 7
+        pfeil.strokeColor = UIColor.black
+        addChild(pfeil)
+    }
+ 
 }
+

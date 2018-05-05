@@ -14,6 +14,7 @@
 		3F2DF3142094907A00FC7469 /* Bundesland.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF3132094907A00FC7469 /* Bundesland.swift */; };
 		3F2DF3162094909200FC7469 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF3152094909200FC7469 /* Player.swift */; };
 		3F2DF318209490A100FC7469 /* Fighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2DF317209490A100FC7469 /* Fighter.swift */; };
+		3F48207A209DE643001A4EC5 /* Pfeil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F482079209DE643001A4EC5 /* Pfeil.swift */; };
 		3FA47FEE20850BE900ADE0A8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA47FED20850BE900ADE0A8 /* AppDelegate.swift */; };
 		3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FEF20850BE900ADE0A8 /* GameScene.sks */; };
 		3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FF120850BE900ADE0A8 /* Actions.sks */; };
@@ -51,6 +52,7 @@
 		3F2DF3132094907A00FC7469 /* Bundesland.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundesland.swift; sourceTree = "<group>"; };
 		3F2DF3152094909200FC7469 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		3F2DF317209490A100FC7469 /* Fighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fighter.swift; sourceTree = "<group>"; };
+		3F482079209DE643001A4EC5 /* Pfeil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pfeil.swift; sourceTree = "<group>"; };
 		3FA47FEA20850BE900ADE0A8 /* Battle of the Stereotypes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Battle of the Stereotypes.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA47FED20850BE900ADE0A8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3FA47FEF20850BE900ADE0A8 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 				3F2DF317209490A100FC7469 /* Fighter.swift */,
 				3F2B5A4B209AFEE2005B29C7 /* Button.swift */,
 				3F2B5A4E209B4FAF005B29C7 /* Table.swift */,
+				3F482079209DE643001A4EC5 /* Pfeil.swift */,
 			);
 			path = "Battle of the Stereotypes";
 			sourceTree = "<group>";
@@ -291,6 +294,7 @@
 			files = (
 				3FA47FF420850BE900ADE0A8 /* GameScene.swift in Sources */,
 				3FA47FF620850BE900ADE0A8 /* GameViewController.swift in Sources */,
+				3F48207A209DE643001A4EC5 /* Pfeil.swift in Sources */,
 				3F2DF318209490A100FC7469 /* Fighter.swift in Sources */,
 				3F2B5A4F209B4FAF005B29C7 /* Table.swift in Sources */,
 				3F2B5A4C209AFEE2005B29C7 /* Button.swift in Sources */,
