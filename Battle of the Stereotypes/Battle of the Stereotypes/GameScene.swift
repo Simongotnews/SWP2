@@ -482,9 +482,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func updateStatistics(_ defenderIndex: Int, _ attackerIndex: Int, _ health: Int){
         var tmp: Int? = Int(table.values[defenderIndex])!
-        if tmp! > 0 {
+        if tmp! < health {
+            tmp! -= tmp!
+        }else{
             tmp! -= health
         }
+        
         table.values[defenderIndex] = String(tmp!)
         table.values[attackerIndex] = String(Int(table.values[attackerIndex])! + health)
     }
