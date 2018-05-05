@@ -60,7 +60,7 @@ class Bundesland: SKSpriteNode {
     //Vorhandensein eines Flughafens
     var hasAirport: Bool!
     //Nachbarländer
-    var nachbarBlArray: [Bundesland]!
+    var blNachbarn = Array<Bundesland>()
     
     func toBackground(){
         self.zPosition = 0
