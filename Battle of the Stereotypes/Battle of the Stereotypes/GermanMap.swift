@@ -538,14 +538,6 @@ class GermanMap: SKScene {
         playButton.position = CGPoint(x: 0, y: -250)
         statsSideRootNode2.addChild(playButton)
     }
-    
-    func transitToGameScene(){
-        let transition = SKTransition.crossFade(withDuration: 2)
-        let gameScene = GameScene(fileNamed: "GameScene")
-        gameScene?.scaleMode = .aspectFill
-        gameScene?.setTable(t: table)
-        self.view?.presentScene(gameScene!, transition: transition)
-    }
  
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
         //falls es den Knoten schon gibt -> lösche ihn, denn die komplette Animtion und alle Kinder dieser Node sollen erneut erscheinen, wenn der Pfeil erneut gezogen wird
@@ -680,5 +672,15 @@ class GermanMap: SKScene {
         pfeil.zPosition = 7
         pfeil.strokeColor = UIColor.black
         addChild(pfeil)
+    }
+    
+    func transitToGameScene(){
+        let transition = SKTransition.crossFade(withDuration: 2)
+        let gameScene = GameScene(fileNamed: "GameScene")
+        gameScene?.scaleMode = .aspectFill
+        gameScene?.setTable(t: table)
+        gameScene?.setAngreifer(angreifer: blAngreifer!)
+        gameScene?.setVerteidiger(verteidiger: blVerteidiger!)
+        self.view?.presentScene(gameScene!, transition: transition)
     }
 }
