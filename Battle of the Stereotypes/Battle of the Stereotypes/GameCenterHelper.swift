@@ -106,7 +106,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         // Hier Schuss simulieren
         GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
         GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
-            GameViewController.germanMapScene.gameScene.throwProjectile()
+        GameViewController.germanMapScene.gameScene.throwProjectile()
         //if(damage != 0) {
         // Schade Spieler
         //}
@@ -117,6 +117,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         exchange.reply(withLocalizableMessageKey: "XY", arguments: ["XY","Y"], data: GameState.encodeExchangeReply(exchangeReply: exchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
+                GameViewController.germanMapScene.gameScene.isActive = true
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
                 print(error as Any)

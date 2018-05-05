@@ -129,7 +129,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         leftDummy.physicsBody = SKPhysicsBody(texture: leftDummyTexture, size: leftDummy.size)
         leftDummy.physicsBody?.isDynamic = true
-        leftDummy.physicsBody?.affectedByGravity = true
+        leftDummy.physicsBody?.affectedByGravity = false
         leftDummy.physicsBody?.categoryBitMask = leftDummyCategory
         //leftDummy.physicsBody?.contactTestBitMask = weaponCategory    //Skeltek: Wozu?
         //leftDummy.physicsBody?.collisionBitMask = 0                   //Skeltek: Wozu?
@@ -144,7 +144,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.isDynamic = true
-        rightDummy.physicsBody?.affectedByGravity = true
+        rightDummy.physicsBody?.affectedByGravity = false
         rightDummy.physicsBody?.categoryBitMask = rightDummyCategory
         //rightDummy.physicsBody?.contactTestBitMask = weaponCategory
         //rightDummy.physicsBody?.collisionBitMask = 0
@@ -277,6 +277,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         print("Werfe Geschoss")
         if childNode(withName: "arrow") != nil {
+            if(isActive) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                GameCenterHelper.getInstance().sendExchangeRequest()
+                self.isActive = false
+            } }
+            GameCenterHelper.getInstance().exchangeRequest.damage = 0
             ball.physicsBody?.affectedByGravity=true
             ball.physicsBody?.isDynamic=true
             ball.physicsBody?.allowsRotation=true
@@ -435,25 +441,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("TypeA is " + String(contact.bodyA.categoryBitMask))
         var firstBody:SKPhysicsBody
         var secondBody:SKPhysicsBody
-        
-        //if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {    //Skeltek: Vermutlich unnötig bei richtiger Anwendung
             firstBody = contact.bodyA
             secondBody = contact.bodyB
-        //}else {
-        //    firstBody = contact.bodyB
-        //    secondBody = contact.bodyA
-        //}
-        GameCenterHelper.getInstance().exchangeRequest.damage = 0
+
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
         //if ((firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask &   groundCategory) != 0 && (firedBool == true))   //Skeltek: Es geht besser
-        print("Checking weather contact is ground category")
+        print("Checking whether contact is ground category")
         if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0 && (firedBool == true))          {
             print("changing Weapons Category to 'Ground'")
             firstBody.categoryBitMask = groundCategory
             secondBody.categoryBitMask = groundCategory //Skeltek: Geschoss soll zu 'Boden' deklariert werden
+            
             //firedBool = false //Skeltek: Test, später wieder aktivieren
-            //GameCenterHelper.getInstance().sendExchangeRequest()  //Sollte nicht ausgeführt werden, wenn man angegriffen wird
-
+            
+            
         }
         
         if ((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0 && ((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0 && firedBool == true{
@@ -472,10 +473,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //ball.removeFromParent()
         if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
             leftDummyHealth -= 50
+            GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
         if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
             rightDummyHealth -= 50
+            GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
+        
         //if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
         //    leftDummyHealth -= 50
         //    if leftDummyHealth < 0 {
@@ -488,7 +492,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //        rightDummyHealth = 0
         //    }
         //}
-        //GameCenterHelper.getInstance().exchangeRequest.damage = 50
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
     }
