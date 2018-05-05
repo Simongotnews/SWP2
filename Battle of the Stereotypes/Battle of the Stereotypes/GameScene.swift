@@ -252,9 +252,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
     
-    
-    
-    
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         if childNode(withName: "arrow") != nil {
             ball.physicsBody?.affectedByGravity=true

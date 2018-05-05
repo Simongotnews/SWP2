@@ -108,8 +108,6 @@ class Bundesland: SKSpriteNode {
     }
     
     func switchColorToRed(){
-        print(self.blNameEnum)
-        
         switch self.blNameEnum{
             case .BadenWuerttemberg:
                 super.texture = SKTexture(imageNamed: "BadenWuerttemberg_red")
