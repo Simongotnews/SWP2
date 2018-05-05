@@ -64,8 +64,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         currentMatch = match
         if(isLocalPlayersTurn()) {
             GameViewController.germanMapScene.gameScene.isActive = true
+            GameViewController.germanMapScene.gameScene.updateStatusLabel()
         } else {
             GameViewController.germanMapScene.gameScene.isActive = false
+            GameViewController.germanMapScene.gameScene.updateStatusLabel()
         }
         // TODO: Ab hier ermöglichen das eigentliche Spiel zu spielen
     }
@@ -121,6 +123,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if(error == nil ) {
                 // Operation erfolgreich
                 GameViewController.germanMapScene.gameScene.isActive = true
+                GameViewController.germanMapScene.gameScene.updateStatusLabel()
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
                 print(error as Any)
@@ -155,7 +158,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 }
             })
         }
-        endTurn()
     }
     
     // Eigene Methoden
