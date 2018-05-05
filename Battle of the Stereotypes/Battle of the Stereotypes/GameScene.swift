@@ -429,6 +429,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
+            updateStatistics(1,3, leftDummyHealth)
             leftDummyHealth -= 50
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             if leftDummyHealth < 0 {
@@ -437,6 +438,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
+            updateStatistics(3,1, rightDummyHealth)
             rightDummyHealth -= 50
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             if rightDummyHealth < 0 {
@@ -478,14 +480,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Called before each frame is rendered
     }
     
+    func updateStatistics(_ defenderIndex: Int, _ attackerIndex: Int, _ health: Int){
+        var tmp: Int? = Int(table.values[defenderIndex])!
+        if tmp! > 0 {
+            tmp! -= health
+        }
+        table.values[defenderIndex] = String(tmp!)
+        table.values[attackerIndex] = String(Int(table.values[attackerIndex])! + health)
+    }
+    
     func transitToGermanMap(){
         let germanMapScene = SKScene(fileNamed: "GermanMap")
         germanMapScene?.scaleMode = .aspectFill
-        var tmp: Int? = Int(table.values[3])!
-        if tmp! > 0 {
-            tmp! -= 1
-        }
-        table.values[3] = String(tmp!)
         (germanMapScene as! GermanMap).setTable(t: table)
         self.view?.presentScene(germanMapScene!)
     }
