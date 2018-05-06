@@ -53,19 +53,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var leftDummy: SKSpriteNode!
     var rightDummy: SKSpriteNode!
     var leftDummyHealthLabel:SKLabelNode!
-    
-    var leftDummyHealth:Int = 0 {
-        didSet {
-            leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/100"
-        }
-    }
-    
     var rightDummyHealthLabel:SKLabelNode!
-    var rightDummyHealth:Int = 0 {
-        didSet {
-            rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/100"
-        }
-    }
+    
+    var leftDummyHealthInitial: Int = 0
+    var leftDummyHealth: Int = 0
+    var rightDummyHealthInitial: Int = 0
+    var rightDummyHealth: Int = 0
     
     let leftDummyCategory:UInt32 = 0x1 << 2
     let rightDummyCategory:UInt32 = 0x1 << 1
@@ -79,6 +72,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let rightDummyHealthBar = SKSpriteNode()
     
     var playerHP = 100
+    
+    var angreiferNameLabel: SKLabelNode!
+    var verteidigerNameLabel: SKLabelNode!
     
     override func didMove(to view: SKView) {
         //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
@@ -154,23 +150,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func initDummyLabels(){
-        leftDummyHealthLabel = SKLabelNode(text: "Health: 100")
         leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 + 50)
-        leftDummyHealthLabel.fontName = "Americantypewriter-Bold"
+        leftDummyHealthLabel.fontName = "AvenirNext-Bold"
         leftDummyHealthLabel.fontSize = 26
         leftDummyHealthLabel.fontColor = UIColor.white
         leftDummyHealthLabel.zPosition=3
-        leftDummyHealth = 100
         
         self.addChild(leftDummyHealthLabel)
         
-        rightDummyHealthLabel = SKLabelNode(text: "Health: 100")
         rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 135, y: rightDummy.size.height / 2 + 50)
-        rightDummyHealthLabel.fontName = "Americantypewriter-Bold"
+        rightDummyHealthLabel.fontName = "AvenirNext-Bold"
         rightDummyHealthLabel.fontSize = 26
         rightDummyHealthLabel.fontColor = UIColor.white
         rightDummyHealthLabel.zPosition=3
-        rightDummyHealth = 100
         
         self.addChild(rightDummyHealthLabel)
     }
@@ -248,12 +240,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             y: rightDummyHealthLabel.position.y + 10
         )
         
-        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: playerHP)
-        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealthInitial, initialHealthPoints: leftDummyHealthInitial)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealthInitial, initialHealthPoints: rightDummyHealthInitial)
     }
-    
-    
-    
     
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         if childNode(withName: "arrow") != nil {
@@ -440,19 +429,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-            leftDummyHealth -= 100
+            updateStatistics(1,3, leftDummyHealth)
+            leftDummyHealth -= 50
+            leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
+                leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             }
         }
         else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-            rightDummyHealth -= 100
+            updateStatistics(3,1, rightDummyHealth)
+            rightDummyHealth -= 50
+            rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
+                rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             }
         }
-        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
-        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth, initialHealthPoints: leftDummyHealthInitial)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth, initialHealthPoints: rightDummyHealthInitial)
         
         if(leftDummyHealth == 0 || rightDummyHealth == 0){
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
@@ -461,7 +456,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
+    func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int, initialHealthPoints: Int) {
         let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
         
         let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
@@ -470,7 +465,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let context = UIGraphicsGetCurrentContext()
         
         fillColor.setFill()
-        let barWidth = (barSize.width - 1) * CGFloat(hp) / CGFloat(100)
+        let barWidth = (barSize.width - 1) * CGFloat(hp) / CGFloat(initialHealthPoints)
         let barRect = CGRect(x: 0.5, y: 0.5, width: barWidth, height: barSize.height - 1)
         context!.fill(barRect)
         
@@ -485,16 +480,49 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Called before each frame is rendered
     }
     
+    func updateStatistics(_ defenderIndex: Int, _ attackerIndex: Int, _ health: Int){
+        var tmp: Int? = Int(table.values[defenderIndex])!
+        if tmp! < health {
+            tmp! -= tmp!
+        }else{
+            tmp! -= health
+        }
+        
+        table.values[defenderIndex] = String(tmp!)
+        table.values[attackerIndex] = String(Int(table.values[attackerIndex])! + health)
+    }
+    
     func transitToGermanMap(){
         let germanMapScene = SKScene(fileNamed: "GermanMap")
         germanMapScene?.scaleMode = .aspectFill
-        var tmp: Int? = Int(table.values[3])!
-        if tmp! > 0 {
-            tmp! -= 1
-        }
-        table.values[3] = String(tmp!)
         (germanMapScene as! GermanMap).setTable(t: table)
         self.view?.presentScene(germanMapScene!)
+    }
+    
+    func setAngreifer(angreifer: Bundesland){
+        leftDummyHealthInitial = angreifer.anzahlTruppen
+        leftDummyHealth = angreifer.anzahlTruppen
+        leftDummyHealthLabel = SKLabelNode(text: "Health: \(leftDummyHealth)/\(leftDummyHealth)")
+        angreiferNameLabel = SKLabelNode(text: angreifer.blNameString)
+        angreiferNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: self.frame.size.height / 2 - 480)
+        setBundeslandNameLabel(angreiferNameLabel)
+    }
+    
+    func setVerteidiger(verteidiger: Bundesland){
+        rightDummyHealthInitial = verteidiger.anzahlTruppen
+        rightDummyHealth = verteidiger.anzahlTruppen
+        rightDummyHealthLabel = SKLabelNode(text: "Health: \(rightDummyHealth)/\(rightDummyHealth)")
+        verteidigerNameLabel = SKLabelNode(text: verteidiger.blNameString)
+        verteidigerNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 150, y: self.frame.size.height / 2 - 480)
+        setBundeslandNameLabel(verteidigerNameLabel)
+    }
+    
+    func setBundeslandNameLabel(_ bundesLandNameLabel: SKLabelNode){
+        bundesLandNameLabel.fontName = "AvenirNext-Bold"
+        bundesLandNameLabel.fontSize = 26
+        bundesLandNameLabel.fontColor = UIColor.white
+        bundesLandNameLabel.zPosition=3
+        addChild(bundesLandNameLabel)
     }
     
     func setTable(t: Table){

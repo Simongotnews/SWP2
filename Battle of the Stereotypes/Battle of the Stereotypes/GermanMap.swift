@@ -81,6 +81,11 @@ class GermanMap: SKScene {
     
     var blAngreifer: Bundesland?
     var blVerteidiger: Bundesland?
+
+    var player1: Player?
+    var player2: Player?
+    var activePlayer: Player?
+    var unActivePlayer: Player?
     
     var pfeil: SKShapeNode!
     var touchesBeganLocation: CGPoint!
@@ -97,16 +102,20 @@ class GermanMap: SKScene {
         initBundeslaender()
         initBlNachbarn()
         
-        // testweise BL in den Hintergrund schicken:
-        //hessen?.toBackground()
-        //berlin?.toBackground()
-        //schlesswigHolstein?.toBackground()
-        //nordrheinWestfalen?.toBackground()
-        allToBlue()
-        //badenWuertemberg?.switchColorToBlue()
+        allToRed()
+        hessen?.switchColorToBlue()
+        niedersachsen?.switchColorToBlue()
+        sachsenAnhalt?.switchColorToBlue()
+        thueringen?.switchColorToBlue()
+        
+        initPlayer()
+        activePlayer = player1
+        unActivePlayer = player2
         
         //initialisiere Statistiken
         initStatistics()
+        
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -144,10 +153,14 @@ class GermanMap: SKScene {
         if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
             blVerteidiger = getBundesland(bundeslandName!)
         }
-        if(blVerteidiger != nil && blAngreifer != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))!){
+        if(isAttackValid()){
             setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
             showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
         }
+    }
+    
+    func isAttackValid() -> Bool{
+        return blVerteidiger != nil && blAngreifer != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!)
     }
     
     func splitScene() {
@@ -171,9 +184,6 @@ class GermanMap: SKScene {
         
         leftScene.addChild(mapSide)
         rightScene.addChild(statsSide)
-        
-        setBGMap()
-        initBundeslaender()
         
         // testweise BL in den Hintergrund schicken:
         //hessen?.toBackground()
@@ -397,7 +407,6 @@ class GermanMap: SKScene {
         badenWuerttemberg?.blNachbarn.append(bayern!)
         badenWuerttemberg?.blNachbarn.append(hessen!)
         badenWuerttemberg?.blNachbarn.append(rheinlandPfalz!)
-        badenWuerttemberg?.blNachbarn.append(thueringen!)
         bayern?.blNachbarn.append(badenWuerttemberg!)
         bayern?.blNachbarn.append(hessen!)
         bayern?.blNachbarn.append(sachsen!)
@@ -455,6 +464,28 @@ class GermanMap: SKScene {
         thueringen?.blNachbarn.append(sachsenAnhalt!)
     }
     
+    func initPlayer(){
+        player1 = Player(bundesland: niedersachsen!)
+        player1?.blEigene.append(niedersachsen!)
+        player1?.blEigene.append(sachsenAnhalt!)
+        player1?.blEigene.append(thueringen!)
+        player1?.blEigene.append(hessen!)
+        
+        player2 = Player(bundesland: bayern!)
+        player2?.blEigene.append(bayern!)
+        player2?.blEigene.append(badenWuerttemberg!)
+        player2?.blEigene.append(berlin!)
+        player2?.blEigene.append(brandenburg!)
+        player2?.blEigene.append(bremen!)
+        player2?.blEigene.append(hamburg!)
+        player2?.blEigene.append(mecklenburgVorpommern!)
+        player2?.blEigene.append(nordrheinWestfalen!)
+        player2?.blEigene.append(rheinlandPfalz!)
+        player2?.blEigene.append(saarland!)
+        player2?.blEigene.append(sachsen!)
+        player2?.blEigene.append(schleswigHolstein!)
+    }
+    
     func setTruppenAnzahlLabel(_ truppenLabel: SKLabelNode!){
         truppenLabel.fontName = "Optima-Bold"
         truppenLabel.fontSize = 36
@@ -506,14 +537,6 @@ class GermanMap: SKScene {
         playButton.setScale(1.1)
         playButton.position = CGPoint(x: 0, y: -250)
         statsSideRootNode2.addChild(playButton)
-    }
-    
-    func transitToGameScene(){
-        let transition = SKTransition.crossFade(withDuration: 2)
-        let gameScene = GameScene(fileNamed: "GameScene")
-        gameScene?.scaleMode = .aspectFill
-        gameScene?.setTable(t: table)
-        self.view?.presentScene(gameScene!, transition: transition)
     }
  
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
@@ -581,10 +604,14 @@ class GermanMap: SKScene {
     }
     
     func initStatistics() {
-        //Erstelle Tabelle mit allen Einträgen
+        let anzahlEigeneBl: Int = (activePlayer?.blEigene.count)!
+        let eigeneTruppenStaerke: Int = (activePlayer?.calculateTruppenStaerke())!
+        let anzahlGegnerischeBl: Int = (unActivePlayer?.blEigene.count)!
+        let gegnerischeTruppenStaerke: Int = (unActivePlayer?.calculateTruppenStaerke())!
         
-        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetze Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
-        var values: [String] = ["16", "73", "0", "59", "0", "2"]
+        //Erstelle Tabelle mit allen Einträgen
+        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
+        var values: [String] = [String(anzahlEigeneBl), String(eigeneTruppenStaerke), String(anzahlGegnerischeBl), String(gegnerischeTruppenStaerke), "0", "2"]
         if table != nil{
             values = table.values
         }
@@ -646,6 +673,14 @@ class GermanMap: SKScene {
         pfeil.strokeColor = UIColor.black
         addChild(pfeil)
     }
- 
+    
+    func transitToGameScene(){
+        let transition = SKTransition.crossFade(withDuration: 2)
+        let gameScene = GameScene(fileNamed: "GameScene")
+        gameScene?.scaleMode = .aspectFill
+        gameScene?.setTable(t: table)
+        gameScene?.setAngreifer(angreifer: blAngreifer!)
+        gameScene?.setVerteidiger(verteidiger: blVerteidiger!)
+        self.view?.presentScene(gameScene!, transition: transition)
+    }
 }
-
