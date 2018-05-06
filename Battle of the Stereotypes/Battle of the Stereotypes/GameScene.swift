@@ -238,7 +238,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerLabel.position.y = powerBarGray.position.y + 30
         powerLabel.zPosition = 3
         self.addChild(powerLabel)
-    
+        
     }
     
     func initHealthBar(){ //initalisiere eine Bar zur Anzeige der verbleibenden Lebenspunkte des jeweiligen Dummys
@@ -277,43 +277,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         print("Werfe Geschoss")
         //if childNode(withName: "arrow") != nil {
-            if(isActive) {
+        if(isActive) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 GameCenterHelper.getInstance().sendExchangeRequest()
                 self.isActive = false
                 self.updateStatusLabel()
-                }
             }
-            GameCenterHelper.getInstance().exchangeRequest.damage = 0
+        }
+        GameCenterHelper.getInstance().exchangeRequest.damage = 0
         self.children.last?.physicsBody?.affectedByGravity=true
-            self.children.last?.physicsBody?.isDynamic=true
-            self.children.last?.physicsBody?.allowsRotation=true
-            
-            //Berechnung des Winkels
-            let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
-            //Berechnung des Impulsvektors (nur Richtung)
-            let xImpulse = cos(winkel)
-            let yImpulse = sqrt(1-pow(xImpulse, 2))
-            //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
-            //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
-            //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
-            let max = 1700.0
-            let force = (Double(forceCounter) * max) / 100
+        self.children.last?.physicsBody?.isDynamic=true
+        self.children.last?.physicsBody?.allowsRotation=true
+        
+        //Berechnung des Winkels
+        let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
+        //Berechnung des Impulsvektors (nur Richtung)
+        let xImpulse = cos(winkel)
+        let yImpulse = sqrt(1-pow(xImpulse, 2))
+        //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
+        //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
+        //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
+        let max = 1700.0
+        let force = (Double(forceCounter) * max) / 100
         self.children.last?.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
-            
-            // Zum Verschicken des ExchangeRequests
-            GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
-            GameCenterHelper.getInstance().exchangeRequest.forceCounter = forceCounter
-            
-            //Boden soll mit Gegner Dummy interagieren
-            //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
-            //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
+        
+        // Zum Verschicken des ExchangeRequests
+        GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
+        GameCenterHelper.getInstance().exchangeRequest.forceCounter = forceCounter
+        
+        //Boden soll mit Gegner Dummy interagieren
+        //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
+        //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
         self.children.last?.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory | leftDummyCategory
-            //es soll eine Kollision mit dem Grund und dem Dummy simulieren
-            //ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory //Anmerkung Skeltek: Wozu soll das gut sein?
+        //es soll eine Kollision mit dem Grund und dem Dummy simulieren
+        //ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory //Anmerkung Skeltek: Wozu soll das gut sein?
         self.children.last?.physicsBody?.usesPreciseCollisionDetection = true
+        if (isActive){
             arrow.removeFromParent()
-            allowsRotation = true
+        }
+        allowsRotation = true
         //}
     }
     func powerBarRun(){
@@ -340,7 +342,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBarGray.removeFromParent()
         powerBarGreen.removeFromParent()
     }
- 
+    
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
@@ -391,16 +393,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let sprite = childNode(withName: "arrow") {
             if(allowsRotation == true){
-            let touch:UITouch = touches.first!
-            let pos = touch.location(in: self)
-            
-            _ = self.atPoint(pos)
-            let touchedNode = self.atPoint(pos)
+                let touch:UITouch = touches.first!
+                let pos = touch.location(in: self)
                 
-            let deltaX = self.arrow.position.x - pos.x
-            let deltaY = self.arrow.position.y - pos.y
-            
-            if(touchedNode.name == "leftdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0){
+                _ = self.atPoint(pos)
+                let touchedNode = self.atPoint(pos)
+                
+                let deltaX = self.arrow.position.x - pos.x
+                let deltaY = self.arrow.position.y - pos.y
+                
+                if(touchedNode.name == "leftdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0){
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
                     if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
@@ -408,10 +410,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
                     }
                 }
-            else if(touchedNode.name == "rightdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1){
-                angleForArrow = atan2(deltaY, deltaX)
-                if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
-                    sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
+                else if(touchedNode.name == "rightdummy" && GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1){
+                    angleForArrow = atan2(deltaY, deltaX)
+                    if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                        sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
                     }
                 }
             }
@@ -437,15 +439,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(arrow)
     }
-
+    
     func didBegin(_ contact: SKPhysicsContact){
         print("didBegin (Collision detected)")
         print("TypeA is " + String(contact.bodyA.categoryBitMask))
         var firstBody:SKPhysicsBody
         var secondBody:SKPhysicsBody
-            firstBody = contact.bodyA
-            secondBody = contact.bodyB
-
+        firstBody = contact.bodyA
+        secondBody = contact.bodyB
+        
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
         print("Checking whether contact is ground category")
         if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0 && (firedBool == true))          {
@@ -457,11 +459,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if ((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0 && ((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0 && firedBool == true{
             firedBool = false
-//Hier sollte Schadensabfertigung nur aufgerufen werden falls active
-                projectileDidCollideWithDummy(contact)
-
+            //Hier sollte Schadensabfertigung nur aufgerufen werden falls active
+            projectileDidCollideWithDummy(contact)
+            
             //GameCenterHelper.getInstance().sendExchangeRequest()
-
+            
         }
     }
     
@@ -489,7 +491,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
         
         let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
-    
+        
         UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
         let context = UIGraphicsGetCurrentContext()
         
@@ -504,7 +506,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.texture = SKTexture(image: spriteImage!)
         node.size = barSize
     }
-
+    
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
