@@ -44,22 +44,25 @@ class GermanMap: SKScene {
     var mapSize:(width:CGFloat, height:CGFloat) = (0.0, 0.0)  // globale Groeße welche in allen Funktionen verwendet werden kann.
     
     // Bundeslaender deklarieren:
-    var badenWuerttemberg:Bundesland?
-    var bayern:Bundesland?
-    var berlin:Bundesland?
-    var brandenburg:Bundesland?
-    var bremen:Bundesland?
-    var hamburg:Bundesland?
-    var hessen:Bundesland?
-    var mecklenburgVorpommern:Bundesland?
-    var niedersachsen:Bundesland?
-    var nordrheinWestfalen:Bundesland?
-    var rheinlandPfalz:Bundesland?
-    var saarland:Bundesland?
-    var sachsen:Bundesland?
-    var sachsenAnhalt:Bundesland?
-    var schleswigHolstein:Bundesland?
-    var thueringen:Bundesland?
+    var badenWuerttemberg:Bundesland!
+    var bayern:Bundesland!
+    var berlin:Bundesland!
+    var brandenburg:Bundesland!
+    var bremen:Bundesland!
+    var hamburg:Bundesland!
+    var hessen:Bundesland!
+    var mecklenburgVorpommern:Bundesland!
+    var niedersachsen:Bundesland!
+    var nordrheinWestfalen:Bundesland!
+    var rheinlandPfalz:Bundesland!
+    var saarland:Bundesland!
+    var sachsen:Bundesland!
+    var sachsenAnhalt:Bundesland!
+    var schleswigHolstein:Bundesland!
+    var thueringen:Bundesland!
+    
+    // Array mit allen Bundesländern deklarieren:
+    var allBundeslaender = Array<Bundesland>()
     
     // Labels für die Anzeige der Truppenstärke deklarieren:
     var badenWuerttembergAnzahlTruppenLabel: SKLabelNode!
@@ -79,15 +82,18 @@ class GermanMap: SKScene {
     var schleswigHolsteinAnzahlTruppenLabel: SKLabelNode!
     var thueringenAnzahlTruppenLabel: SKLabelNode!
     
-    var blAngreifer: Bundesland?
-    var blVerteidiger: Bundesland?
+    // Deklaration des angreifenden und des verteidigenden Bundesland:
+    var blAngreifer: Bundesland!
+    var blVerteidiger: Bundesland!
 
-    var player1: Player?
-    var player2: Player?
-    var activePlayer: Player?
-    var unActivePlayer: Player?
+    var player1: Player!
+    var player2: Player!
+    var activePlayer: Player!
+    var unActivePlayer: Player!
     
+    // Deklaration des Pfeils zur Anzeige der für einen Angriff verbundenen Bundesländer
     var pfeil: SKShapeNode!
+    
     var touchesBeganLocation: CGPoint!
     var touchesEndedLocation: CGPoint!
     
@@ -102,20 +108,17 @@ class GermanMap: SKScene {
         initBundeslaender()
         initBlNachbarn()
         
-        allToRed()
-        hessen?.switchColorToBlue()
-        niedersachsen?.switchColorToBlue()
-        sachsenAnhalt?.switchColorToBlue()
-        thueringen?.switchColorToBlue()
-        
+        //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
         initPlayer()
+        
         activePlayer = player1
         unActivePlayer = player2
         
+        //Setze die Farben der Bundesländer
+        initColors()
+        
         //initialisiere Statistiken
         initStatistics()
-        
-        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -165,10 +168,6 @@ class GermanMap: SKScene {
         }
     }
     
-    func isAttackValid() -> Bool{
-        return blVerteidiger != nil && blAngreifer != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!)
-    }
-    
     func splitScene() {
         //Erstelle die linke Hälfte
         leftScene = SKNode()
@@ -191,14 +190,6 @@ class GermanMap: SKScene {
         leftScene.addChild(mapSide)
         rightScene.addChild(statsSide)
         
-        // testweise BL in den Hintergrund schicken:
-        //hessen?.toBackground()
-        //berlin?.toBackground()
-        //schleswigHolstein?.toBackground()
-        //nordrheinWestfalen?.toBackground()
-        allToBlue()
-        //badenWuertemberg?.switchColorToBlue()
-        
         self.addChild(leftScene)
         self.addChild(rightScene)
     }
@@ -217,9 +208,11 @@ class GermanMap: SKScene {
     }
     
     func initBundeslaender(){
-        // Hinzufuegen der einzelnen BL an der korrekten Stelle als Klasse Bundesland:
-        // HINWEIS: die groesse der einzelnen Kartenelemente richtet sich nach der Size der Hintergrundmap!
-        // BW:
+        // Hinzufügen der einzelnen BL an der korrekten Stelle als Klasse Bundesland:
+        // Hinzufügen der Truppenstärke sowie der Labels zur Anzeige der Truppenstärke eines Bundeslandes
+        // HINWEIS: die Größe der einzelnen Kartenelemente richtet sich nach der Size der Hintergrundmap!
+        
+        // Baden-Württemberg:
         badenWuerttemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuerttemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         badenWuerttemberg?.setPosition()
         badenWuerttemberg?.anzahlTruppen = 8
@@ -385,7 +378,7 @@ class GermanMap: SKScene {
         setTruppenAnzahlLabel(sachsenAnhaltAnzahlTruppenLabel)
         mapSide.addChild(sachsenAnhalt!)
         
-        // Schlesswig-Holstein:
+        // Schleswig-Holstein:
         schleswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: "SchleswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         schleswigHolstein?.setPosition()
         schleswigHolstein?.anzahlTruppen = 18
@@ -396,7 +389,7 @@ class GermanMap: SKScene {
         setTruppenAnzahlLabel(schleswigHolsteinAnzahlTruppenLabel)
         mapSide.addChild(schleswigHolstein!)
         
-        // Thueringen:
+        // Thüringen:
         thueringen = Bundesland(blName: BundeslandEnum.Thueringen, texture: SKTexture(imageNamed: "Thueringen_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         thueringen?.setPosition()
@@ -407,135 +400,50 @@ class GermanMap: SKScene {
         thueringenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 355 + rightScene.position.x, y: self.size.height/3 + 190)
         setTruppenAnzahlLabel(thueringenAnzahlTruppenLabel)
         mapSide.addChild(thueringen!)
+        
+        allBundeslaender = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, hessen, mecklenburgVorpommern, niedersachsen, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, sachsenAnhalt, schleswigHolstein, thueringen]
     }
     
+    // Für jedes Bundesland wird ein Array mit den Nachbarländern initialisiert
     func initBlNachbarn(){
-        badenWuerttemberg?.blNachbarn.append(bayern!)
-        badenWuerttemberg?.blNachbarn.append(hessen!)
-        badenWuerttemberg?.blNachbarn.append(rheinlandPfalz!)
-        bayern?.blNachbarn.append(badenWuerttemberg!)
-        bayern?.blNachbarn.append(hessen!)
-        bayern?.blNachbarn.append(sachsen!)
-        bayern?.blNachbarn.append(thueringen!)
-        berlin?.blNachbarn.append(brandenburg!)
-        brandenburg?.blNachbarn.append(berlin!)
-        brandenburg?.blNachbarn.append(mecklenburgVorpommern!)
-        brandenburg?.blNachbarn.append(niedersachsen!)
-        brandenburg?.blNachbarn.append(sachsen!)
-        brandenburg?.blNachbarn.append(sachsenAnhalt!)
-        bremen?.blNachbarn.append(niedersachsen!)
-        hamburg?.blNachbarn.append(niedersachsen!)
-        hamburg?.blNachbarn.append(schleswigHolstein!)
-        hessen?.blNachbarn.append(badenWuerttemberg!)
-        hessen?.blNachbarn.append(bayern!)
-        hessen?.blNachbarn.append(niedersachsen!)
-        hessen?.blNachbarn.append(nordrheinWestfalen!)
-        hessen?.blNachbarn.append(rheinlandPfalz!)
-        hessen?.blNachbarn.append(thueringen!)
-        mecklenburgVorpommern?.blNachbarn.append(brandenburg!)
-        mecklenburgVorpommern?.blNachbarn.append(niedersachsen!)
-        mecklenburgVorpommern?.blNachbarn.append(schleswigHolstein!)
-        niedersachsen?.blNachbarn.append(brandenburg!)
-        niedersachsen?.blNachbarn.append(bremen!)
-        niedersachsen?.blNachbarn.append(hamburg!)
-        niedersachsen?.blNachbarn.append(hessen!)
-        niedersachsen?.blNachbarn.append(mecklenburgVorpommern!)
-        niedersachsen?.blNachbarn.append(nordrheinWestfalen!)
-        niedersachsen?.blNachbarn.append(sachsenAnhalt!)
-        niedersachsen?.blNachbarn.append(schleswigHolstein!)
-        niedersachsen?.blNachbarn.append(thueringen!)
-        nordrheinWestfalen?.blNachbarn.append(hessen!)
-        nordrheinWestfalen?.blNachbarn.append(niedersachsen!)
-        nordrheinWestfalen?.blNachbarn.append(rheinlandPfalz!)
-        rheinlandPfalz?.blNachbarn.append(badenWuerttemberg!)
-        rheinlandPfalz?.blNachbarn.append(hessen!)
-        rheinlandPfalz?.blNachbarn.append(nordrheinWestfalen!)
-        rheinlandPfalz?.blNachbarn.append(saarland!)
-        saarland?.blNachbarn.append(rheinlandPfalz!)
-        sachsen?.blNachbarn.append(bayern!)
-        sachsen?.blNachbarn.append(brandenburg!)
-        sachsen?.blNachbarn.append(sachsenAnhalt!)
-        sachsen?.blNachbarn.append(thueringen!)
-        sachsenAnhalt?.blNachbarn.append(brandenburg!)
-        sachsenAnhalt?.blNachbarn.append(niedersachsen!)
-        sachsenAnhalt?.blNachbarn.append(sachsen!)
-        sachsenAnhalt?.blNachbarn.append(thueringen!)
-        schleswigHolstein?.blNachbarn.append(hamburg!)
-        schleswigHolstein?.blNachbarn.append(mecklenburgVorpommern!)
-        schleswigHolstein?.blNachbarn.append(niedersachsen!)
-        thueringen?.blNachbarn.append(bayern!)
-        thueringen?.blNachbarn.append(hessen!)
-        thueringen?.blNachbarn.append(niedersachsen!)
-        thueringen?.blNachbarn.append(sachsen!)
-        thueringen?.blNachbarn.append(sachsenAnhalt!)
+        badenWuerttemberg?.blNachbarn = [bayern, hessen, rheinlandPfalz]
+        bayern.blNachbarn = [badenWuerttemberg, hessen, sachsen, thueringen]
+        berlin?.blNachbarn = [brandenburg]
+        brandenburg?.blNachbarn = [berlin, mecklenburgVorpommern, niedersachsen, sachsen, sachsenAnhalt]
+        bremen?.blNachbarn = [niedersachsen]
+        hamburg?.blNachbarn = [niedersachsen, schleswigHolstein]
+        hessen?.blNachbarn = [badenWuerttemberg, bayern, niedersachsen, nordrheinWestfalen, rheinlandPfalz, thueringen]
+        mecklenburgVorpommern?.blNachbarn = [brandenburg, niedersachsen, schleswigHolstein]
+        niedersachsen?.blNachbarn = [brandenburg, bremen, hamburg, hessen, mecklenburgVorpommern, nordrheinWestfalen, sachsenAnhalt, schleswigHolstein, thueringen]
+        nordrheinWestfalen?.blNachbarn = [hessen, niedersachsen, rheinlandPfalz]
+        rheinlandPfalz?.blNachbarn = [badenWuerttemberg, hessen, nordrheinWestfalen, saarland]
+        saarland?.blNachbarn = [rheinlandPfalz]
+        sachsen?.blNachbarn = [bayern, brandenburg, sachsenAnhalt, thueringen]
+        sachsenAnhalt?.blNachbarn = [brandenburg, niedersachsen, sachsen, thueringen]
+        schleswigHolstein?.blNachbarn = [hamburg, mecklenburgVorpommern, niedersachsen]
+        thueringen?.blNachbarn = [bayern, hessen, niedersachsen, sachsen, sachsenAnhalt]
     }
     
+    // Prüfung, welcher Spieler welche Bundesländer besitzt, um die Farben der Bundesländer zu initialisieren
+    func initColors(){
+        for bundesland in allBundeslaender{
+            if(player1?.blEigene.contains(bundesland))!{
+                bundesland.switchColorToBlue()
+            } else if(player2?.blEigene.contains(bundesland))!{
+                bundesland.switchColorToRed()
+            } else{
+                bundesland.toBackground()
+            }
+        }
+    }
+    
+    // Initialisieren der Spieler
     func initPlayer(){
         player1 = Player(bundesland: niedersachsen!)
-        player1?.blEigene.append(niedersachsen!)
-        player1?.blEigene.append(sachsenAnhalt!)
-        player1?.blEigene.append(thueringen!)
-        player1?.blEigene.append(hessen!)
+        player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
         
         player2 = Player(bundesland: bayern!)
-        player2?.blEigene.append(bayern!)
-        player2?.blEigene.append(badenWuerttemberg!)
-        player2?.blEigene.append(berlin!)
-        player2?.blEigene.append(brandenburg!)
-        player2?.blEigene.append(bremen!)
-        player2?.blEigene.append(hamburg!)
-        player2?.blEigene.append(mecklenburgVorpommern!)
-        player2?.blEigene.append(nordrheinWestfalen!)
-        player2?.blEigene.append(rheinlandPfalz!)
-        player2?.blEigene.append(saarland!)
-        player2?.blEigene.append(sachsen!)
-        player2?.blEigene.append(schleswigHolstein!)
-    }
-    
-    func setTruppenAnzahlLabel(_ truppenLabel: SKLabelNode!){
-        truppenLabel.fontName = "Optima-Bold"
-        truppenLabel.fontSize = 36
-        truppenLabel.fontColor = UIColor.white
-        truppenLabel.zPosition=4
-        self.addChild(truppenLabel)
-    }
-    
-    func allToRed(){
-        self.badenWuerttemberg?.switchColorToRed()
-        self.bayern?.switchColorToRed()
-        self.berlin?.switchColorToRed()
-        self.brandenburg?.switchColorToRed()
-        self.bremen?.switchColorToRed()
-        self.hamburg?.switchColorToRed()
-        self.hessen?.switchColorToRed()
-        self.mecklenburgVorpommern?.switchColorToRed()
-        self.niedersachsen?.switchColorToRed()
-        self.nordrheinWestfalen?.switchColorToRed()
-        self.rheinlandPfalz?.switchColorToRed()
-        self.saarland?.switchColorToRed()
-        self.sachsen?.switchColorToRed()
-        self.sachsenAnhalt?.switchColorToRed()
-        self.schleswigHolstein?.switchColorToRed()
-        self.thueringen?.switchColorToRed()
-    }
-   
-    func allToBlue(){
-        self.badenWuerttemberg?.switchColorToBlue()
-        self.bayern?.switchColorToBlue()
-        self.berlin?.switchColorToBlue()
-        self.brandenburg?.switchColorToBlue()
-        self.bremen?.switchColorToBlue()
-        self.hamburg?.switchColorToBlue()
-        self.hessen?.switchColorToBlue()
-        self.mecklenburgVorpommern?.switchColorToBlue()
-        self.niedersachsen?.switchColorToBlue()
-        self.nordrheinWestfalen?.switchColorToBlue()
-        self.rheinlandPfalz?.switchColorToBlue()
-        self.saarland?.switchColorToBlue()
-        self.sachsen?.switchColorToBlue()
-        self.sachsenAnhalt?.switchColorToBlue()
-        self.schleswigHolstein?.switchColorToBlue()
-        self.thueringen?.switchColorToBlue()
+        player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
     }
     
     func initPlayButton() {
@@ -543,6 +451,44 @@ class GermanMap: SKScene {
         playButton.setScale(1.1)
         playButton.position = CGPoint(x: 0, y: -250)
         statsSideRootNode2.addChild(playButton)
+    }
+    
+    func initStatistics() {
+        let anzahlEigeneBl: Int = (activePlayer?.blEigene.count)!
+        let eigeneTruppenStaerke: Int = (activePlayer?.calculateTruppenStaerke())!
+        let anzahlGegnerischeBl: Int = (unActivePlayer?.blEigene.count)!
+        let gegnerischeTruppenStaerke: Int = (unActivePlayer?.calculateTruppenStaerke())!
+        let neutraleBl: Int = 16 - anzahlEigeneBl - anzahlGegnerischeBl
+        
+        //Erstelle Tabelle mit allen Einträgen
+        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
+        var values: [String] = [String(anzahlEigeneBl), String(eigeneTruppenStaerke), String(anzahlGegnerischeBl), String(gegnerischeTruppenStaerke), String(neutraleBl), "2"]
+        if table != nil{
+            values = table.values
+        }
+        table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
+        table.createTable()
+        
+        statsSide.addChild(table)
+    }
+    
+    //Prüft, ob zwei Bundesländer miteinander verbunden werden können
+    //Voraussetzung 1: Es wurde ein Bundesland zum Starten des Angriffs ausgewählt
+    //Voraussetzung 2: Es wurde ein Bundesland zum angreifen ausgewählt
+    //Voraussetzung 3: Die Bundesländer sind benachbart (TODO: Prüfung auf Flughafen einbauen)
+    //Voraussetzung 4: Das Bundesland zum Starten des Angriffs gehört dem eigenen Spieler
+    //Voraussetzung 5: Das Bundesland zum angreifen gehört dem anderen Spieler
+    func isAttackValid() -> Bool{
+        return blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!)
+    }
+    
+    // Design der Labels zur Anzeige der Truppenstärke eines Bundeslandes
+    func setTruppenAnzahlLabel(_ truppenLabel: SKLabelNode!){
+        truppenLabel.fontName = "Optima-Bold"
+        truppenLabel.fontSize = 36
+        truppenLabel.fontColor = UIColor.white
+        truppenLabel.zPosition=4
+        self.addChild(truppenLabel)
     }
  
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
@@ -614,24 +560,7 @@ class GermanMap: SKScene {
         initPlayButton()
     }
     
-    func initStatistics() {
-        let anzahlEigeneBl: Int = (activePlayer?.blEigene.count)!
-        let eigeneTruppenStaerke: Int = (activePlayer?.calculateTruppenStaerke())!
-        let anzahlGegnerischeBl: Int = (unActivePlayer?.blEigene.count)!
-        let gegnerischeTruppenStaerke: Int = (unActivePlayer?.calculateTruppenStaerke())!
-        
-        //Erstelle Tabelle mit allen Einträgen
-        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
-        var values: [String] = [String(anzahlEigeneBl), String(eigeneTruppenStaerke), String(anzahlGegnerischeBl), String(gegnerischeTruppenStaerke), "0", "2"]
-        if table != nil{
-            values = table.values
-        }
-        table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
-        table.createTable()
-        
-        statsSide.addChild(table)
-    }
-    
+    // Diese Methode gibt mithilfe eines Strings das Bundesland-Objekt zurück
     func getBundesland(_ blName: String) -> Bundesland? {
         if blName == "Baden-Württemberg" {
             return badenWuerttemberg!
@@ -674,6 +603,7 @@ class GermanMap: SKScene {
         table = t
     }
     
+    // Initialisieren des Pfeils zur Anzeige der verbundenen Bundesländer
     func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
         let pfeilKoordinaten = UIBezierPath.pfeil(from: CGPoint(x:startLocation.x, y:startLocation.y), to: CGPoint(x:endLocation.x, y: endLocation.y),tailWidth: 10, headWidth: 25, headLength: 20)
         
