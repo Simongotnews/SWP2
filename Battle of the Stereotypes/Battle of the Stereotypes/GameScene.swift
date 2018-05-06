@@ -430,6 +430,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
             updateStatistics(1,3, leftDummyHealth)
+            collisionEffect(leftDummy)
             leftDummyHealth -= 50
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             if leftDummyHealth < 0 {
@@ -439,6 +440,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
             updateStatistics(3,1, rightDummyHealth)
+            collisionEffect(rightDummy)
             rightDummyHealth -= 50
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             if rightDummyHealth < 0 {
@@ -490,6 +492,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         table.values[defenderIndex] = String(tmp!)
         table.values[attackerIndex] = String(Int(table.values[attackerIndex])! + health)
+    }
+    
+    func collisionEffect(_ dummy: SKSpriteNode){
+        dummy.run(SKAction.repeat(SKAction.sequence([SKAction.fadeAlpha(to: 0.5, duration: 0.1),SKAction.fadeAlpha(to: 1.0, duration: 0.1) ]), count: 5))
     }
     
     func transitToGermanMap(){
