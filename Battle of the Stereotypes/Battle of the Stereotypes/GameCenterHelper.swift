@@ -108,13 +108,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         let angleForArrow = request.angleForArrow
         let damage = request.damage
         print("Request erhalten [forceCounter=" + String(forceCounter) + ", angleForArrow=" + String(angleForArrow) + ", damage=" + String(damage) + "]")
-        
+        //TODO: Folgende Zeile ist nur temporär
+        GameViewController.germanMapScene.gameScene.isActive = false
         // Hier Schuss simulieren
-        if (isLocalPlayersTurn()){
-            GameViewController.germanMapScene.gameScene.initBall(for: 2)
-        } else {
-            GameViewController.germanMapScene.gameScene.initBall(for: 1)
-        }
         GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
         GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
         GameViewController.germanMapScene.gameScene.throwProjectile()
@@ -153,15 +149,15 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             
             var tempExchangeArray = [GKTurnBasedExchange]()
             tempExchangeArray.append(exchange)
-            currentMatch.saveMergedMatch(GameState.encodeGameState(gameState: gameState), withResolvedExchanges: tempExchangeArray, completionHandler: { (error: Error?) in
-                if (error == nil) {
-                    // Operation erfolgreich
-                }
-                else {
-                    print("Fehler bei saveMergedMatch")
-                    print(error as Any)
-                }
-            })
+//            currentMatch.saveMergedMatch(GameState.encodeGameState(gameState: gameState), withResolvedExchanges: tempExchangeArray, completionHandler: { (error: Error?) in
+//                if (error == nil) {
+//                    // Operation erfolgreich
+//                }
+//                else {
+//                    print("Fehler bei saveMergedMatch")
+//                    print(error as Any)
+//                }
+//            })
         }
     }
     
@@ -180,6 +176,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 //    } else {
                 //    GameViewController.germanMapScene.gameScene.isActive = false
                 //}
+//                print("Index des lokalen Spielers ist: \(currentMatch.participants!.index(of: participant)!)")
+                
                 return currentMatch.participants!.index(of: participant)!
             }
         }
