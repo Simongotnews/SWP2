@@ -33,7 +33,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var angleForArrow2:CGFloat! = 0.0
     
     //Wurfgeschoss
-    //var ball: SKSpriteNode!
+    var ball: SKSpriteNode!
     
     //Fire Button zum Einstellen der Kraft beim Wurf
     var fireButton: SKSpriteNode!
@@ -189,7 +189,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
         let ballTexture = SKTexture(imageNamed: "Krug")
-        var ball = SKSpriteNode(texture: ballTexture)
+        ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
         if player==1 {
             ball.position = leftDummy.position
@@ -199,7 +199,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ball.position.x -= 45
         }
         ball.zPosition=3
-        
         ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
         ball.physicsBody?.mass = 1
         //Geschoss soll mehr "bouncen"
@@ -278,16 +277,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("Werfe Geschoss")
         //if childNode(withName: "arrow") != nil {
         if(isActive) {
+            print("Starte Timer")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                print("Timer läuft")
                 GameCenterHelper.getInstance().sendExchangeRequest()
                 self.isActive = false
                 self.updateStatusLabel()
             }
+            print("Timerevent abgehandelt")
         }
         GameCenterHelper.getInstance().exchangeRequest.damage = 0
-        self.children.last?.physicsBody?.affectedByGravity=true
-        self.children.last?.physicsBody?.isDynamic=true
-        self.children.last?.physicsBody?.allowsRotation=true
+        ball.physicsBody?.affectedByGravity=true
+        ball.physicsBody?.isDynamic=true
+        ball.physicsBody?.allowsRotation=true
         
         //Berechnung des Winkels
         let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
@@ -299,7 +301,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
         let max = 1700.0
         let force = (Double(forceCounter) * max) / 100
-        self.children.last?.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
+        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
         
         // Zum Verschicken des ExchangeRequests
         GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
@@ -308,10 +310,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //Boden soll mit Gegner Dummy interagieren
         //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
         //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
-        self.children.last?.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory | leftDummyCategory
+        ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory | leftDummyCategory
         //es soll eine Kollision mit dem Grund und dem Dummy simulieren
         //ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory //Anmerkung Skeltek: Wozu soll das gut sein?
-        self.children.last?.physicsBody?.usesPreciseCollisionDetection = true
+        ball.physicsBody?.usesPreciseCollisionDetection = true
         if (isActive){
             arrow.removeFromParent()
         }
