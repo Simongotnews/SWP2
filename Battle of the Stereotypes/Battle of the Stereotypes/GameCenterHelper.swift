@@ -110,6 +110,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("Request erhalten [forceCounter=" + String(forceCounter) + ", angleForArrow=" + String(angleForArrow) + ", damage=" + String(damage) + "]")
         
         // Hier Schuss simulieren
+        if (isLocalPlayersTurn()){
+            GameViewController.germanMapScene.gameScene.initBall(for: 2)
+        } else {
+            GameViewController.germanMapScene.gameScene.initBall(for: 1)
+        }
         GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
         GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
         GameViewController.germanMapScene.gameScene.throwProjectile()
@@ -144,9 +149,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         for reply in replies {
             let reply = GameState.decodeExchangeReply(data: reply.data!)
             print("Reply erhalten [projectileShot=" + String(reply.projectileFired) + "]")
-
-            // andre-jar: Was bedeutet diese Zeile?
-            //exchange.status = "inactive" ??
+            
+            
             var tempExchangeArray = [GKTurnBasedExchange]()
             tempExchangeArray.append(exchange)
             currentMatch.saveMergedMatch(GameState.encodeGameState(gameState: gameState), withResolvedExchanges: tempExchangeArray, completionHandler: { (error: Error?) in
@@ -199,7 +203,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             return false
         }
     }
-
+    
     // Authentifizierung des lokalen Spielers
     func authenticateLocalPlayer() {
         let localPlayer: GKLocalPlayer = GKLocalPlayer.localPlayer()
@@ -349,4 +353,3 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
     }
 }
-
