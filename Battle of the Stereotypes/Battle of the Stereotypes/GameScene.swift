@@ -71,8 +71,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let leftDummyHealthBar = SKSpriteNode()
     let rightDummyHealthBar = SKSpriteNode()
     
-    var playerHP = 100
-    
     var angreiferNameLabel: SKLabelNode!
     var verteidigerNameLabel: SKLabelNode!
     
@@ -224,7 +222,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerLabel.position.y = powerBarGray.position.y + 30
         powerLabel.zPosition = 3
         self.addChild(powerLabel)
-    
     }
     
     func initHealthBar(){ //initalisiere eine Bar zur Anzeige der verbleibenden Lebenspunkte des jeweiligen Dummys
@@ -318,8 +315,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if self.contains(touch.location(in: self)) {
                     fireMode = true;
                     powerBarRun()
-                    
-                    
                 }
             }
         }
@@ -331,8 +326,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy)
             createArrow(node: rightDummy)
         }
-        
-        
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {

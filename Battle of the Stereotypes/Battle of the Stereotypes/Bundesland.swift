@@ -55,8 +55,6 @@ class Bundesland: SKSpriteNode {
     var blNameString: String!   // Zuweisung erfolgt automatisch durch Initialisierung der Klasse.
     //Truppen des Spielers in diesem Bundesland
     var anzahlTruppen: Int!
-    //gehört es dem eigenen Spieler -> je nachdem muss richtig eingefärbt werden
-    var isMine: Bool!
     //Vorhandensein eines Flughafens
     var hasAirport: Bool!
     //Nachbarländer
