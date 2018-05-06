@@ -282,9 +282,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func throwProjectile() { //Wurf des Projektils, Flugbahn
         print("Werfe Geschoss")
+        var wasActive = false
         if(isActive) {
             //TODO: Gegebenenfalls inaktiv schalten vor den Timer ziehen
             self.isActive = false
+            wasActive = true
             print("Starte Timer (Active)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 print("Timer (Active) läuft")
@@ -334,8 +336,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
         let max = 1700.0
         let force = (Double(forceCounter) * max) / 100
-        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
         
+        if((GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1 && wasActive) || (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 && !wasActive)) {
+            ball.physicsBody?.applyImpulse(CGVector(dx: -(xImpulse * force), dy: yImpulse * force))
+        } else {
+        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
+        }
         // Zum Verschicken des ExchangeRequests
         GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
         GameCenterHelper.getInstance().exchangeRequest.forceCounter = forceCounter
@@ -347,10 +353,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //es soll eine Kollision mit dem Grund und dem Dummy simulieren
         //ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory //Anmerkung Skeltek: Wozu soll das gut sein?
         ball.physicsBody?.usesPreciseCollisionDetection = true
-        if (isActive){
+        if (arrow != nil){
             arrow.removeFromParent()
-        } else {
-            isActive = true
         }
         allowsRotation = true
         //}
