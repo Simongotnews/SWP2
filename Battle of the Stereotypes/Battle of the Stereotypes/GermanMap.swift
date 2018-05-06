@@ -129,17 +129,23 @@ class GermanMap: SKScene {
                 return
             }
         }
-        
-        statsSideRootNode2?.removeFromParent()
-        
-        
+    
         blAngreifer = nil
         let bundeslandName = atPoint(touch.location(in: self)).name
         if(bundeslandName != nil){
             blAngreifer = getBundesland(bundeslandName!)
         }
+        
+        //wenn der Pfeil ausgewählt wurde, soll bei einem Klick der Angriff abgebrochen und die Statistiken wieder angezeigt werden
         if(pfeil != nil){
             pfeil.removeFromParent()
+            statsSideRootNode2?.removeFromParent()
+            //Die Statistik-Tabelle soll wieder sichtbar werden
+            if table != nil {
+                if table.alpha == 0 {
+                    table.alpha = 1
+                }
+            }
         }
     }
     
@@ -542,7 +548,12 @@ class GermanMap: SKScene {
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
         //falls es den Knoten schon gibt -> lösche ihn, denn die komplette Animtion und alle Kinder dieser Node sollen erneut erscheinen, wenn der Pfeil erneut gezogen wird
         statsSideRootNode2?.removeFromParent()
-        table?.removeFromParent()
+        //wenn die Statistik-Tabelle existiert und sichtbar ist -> mache sie unsichtbar
+        if table != nil {
+            if table.alpha == 1 {
+                table.alpha = 0
+            }
+        }
         
         //Knoten zu dem alle folgenden Elemente relativ sind durch Kindbeziehung
         statsSideRootNode2 = SKNode()
