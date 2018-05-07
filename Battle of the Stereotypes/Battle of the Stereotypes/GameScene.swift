@@ -194,6 +194,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
         let ballTexture = SKTexture(imageNamed: "Krug")
+        firedBool = true
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
         if player==1 {
@@ -498,14 +499,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
         print("Checking whether contact is ground category")
-        if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0 && (firedBool == true))          {
+        if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0)          {
             print("changing Weapons Category to 'Ground'")
             firstBody.categoryBitMask = groundCategory
             secondBody.categoryBitMask = groundCategory //Skeltek: Geschoss soll zu 'Boden' deklariert werden
             //firedBool = false //Skeltek: Test, später wieder aktivieren
         }
         
-        if ((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0 && ((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0 && firedBool == true{
+        if ((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0 && ((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0{
             firedBool = false
             //Hier sollte Schadensabfertigung nur aufgerufen werden falls active
             projectileDidCollideWithDummy(contact)
@@ -519,11 +520,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("projectile Collided with Dummy!")
         //ball.removeFromParent()
         //Wenn Dummy getroffen, entsprechend Schaden verursachen //Skel: Später noch 'isAcive' hinzufügen
-        if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0)){
+        if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0) && firedBool){
             leftDummyHealth -= 50
             GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
-        if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & rightDummyCategory) != 0)){
+        if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & rightDummyCategory) != 0) && firedBool){
             rightDummyHealth -= 50
             GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
