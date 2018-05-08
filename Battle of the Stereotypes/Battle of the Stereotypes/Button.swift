@@ -14,10 +14,13 @@ class Button: SKSpriteNode {
     
     var isPressable: Bool!
     
+    
     init(texture: SKTexture, size: CGSize, isPressable: Bool) {
         super.init(texture: texture, color: UIColor.blue, size: size)
         self.isPressable = isPressable
+        
     }
+    
     
     func switchVisibility() {
         if(self.alpha > 0) {

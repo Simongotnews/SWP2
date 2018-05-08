@@ -193,9 +193,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func initBackButton() { //initialisiere den Zurück-zur-Bundesländerübersicht-Button
-        backButton = Button(texture: SKTexture(imageNamed: "back_button4"), size: CGSize(width: 60, height: 40), isPressable: true)
+        backButton = Button(texture: SKTexture(imageNamed: "rueckzug_button"), size: CGSize(width: 100, height: 80), isPressable: true)
         backButton.setScale(1.1)
-        backButton.position = CGPoint(x: -325, y: 230)
+        backButton.position = CGPoint(x: -315, y: 255)
         self.addChild(backButton)
     }
     
