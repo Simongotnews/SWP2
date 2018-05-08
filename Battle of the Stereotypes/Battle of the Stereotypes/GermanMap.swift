@@ -41,6 +41,9 @@ class GermanMap: SKScene {
     var backGroundBl2: SKShapeNode!
     var vsLabel: SKLabelNode!
     
+    //Label für das Geld des Spielers
+    var coinLabel: SKLabelNode!
+    
     var mapSize:(width:CGFloat, height:CGFloat) = (0.0, 0.0)  // globale Groeße welche in allen Funktionen verwendet werden kann.
     
     // Bundeslaender deklarieren:
@@ -119,6 +122,10 @@ class GermanMap: SKScene {
         
         //initialisiere Statistiken
         initStatistics()
+        
+        //initialisiere Coins-Label
+        initCoinLabel()
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -445,6 +452,19 @@ class GermanMap: SKScene {
         player2 = Player(bundesland: bayern!)
         player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
     }
+    
+    // Initialisieren des Geld-Labels des Spielers
+    func initCoinLabel(){
+        coinLabel  = SKLabelNode(text: "\(player1.getCoins()) Münzen")
+        coinLabel.position = CGPoint(x: -80, y: 255)
+        coinLabel.fontName = "AvenirNext-Bold"
+        coinLabel.fontColor = UIColor.black
+        coinLabel.fontSize = 25
+        coinLabel.alpha = 10
+        
+        statsSide.addChild(coinLabel)
+    }
+    
     
     func initPlayButton() {
         playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)

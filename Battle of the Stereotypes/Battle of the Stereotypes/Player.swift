@@ -12,6 +12,8 @@ import GameplayKit
 
 class Player {
     
+    var coins: Int; //Geld des Spielers
+    
     //Bundesland für den Spieler, welches er am Anfang ausgewählt hat
     var bundesland: Bundesland!
     //Anzahl der Bundesländer in Besitz
@@ -24,6 +26,18 @@ class Player {
     
     init(bundesland: Bundesland) {
         self.bundesland = bundesland
+        
+        self.coins = 2000; //2000 Münzen Startguthaben
+    }
+    
+    func setCoins(coinsNewValue :Int){
+        coins = coinsNewValue
+        
+    }
+    
+    func getCoins() -> Int{
+        return coins
+        
     }
     
     func calculateTruppenStaerke() -> Int!{
