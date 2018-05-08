@@ -145,7 +145,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         for reply in replies {
             let reply = GameState.decodeExchangeReply(data: reply.data!)
             print("Reply erhalten [projectileShot=" + String(reply.projectileFired) + "]")
-            
+
             
             var tempExchangeArray = [GKTurnBasedExchange]()
             tempExchangeArray.append(exchange)
