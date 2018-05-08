@@ -89,7 +89,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initStatusLabel()
         initDummyLabels()
         //initilialisiere Geschoss für Spieler 1
-        initBall(for: 1)
+        initBallOnStart()
         initHealthBar()
         if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
             isActive = true
@@ -192,19 +192,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(rightDummyHealthLabel)
     }
     
+    func initBallOnStart(){
+        if (isActive == GameCenterHelper.getInstance().isLocalPlayersTurn()){
+            initBall(for: 1)
+        } else {
+            initBall(for: 2)
+        }
+    }
+    
     func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
         let ballTexture = SKTexture(imageNamed: "Krug")
         firedBool = true
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
-        if player==1 {
+        if player==1 {  //Gegebenenfalls hier ContactTestBitmask anpassen, falls Friendly-Fire unerwünscht
             ball.position = leftDummy.position
             ball.position.x += 45
         } else {
             ball.position = rightDummy.position
             ball.position.x -= 45
         }
-        ball.zPosition=3
+        ball.zPosition=3 // TODO Skeltek: Wieso hardcoded? Vermutlich besser von Dummy-Position abhänig machen
         ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
         ball.physicsBody?.mass = 1
         //Geschoss soll mehr "bouncen"
