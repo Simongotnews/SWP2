@@ -455,6 +455,7 @@ class GermanMap: SKScene {
     
     // Initialisieren des Geld-Labels des Spielers
     func initCoinLabel(){
+        
         coinLabel  = SKLabelNode(text: "\(player1.getCoins()) Münzen")
         coinLabel.position = CGPoint(x: -80, y: 255)
         coinLabel.fontName = "AvenirNext-Bold"

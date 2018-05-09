@@ -59,6 +59,8 @@ class Bundesland: SKSpriteNode {
     var hasAirport: Bool!
     //Nachbarländer
     var blNachbarn = Array<Bundesland>()
+    //bringt pro Runde soviel neue Münzen ein  
+    var blMuenzenWert : Int!
     
     func toBackground(){
         self.zPosition = 0
@@ -160,36 +162,52 @@ class Bundesland: SKSpriteNode {
         //initialisiere den String mit Hilfe des Enums
         if blName == BundeslandEnum.BadenWuerttemberg {
             blNameString = "Baden-Württemberg"
+            blMuenzenWert = 12 //festlegen, wie viele Münzen Besitz des BLs pro Runde einbringt
         } else if blName == BundeslandEnum.Bayern {
             blNameString = "Bayern"
+            blMuenzenWert = 12
         } else if blName == BundeslandEnum.Berlin {
             blNameString = "Berlin"
+            blMuenzenWert = 5
         } else if blName == BundeslandEnum.Brandenburg {
             blNameString = "Brandenburg"
+            blMuenzenWert = 6
         } else if blName == BundeslandEnum.Bremen {
             blNameString = "Bremen"
+            blMuenzenWert = 5
         } else if blName == BundeslandEnum.Hamburg {
             blNameString = "Hamburg"
+            blMuenzenWert = 5
         } else if blName == BundeslandEnum.Hessen {
             blNameString = "Hessen"
+            blMuenzenWert = 9
         } else if blName == BundeslandEnum.MecklenburgVorpommern {
             blNameString = "Mecklenburg-Vorpommern"
+            blMuenzenWert = 7
         } else if blName == BundeslandEnum.Niedersachsen {
             blNameString = "Niedersachsen"
+            blMuenzenWert = 10
         } else if blName == BundeslandEnum.NordrheinWestfalen {
             blNameString = "Nordrhein-Westfalen"
+            blMuenzenWert = 11
         } else if blName == BundeslandEnum.RheinlandPfalz {
             blNameString = "Rheinland-Pfalz"
+            blMuenzenWert = 8
         } else if blName == BundeslandEnum.Saarland {
             blNameString = "Saarland"
+            blMuenzenWert = 3
         } else if blName == BundeslandEnum.Sachsen {
             blNameString = "Sachsen"
+            blMuenzenWert = 7
         } else if blName == BundeslandEnum.SachsenAnhalt {
             blNameString = "Sachsen-Anhalt"
+            blMuenzenWert = 6
         } else if blName == BundeslandEnum.SchleswigHolstein {
             blNameString = "Schleswig-Holstein"
+            blMuenzenWert = 12
         } else if blName == BundeslandEnum.Thueringen {
             blNameString = "Thüringen"
+            blMuenzenWert = 8
         } else {
             blNameString = "Mallorca"
         }

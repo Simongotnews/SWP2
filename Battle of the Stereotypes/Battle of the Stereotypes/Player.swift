@@ -30,13 +30,31 @@ class Player {
         self.coins = 2000; //2000 Münzen Startguthaben
     }
     
-    func setCoins(coinsNewValue :Int){
+    func setCoins(coinsNewValue :Int){  //Variable coins komplett neu setzen
         coins = coinsNewValue
+        
+    }
+    
+    func addCoins(coinsNewValue :Int){  // Coins hinzuaddieren zur Variable coins
+        coins += coinsNewValue
         
     }
     
     func getCoins() -> Int{
         return coins
+        
+    }
+    
+    func calculateCoinsForBLs () -> Int!{//Berechnen wieviel neue Münzen die Bundesländer des Spielers wert sind
+        
+        var newCoinsPerRound : Int = 0
+        
+        for (Bundesland: bula) in blEigene{
+            
+            newCoinsPerRound +=  bula.blMuenzenWert
+        }
+        
+        return newCoinsPerRound
         
     }
     
