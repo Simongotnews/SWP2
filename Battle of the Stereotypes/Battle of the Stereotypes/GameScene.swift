@@ -327,7 +327,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             print("Timerevent abgehandelt")
         }
-        GameCenterHelper.getInstance().exchangeRequest.damage = 0
+        //GameCenterHelper.getInstance().exchangeRequest.damage = 0
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
@@ -352,8 +352,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
         }
         // Zum Verschicken des ExchangeRequests
-        GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
-        GameCenterHelper.getInstance().exchangeRequest.forceCounter = forceCounter
+        //GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
+        //GameCenterHelper.getInstance().exchangeRequest.forceCounter = forceCounter
         
         //Boden soll mit Gegner Dummy interagieren
         //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
@@ -530,11 +530,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //Wenn Dummy getroffen, entsprechend Schaden verursachen //Skel: Später noch 'isAcive' hinzufügen
         if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0) && firedBool){
             leftDummyHealth -= 50
-            GameCenterHelper.getInstance().exchangeRequest.damage = 50
+            //GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
         if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & rightDummyCategory) != 0) && firedBool){
             rightDummyHealth -= 50
-            GameCenterHelper.getInstance().exchangeRequest.damage = 50
+            //GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
         if (!isActive){
             //TODO Schaden übernehmen und auf Spieler anwenden
