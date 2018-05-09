@@ -289,7 +289,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         statusLabel.text = statusText
     }
     
-    func throwProjectile() { //Wurf des Projektils, Flugbahn
+    func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
         print("Werfe Geschoss")
         var wasActive = false
         if(isActive) {
@@ -299,7 +299,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("Starte Timer (Active)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 print("Timer (Active) läuft")
-                GameCenterHelper.getInstance().sendExchangeRequest()
+                var attackParams = GameState.StructThrowExchangeRequest()
+                attackParams.xImpulse = xImpulse
+                attackParams.yImpulse = yImpulse
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: attackParams, messageKey: GameState.IdentifierThrowExchange)
                 //self.isActive = false
                 self.updateStatusLabel()
                 //TODO: Makeshift-Lösung: Wurfobjekt entfernen wegen unzureichender Implementierung
@@ -332,24 +335,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
         
-        //Berechnung des Winkels
-        let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
-        print("Winkel: \(winkel)")
-        //Berechnung des Impulsvektors (nur Richtung)
-        let xImpulse = cos(winkel)
-        print("X-Impuls ist: \(xImpulse)")
-        let yImpulse = sqrt(1-pow(xImpulse, 2))
-        print("X-Impuls ist: \(yImpulse)")
-        //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
-        //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
-        //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
-        let max = 1700.0
-        let force = (Double(forceCounter) * max) / 100
+        
         
         if((GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1 && wasActive) || (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 && !wasActive)) {
-            ball.physicsBody?.applyImpulse(CGVector(dx: -(xImpulse * force), dy: yImpulse * force))
+            ball.physicsBody?.applyImpulse(CGVector(dx: -(xImpulse), dy: yImpulse))
         } else {
-        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
+        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
         }
         // Zum Verschicken des ExchangeRequests
         //GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
@@ -439,7 +430,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if fireMode == true{
             self.removeAction(forKey: "powerBarAction")
-            throwProjectile()
+            
+            //Berechnung des Winkels
+            let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
+            print("Winkel: \(winkel)")
+            //Berechnung des Impulsvektors (nur Richtung)
+            var xImpulse = cos(winkel)
+            print("X-Impuls ist: \(xImpulse)")
+            var yImpulse = sqrt(1-pow(xImpulse, 2))
+            print("X-Impuls ist: \(yImpulse)")
+            //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
+            //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
+            //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
+            let max = 1700.0
+            let force = (Double(forceCounter) * max) / 100
+            xImpulse *= force
+            yImpulse *= force
+            throwProjectile(xImpulse: xImpulse, yImpulse: yImpulse)
             powerBarReset()
             fireMode = false;
             allowsRotation = true

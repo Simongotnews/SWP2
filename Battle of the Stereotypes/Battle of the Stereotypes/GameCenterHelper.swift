@@ -146,7 +146,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         // Hier Schuss simulieren
         //GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
         //GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
-        GameViewController.germanMapScene.gameScene.throwProjectile()
+        GameViewController.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
     }
     
     /** TODO: Implementieren */
@@ -169,8 +169,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
         isWaitingOnReply = false
         for reply in replies {
-            let reply = GameState.decodeExchangeReply(data: reply.data!)
-            print("Reply erhalten [projectileShot=" + String(reply.projectileFired) + "]")
+            //let reply = GameState.decodeExchangeReply(data: reply.data!)
+            //print("Reply erhalten [projectileShot=" + String(reply.projectileFired) + "]")
 
             
             var tempExchangeArray = [GKTurnBasedExchange]()

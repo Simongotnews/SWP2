@@ -67,9 +67,9 @@ class GameState {
     /** ExchangeRequest der nach dem Schuss stattfindet , vielleicht legt man damageExchangeRequest und ThrowExchangeRequest zusammen */
     struct StructThrowExchangeRequest : Codable {
         /** X-Impuls beim Wurf */
-        var xImpulse : Int = 0
+        var xImpulse : Double = 0
         /** Y-Impuls beim Wurf */
-        var yImpulse : Int = 0
+        var yImpulse : Double = 0
     }
     
     /** ExchangeRequest der den Schaden der gemacht wurde übermittelt */
