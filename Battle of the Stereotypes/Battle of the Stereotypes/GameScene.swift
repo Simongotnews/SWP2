@@ -522,7 +522,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0 && ((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0{
-            firedBool = false
+            //firedBool = false
             //Hier sollte Schadensabfertigung nur aufgerufen werden falls active
             projectileDidCollideWithDummy(contact)
             
@@ -537,10 +537,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //Wenn Dummy getroffen, entsprechend Schaden verursachen //Skel: Später noch 'isAcive' hinzufügen
         if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0) && firedBool){
             leftDummyHealth -= 50
+            firedBool = false
             //GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
         if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & rightDummyCategory) != 0) && firedBool){
             rightDummyHealth -= 50
+            firedBool = false
             //GameCenterHelper.getInstance().exchangeRequest.damage = 50
         }
         if (!isActive){
