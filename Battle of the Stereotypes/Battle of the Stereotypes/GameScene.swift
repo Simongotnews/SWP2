@@ -89,7 +89,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initStatusLabel()
         initDummyLabels()
         //initilialisiere Geschoss für Spieler 1
-        initBallOnStart()
         initHealthBar()
         if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
             isActive = true
@@ -100,6 +99,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isActive = false
             print("Ist inaktiver Spieler")
         }
+        initBallOnStart()
         updateStatusLabel()
     }
     
