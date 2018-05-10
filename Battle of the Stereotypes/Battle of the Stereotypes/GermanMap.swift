@@ -11,6 +11,11 @@ import GameplayKit
 
 class GermanMap: SKScene {
     
+    //Id des Spielers, der am Zug ist
+    var turnPlayerID: Int = 1
+    //Id des Spielers, der gerade wirft in der Kampfszene
+    var activePlayerID: Int = 0 //noch 0, da keiner dran ist
+    
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
     
@@ -32,7 +37,7 @@ class GermanMap: SKScene {
     //werden angezeigt wenn Pfeil vom Spieler zu gegnerischen Bundesland gezogen wird
     
     //globaler Root Node auf der Statistiken Hälfte, wenn Pfeil ausgewählt wurde
-    var statsSideRootNode2: SKNode!
+    var statsSideRootNode: SKNode!
     //Label für erstes Bundesland und Hintergrund
     var labelBl1: SKLabelNode!
     var backGroundBl1: SKShapeNode!
@@ -89,7 +94,9 @@ class GermanMap: SKScene {
     var blAngreifer: Bundesland!
     var blVerteidiger: Bundesland!
 
+    //eigener Spieler
     var player1: Player!
+    //anderer Spieler
     var player2: Player!
     var activePlayer: Player!
     var unActivePlayer: Player!
@@ -132,9 +139,19 @@ class GermanMap: SKScene {
         let touch:UITouch = touches.first!
         touchesBeganLocation = touch.location(in: self)
         
+        //wenn man nicht am Zug ist, darf man nichts drücken
+        if player1.id != turnPlayerID {
+            return
+        }
+        
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
-            if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode2)) {
+            if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
+                //der angreifende Spieler ist aktiv und darf dann zuerst werfen in der Kampfszene
+                activePlayerID = player1.id
+                pfeil.removeFromParent()
+                statsSideRootNode.removeFromParent()
+                
                 transitToGameScene()
                 return
             }
@@ -149,7 +166,7 @@ class GermanMap: SKScene {
         //wenn der Pfeil ausgewählt wurde, soll bei einem Klick der Angriff abgebrochen und die Statistiken wieder angezeigt werden
         if(pfeil != nil){
             pfeil.removeFromParent()
-            statsSideRootNode2?.removeFromParent()
+            statsSideRootNode?.removeFromParent()
             //Die Statistik-Tabelle soll wieder sichtbar werden
             if table != nil {
                 if table.alpha == 0 {
@@ -471,7 +488,7 @@ class GermanMap: SKScene {
         playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
         playButton.setScale(1.1)
         playButton.position = CGPoint(x: 0, y: -250)
-        statsSideRootNode2.addChild(playButton)
+        statsSideRootNode.addChild(playButton)
     }
     
     func initStatistics() {
@@ -514,7 +531,7 @@ class GermanMap: SKScene {
  
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
         //falls es den Knoten schon gibt -> lösche ihn, denn die komplette Animtion und alle Kinder dieser Node sollen erneut erscheinen, wenn der Pfeil erneut gezogen wird
-        statsSideRootNode2?.removeFromParent()
+        statsSideRootNode?.removeFromParent()
         //wenn die Statistik-Tabelle existiert und sichtbar ist -> mache sie unsichtbar
         if table != nil {
             if table.alpha == 1 {
@@ -523,9 +540,9 @@ class GermanMap: SKScene {
         }
         
         //Knoten zu dem alle folgenden Elemente relativ sind durch Kindbeziehung
-        statsSideRootNode2 = SKNode()
-        statsSideRootNode2.position = CGPoint(x: 0, y: 100)
-        statsSide.addChild(statsSideRootNode2)
+        statsSideRootNode = SKNode()
+        statsSideRootNode.position = CGPoint(x: 0, y: 100)
+        statsSide.addChild(statsSideRootNode)
         
         //Erstelle Label und Hintergrund für eigenes Bundesland (bl1)
         labelBl1 = SKLabelNode(text: bl1.blNameString)
@@ -543,7 +560,7 @@ class GermanMap: SKScene {
         //setze Sichtbarkeit auf 0 (wegen Fade In Effekt später)
         backGroundBl1.alpha = 0
         
-        statsSideRootNode2.addChild(backGroundBl1)
+        statsSideRootNode.addChild(backGroundBl1)
         
         //Erstelle "vs" Label
         vsLabel = SKLabelNode(text: "VS")
@@ -553,7 +570,7 @@ class GermanMap: SKScene {
         vsLabel.alpha = 0
         
         //füge zu globalen Node hinzu
-        statsSideRootNode2.addChild(vsLabel)
+        statsSideRootNode.addChild(vsLabel)
         
         //Erstelle Gegnerbundesland und Hintergrund
         labelBl2 = SKLabelNode(text: bl2.blNameString)
@@ -571,7 +588,7 @@ class GermanMap: SKScene {
         backGroundBl2.alpha = 0
         
         //füge zu globalen Node hinzu
-        statsSideRootNode2.addChild(backGroundBl2)
+        statsSideRootNode.addChild(backGroundBl2)
         
         //erstelle Fade In Effekte für alle 3 Elemente
         let fadeIn = SKAction.fadeIn(withDuration: 0.8)
@@ -643,6 +660,10 @@ class GermanMap: SKScene {
         gameScene?.setTable(t: table)
         gameScene?.setAngreifer(angreifer: blAngreifer!)
         gameScene?.setVerteidiger(verteidiger: blVerteidiger!)
+        
+        //halte eine Referenz auf diese Szene in der Kampfscene
+        gameScene?.germanMapReference = self
+        
         self.view?.presentScene(gameScene!, transition: transition)
     }
 }

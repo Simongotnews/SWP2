@@ -11,6 +11,9 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    //Referenz auf die Kartenansicht
+    var germanMapReference: GermanMap!
+    
     var table: Table!
     //Booleans
     var allowsRotation = true //zeigt ob Geschoss rotieren darf
@@ -297,6 +300,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
  
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
+        //wenn man gerade nicht aktiv ist, darf man nichts machen
+        if germanMapReference.player1.id != germanMapReference.activePlayerID {
+            return
+        }
+        
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
@@ -492,10 +500,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func transitToGermanMap(){
-        let germanMapScene = SKScene(fileNamed: "GermanMap")
-        germanMapScene?.scaleMode = .aspectFill
-        (germanMapScene as! GermanMap).setTable(t: table)
-        self.view?.presentScene(germanMapScene!)
+        //let germanMapScene = SKScene(fileNamed: "GermanMap")
+        //germanMapScene?.scaleMode = .aspectFill
+        //(germanMapScene as! GermanMap).setTable(t: table)
+        
+        //switch turn
+        germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1
+        germanMapReference.activePlayerID = 0
+        self.view?.presentScene(germanMapReference)
     }
     
     func setAngreifer(angreifer: Bundesland){

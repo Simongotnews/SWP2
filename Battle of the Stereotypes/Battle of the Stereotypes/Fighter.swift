@@ -20,6 +20,7 @@ class Fighter: SKSpriteNode {
         super.init(texture: texture, color: UIColor.blue, size: size)
         self.lifePoints = lifePoints
         self.damage = damage
+        
     }
     
     required init?(coder aDecoder: NSCoder) {

@@ -12,6 +12,9 @@ import GameplayKit
 
 class Player {
     
+    //ID des Spielers
+    var id: Int!
+    
     var coins: Int; //Geld des Spielers
     
     //Bundesland für den Spieler, welches er am Anfang ausgewählt hat
@@ -24,9 +27,13 @@ class Player {
     //Bundesländer, welche der Spieler momentan besitzt
     var blEigene = Array<Bundesland>()
     
+    //der aktuelle Kämpfer in der Kampfszene
+    var fighter: Fighter!
+    
     init(bundesland: Bundesland) {
+        //muss später vom GameCenter entschieden werden
+        self.id = 1
         self.bundesland = bundesland
-        
         self.coins = 2000; //2000 Münzen Startguthaben
     }
     
