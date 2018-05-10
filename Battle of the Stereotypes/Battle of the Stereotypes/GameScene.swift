@@ -15,11 +15,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var germanMapReference: GermanMap!
     
     var table: Table!
+    
     //Booleans
     var allowsRotation = true //zeigt ob Geschoss rotieren darf
     var fireMode = false // true um zu feuern
     var adjustedArrow = false //zeigt ob Pfeil eingestellt wurde
-    var firedBool = true //zeigt ob Schadensberechnung erfolgen soll
+    var didCollide = false //zeigt ob Ball aufgekommen ist
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
@@ -54,7 +55,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var background: SKSpriteNode!
     
     var leftDummy: SKSpriteNode!
+    //ID für linken Dummy, muss später noch geändert werden, da Dummy durch Fighter Klasse ersetzt wird!!!
+    var leftDummyID: Int!
+    //ID für rechten Dummy
     var rightDummy: SKSpriteNode!
+    var rightDummyID: Int!
+    
     var leftDummyHealthLabel:SKLabelNode!
     var rightDummyHealthLabel:SKLabelNode!
     
@@ -128,9 +134,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.physicsBody?.isDynamic = true
         leftDummy.physicsBody?.affectedByGravity = false
         leftDummy.physicsBody?.categoryBitMask = leftDummyCategory
-        leftDummy.physicsBody?.contactTestBitMask = weaponCategory
         leftDummy.physicsBody?.collisionBitMask = 0
         leftDummy.zPosition=3
+        
+        //lege Spieler ID des linken Dummies fest
+        leftDummyID = germanMapReference.activePlayerID
         
         self.addChild(leftDummy)
         
@@ -143,9 +151,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.physicsBody?.isDynamic = true
         rightDummy.physicsBody?.affectedByGravity = false
         rightDummy.physicsBody?.categoryBitMask = rightDummyCategory
-        rightDummy.physicsBody?.contactTestBitMask = weaponCategory
         rightDummy.physicsBody?.collisionBitMask = 0
         rightDummy.zPosition=3
+        
+        //lege Spieler ID des rechten Dummies fest
+        rightDummyID = (germanMapReference.activePlayerID == 1) ? 2 : 1
         
         self.addChild(rightDummy)
     }
@@ -168,7 +178,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(rightDummyHealthLabel)
     }
     
-    func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
+    func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (1 = links, 2 = rechts)
+        //fallse es schon ein Geschoss gibt -> lösche es
+        ball?.removeFromParent()
+        
+        //setze default Werte bei den Bools
+        allowsRotation = true
+        fireMode = false
+        adjustedArrow = false
+        didCollide = false
+        
+        //initialisiere Geschoss
         let ballTexture = SKTexture(imageNamed: "Krug")
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
@@ -190,7 +210,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.isDynamic=false
         ball.physicsBody?.affectedByGravity=false
         ball.physicsBody?.categoryBitMask=weaponCategory
-        //ball.physicsBody?.collisionBitMask=0x1 << 2
+        
+        //Geschoss soll immer nur bei dem anderen Spieler didBegin() triggern
+        if player==1 {
+            ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory
+            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory 
+            
+        } else {
+            ball.physicsBody?.contactTestBitMask = groundCategory | leftDummyCategory
+            ball.physicsBody?.collisionBitMask = groundCategory | leftDummyCategory
+        }
         
         self.addChild(ball)
     }
@@ -261,12 +290,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let max = 1700.0
             let force = (Double(forceCounter) * max) / 100
             ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
-            //Boden soll mit Gegner Dummy interagieren
-            //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
-            //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
-            ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory
             //es soll eine Kollision mit dem Grund und dem Dummy simulieren
-            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
@@ -305,6 +329,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         
+        //Spielerwechsel, wenn Spieler geworfen hat und klickt
+        if didCollide {
+            germanMapReference.activePlayerID = (germanMapReference.activePlayerID == 1) ? 2 : 1
+            //setze Geschoss für anderen Spieler und initialisiert Bools auf default Werte
+            if leftDummyID == germanMapReference.player1.id {
+                initBall(for: 2)
+            } else {
+                initBall(for: 1)
+            }
+            return
+        }
+        
+        //wenn gefeuert wurde, darf nichts mehr gedrückt werden
+        if fireMode == true {
+            return
+        }
+        
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
@@ -326,14 +367,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         }
-        if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil){
+        
+        //Erstelle Pfeil, aber nur für meinen Kämpfer
+        if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == leftDummyID){
             setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy)
             createArrow(node: leftDummy)
         }
-        else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil){
+        else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == rightDummyID){
             setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy)
             createArrow(node: rightDummy)
         }
+        
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -342,6 +386,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             allowsRotation = false
             adjustedArrow = true
         }
+        
         if fireMode == true{
             self.removeAction(forKey: "powerBarAction")
             throwProjectile()
@@ -414,17 +459,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
-        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & groundCategory) != 0 && firedBool == true{
-            firedBool = false
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & groundCategory) != 0 && didCollide == false{
+            didCollide = true
         }
         
-        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategory) != 0 && firedBool == true{
-            firedBool = false
+        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategory) != 0 && didCollide == false{
             projectileDidCollideWithDummy()
+            didCollide = true
         }
-        
-        //warte eine bestimmte Zeit und initialisiere den anderen Spieler
-        
+    
     }
     
     func projectileDidCollideWithDummy() {
