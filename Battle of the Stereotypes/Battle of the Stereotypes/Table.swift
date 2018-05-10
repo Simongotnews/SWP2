@@ -21,7 +21,7 @@ class Table: SKNode {
     //linke Seite des Eintrags
     var keys: [String] = []
     //rechte Seite des Eintrags
-    var values: [String] = []
+    var values: [Int] = []
     
     //Label für Text der linken Seite des Eintrags
     var entryLabelKeys: [SKLabelNode] = []
@@ -31,7 +31,7 @@ class Table: SKNode {
     var entryBackground: [SKShapeNode] = []
     
     
-    init(xPosition: Int, yPosition: Int, keys: [String], values: [String]) {
+    init(xPosition: Int, yPosition: Int, keys: [String], values: [Int]) {
         super.init()
         self.xPosition = xPosition
         self.yPosition = yPosition
@@ -70,7 +70,7 @@ class Table: SKNode {
             entryBackground[i].addChild(entryLabelKeys[i])
             
             //Füge dem Hintergrund den zugehörigen Wert hinzu
-            entryLabelValues.append(SKLabelNode(text: values[i]))
+            entryLabelValues.append(SKLabelNode(text: String(values[i])))
             entryLabelValues[i].fontSize = 19
             //allign left
             entryLabelValues[i].horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
@@ -85,8 +85,16 @@ class Table: SKNode {
     func update() {
         for i in 0...numberRows-1 {
             entryLabelKeys[i].text = keys[i]
-            entryLabelValues[i].text = values[i]
+            entryLabelValues[i].text = String(values[i])
         }
+    }
+    
+    func setValue(index:Int, value: Int){
+        self.values[index] = value
+    }
+    
+    func getValue(index:Int) ->Int{
+        return self.values[index]
     }
     
     required init?(coder aDecoder: NSCoder) {

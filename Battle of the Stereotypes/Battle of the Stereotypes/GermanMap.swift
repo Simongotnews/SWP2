@@ -107,31 +107,39 @@ class GermanMap: SKScene {
     var touchesBeganLocation: CGPoint!
     var touchesEndedLocation: CGPoint!
     
+    var initialized: Bool = false
+
     override func didMove(to view: SKView) {
-        //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
-        self.anchorPoint = CGPoint(x: 0, y: 0)
-        
-        //Splitte die Scene in 2 verschiedene Bereiche (links = Deutschlandkarte, rechts = Statistiken
-        splitScene()
-        
-        setBGMap()
-        initBundeslaender()
-        initBlNachbarn()
-        
-        //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
-        initPlayer()
-        
-        activePlayer = player1
-        unActivePlayer = player2
-        
-        //Setze die Farben der Bundesländer
-        initColors()
-        
-        //initialisiere Statistiken
-        initStatistics()
-        
-        //initialisiere Coins-Label
-        initCoinLabel()
+       
+        //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
+        if initialized == false {
+            //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
+            self.anchorPoint = CGPoint(x: 0, y: 0)
+            
+            //Splitte die Scene in 2 verschiedene Bereiche (links = Deutschlandkarte, rechts = Statistiken
+            splitScene()
+            
+            setBGMap()
+            initBundeslaender()
+            initBlNachbarn()
+            
+            //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
+            initPlayer()
+            
+            activePlayer = player1
+            unActivePlayer = player2
+            
+            //Setze die Farben der Bundesländer
+            initColors()
+            
+            //initialisiere Statistiken
+            initStatistics()
+            
+            //initialisiere Coins-Label
+            initCoinLabel()
+            
+            initialized = true
+        }
         
     }
     
@@ -151,7 +159,7 @@ class GermanMap: SKScene {
                 activePlayerID = player1.id
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
-                
+                table.alpha = 1
                 transitToGameScene()
                 return
             }
@@ -501,10 +509,7 @@ class GermanMap: SKScene {
         
         //Erstelle Tabelle mit allen Einträgen
         let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
-        var values: [String] = [String(anzahlEigeneBl), String(eigeneTruppenStaerke), String(anzahlGegnerischeBl), String(gegnerischeTruppenStaerke), String(neutraleBl), "2"]
-        if table != nil{
-            values = table.values
-        }
+        var values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, neutraleBl, 2]
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
         
@@ -638,9 +643,7 @@ class GermanMap: SKScene {
         }
     }
     
-    func setTable(t: Table){
-        table = t
-    }
+ 
     
     // Initialisieren des Pfeils zur Anzeige der verbundenen Bundesländer
     func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
@@ -658,7 +661,6 @@ class GermanMap: SKScene {
         let transition = SKTransition.crossFade(withDuration: 2)
         let gameScene = GameScene(fileNamed: "GameScene")
         gameScene?.scaleMode = .aspectFill
-        gameScene?.setTable(t: table)
         gameScene?.setAngreifer(angreifer: blAngreifer!)
         gameScene?.setVerteidiger(verteidiger: blVerteidiger!)
         

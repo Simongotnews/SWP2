@@ -471,9 +471,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-            updateStatistics(1,3, leftDummyHealth)
+            updateStatistics(attackerIndex: 3, defenderIndex: 1, health: rightDummyHealth)
             collisionEffect(leftDummy)
-            leftDummyHealth -= 50
+            leftDummyHealth -= leftDummyHealth
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
@@ -481,9 +481,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-            updateStatistics(3,1, rightDummyHealth)
+            updateStatistics(attackerIndex: 1, defenderIndex: 3, health: rightDummyHealth)
             collisionEffect(rightDummy)
-            rightDummyHealth -= 50
+            rightDummyHealth -= rightDummyHealth
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
@@ -524,16 +524,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Called before each frame is rendered
     }
     
-    func updateStatistics(_ defenderIndex: Int, _ attackerIndex: Int, _ health: Int){
-        var tmp: Int? = Int(table.values[defenderIndex])!
-        if tmp! < health {
-            tmp! -= tmp!
-        }else{
-            tmp! -= health
-        }
+    func updateStatistics( attackerIndex: Int,  defenderIndex: Int,  health: Int){
+        var gegnerischeTruppenStaerke = germanMapReference.table.getValue(index: defenderIndex)
+        var anzahlGegnerischeBl = germanMapReference.table.getValue(index: defenderIndex-1)
+        var eigeneTruppenStaerke = germanMapReference.table.getValue(index: attackerIndex)
+        var anzahlEigeneBl = germanMapReference.table.getValue(index: attackerIndex-1)
         
-        table.values[defenderIndex] = String(tmp!)
-        table.values[attackerIndex] = String(Int(table.values[attackerIndex])! + health)
+        if gegnerischeTruppenStaerke > health {
+            gegnerischeTruppenStaerke -= health
+            eigeneTruppenStaerke += health
+            anzahlGegnerischeBl -= 1
+            anzahlEigeneBl += 1
+        }else{
+            gegnerischeTruppenStaerke = 0
+            anzahlGegnerischeBl = 0
+            anzahlEigeneBl += 1
+            eigeneTruppenStaerke += health
+        }
+        germanMapReference.table.setValue(index: defenderIndex, value: gegnerischeTruppenStaerke)
+        germanMapReference.table.setValue(index: defenderIndex-1, value: anzahlGegnerischeBl)
+        germanMapReference.table.setValue(index: attackerIndex, value: eigeneTruppenStaerke)
+        germanMapReference.table.setValue(index: attackerIndex-1, value: anzahlEigeneBl)
+        germanMapReference.table.update()
     }
     
     func collisionEffect(_ dummy: SKSpriteNode){
@@ -541,10 +553,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func transitToGermanMap(){
-        //let germanMapScene = SKScene(fileNamed: "GermanMap")
-        //germanMapScene?.scaleMode = .aspectFill
-        //(germanMapScene as! GermanMap).setTable(t: table)
-        
         //switch turn
         germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1
         germanMapReference.activePlayerID = 0
@@ -576,8 +584,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bundesLandNameLabel.zPosition=3
         addChild(bundesLandNameLabel)
     }
-    
-    func setTable(t: Table){
-        table = t
-    }
+
 }
