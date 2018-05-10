@@ -16,9 +16,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var audioPlayer = AVAudioPlayer()
     var hintergrundMusik: URL?
     
-    
-    let musikAnAus = SKSpriteNode(imageNamed: "Krug")
-    var status = true
+    var status = false
+    var statusSound = true
+    var buttonMusik: UIButton!
+    var buttonSound: UIButton!
     
     //Booleans
     var allowsRotation = true //zeigt ob Geschoss rotieren darf
@@ -85,6 +86,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var playerHP = 100
     
+    
     override func didMove(to view: SKView) {
         //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         self.physicsWorld.contactDelegate = self
@@ -106,16 +108,65 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("Datei nicht gefunden")
         }
         //Wie oft abgespielt werden soll (-1 unendlich oft)
-        audioPlayer.numberOfLoops = 3
+        audioPlayer.numberOfLoops = -1
         //Performance verbessern von Audioplayer
         audioPlayer.prepareToPlay()
         
         audioPlayer.play()
         
-
-        musikAnAus.position = CGPoint(x: 0, y: 160)
-        self.addChild(musikAnAus)
+        buttonMusik = UIButton(frame: CGRect(x: size.width-70, y: 10, width: 80, height: 80))
+        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+        
+        self.view?.addSubview(buttonMusik)
+        
+        buttonSound = UIButton(frame: CGRect(x: size.width+20, y: 10, width: 80, height: 80))
+        buttonSound.setImage(UIImage(named: "SoundOn.png"), for: .normal)
+        buttonSound.addTarget(self, action: #selector(buttonSoundAction), for: .touchUpInside)
+        
+        self.view?.addSubview(buttonSound)
     }
+    @IBAction func buttonMusikAction(sender: UIButton!){
+        
+        if (status){
+            print("Musik An")
+            status = false
+            print(status)
+            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+            audioPlayer.play()
+            
+            
+        }else if (!status){
+            print("Musik Aus")
+            status = true
+            print(status)
+            buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
+            audioPlayer.pause()
+            
+        }
+        
+    }
+    @IBAction func buttonSoundAction(sender: UIButton!){
+        
+        if (!statusSound){
+            print("Sound An")
+            statusSound = true
+            buttonSound.setImage(UIImage(named: "SoundOn.png"), for: .normal)
+            
+
+            
+            
+        }else if (statusSound){
+            print("Sound Aus")
+            statusSound = false
+            buttonSound.setImage(UIImage(named: "SoundOff.png"), for: .normal)
+            
+        }
+        
+    }
+    //Sound Ende
+    
+    
     
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
@@ -250,7 +301,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerLabel.position.y = powerBarGray.position.y + 30
         powerLabel.zPosition = 3
         self.addChild(powerLabel)
-    
+        
     }
     
     func initHealthBar(){ //initalisiere eine Bar zur Anzeige der verbleibenden Lebenspunkte des jeweiligen Dummys
@@ -298,8 +349,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             allowsRotation = true
             
             //Sound bei Wurf
+            if(statusSound){
             ball.run(SKAction.playSoundFileNamed("wurf", waitForCompletion: true))
-            
+            }
             
         }
     }
@@ -327,7 +379,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBarGray.removeFromParent()
         powerBarGreen.removeFromParent()
     }
- 
+    
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
@@ -349,23 +401,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             createArrow(node: leftDummy)
         }
         
-        //Sound An/Aus stellen
-        for touch in touches {
-        
-            let poition = touch.location(in: self)
-            
-            if (atPoint(poition) == musikAnAus && status){
-                audioPlayer.pause()
-                status = false
-            }else if (atPoint(poition) == musikAnAus && !status){
-                audioPlayer.play()
-                status = true
-            }
-        
-        }
-        
-        
     }
+    
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
@@ -380,21 +417,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             fireMode = false;
             allowsRotation = true
         }
+        
+        
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let sprite = childNode(withName: "arrow") {
             if(allowsRotation == true){
-            let touch:UITouch = touches.first!
-            let pos = touch.location(in: self)
-            
-            _ = self.atPoint(pos)
-            let touchedNode = self.atPoint(pos)
+                let touch:UITouch = touches.first!
+                let pos = touch.location(in: self)
                 
-            let deltaX = self.arrow.position.x - pos.x
-            let deltaY = self.arrow.position.y - pos.y
-            
-            if(touchedNode.name == "leftdummy"){
+                _ = self.atPoint(pos)
+                let touchedNode = self.atPoint(pos)
+                
+                let deltaX = self.arrow.position.x - pos.x
+                let deltaY = self.arrow.position.y - pos.y
+                
+                if(touchedNode.name == "leftdummy"){
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
                     if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
@@ -402,10 +441,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
                     }
                 }
-            else if(touchedNode.name == "rightdummy"){
-                angleForArrow = atan2(deltaY, deltaX)
-                if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
-                    sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
+                else if(touchedNode.name == "rightdummy"){
+                    angleForArrow = atan2(deltaY, deltaX)
+                    if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                        sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
                     }
                 }
             }
@@ -431,7 +470,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(arrow)
     }
-
+    
     func didBegin(_ contact: SKPhysicsContact){
         var firstBody:SKPhysicsBody
         var secondBody:SKPhysicsBody
@@ -449,7 +488,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firedBool = false
             
             //Sound bei Treffer auf Boden
+            if(statusSound){
             ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
+            }
         }
         
         if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategorie) != 0 && firedBool == true{
@@ -457,7 +498,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             projectileDidCollideWithDummy()
             
             //Sound bei Treffer
+            if(statusSound){
             ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
+            }
         }
         
         //warte eine bestimmte Zeit und initialisiere den anderen Spieler
@@ -486,7 +529,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
         
         let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
-    
+        
         UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
         let context = UIGraphicsGetCurrentContext()
         
@@ -501,8 +544,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.texture = SKTexture(image: spriteImage!)
         node.size = barSize
     }
-
+    
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
 }
+
