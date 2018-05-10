@@ -203,6 +203,15 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         return -1
     }
     
+    /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
+    func getIndexOfNextPlayer() -> Int {
+        if(!isLocalPlayersTurn()) {
+         return (getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!
+        } else {
+            return getIndexOfLocalPlayer()
+        }
+    }
+    
     /** Gibt an ob der lokale Spieler gerade am Zug ist */
     func isLocalPlayersTurn() -> Bool
     {
@@ -286,7 +295,25 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         underlyingViewController.present(matchMakerViewController, animated: true)
     }
     
+    /** Funktion um den GameState der auf GameCenter gespeichert wird zu updaten. Funktioniert nur wenn man am Zug ist. */
+    func updateMatchData(gameStatus : GameState.StructGameState) {
+        if(isLocalPlayersTurn()) {
+            currentMatch.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: gameStatus), completionHandler: {(error: Error?) -> Void in
+                print("Fehler: Es ist ein Fehler beim Updaten der MatchData aufgetreten")
+                print(error as Any)
+        })
+        }
+    }
     
+    /** Funktion um den GameState der auf GameCenter gespeichert wird zu updaten. Funktioniert nur wenn man am Zug ist. Verwendet immer den lokalen GameState */
+    func updateMatchData() {
+        if(isLocalPlayersTurn()) {
+            currentMatch.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: {(error: Error?) -> Void in
+                print("Fehler: Es ist ein Fehler beim Updaten der MatchData aufgetreten")
+                print(error as Any)
+            })
+        }
+    }
     
     /** Methode, wenn der lokale Spieler einen Exchange Request schicken will */
     func sendExchangeRequest<T : Codable>(structToSend : T, messageKey : String)

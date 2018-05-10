@@ -93,6 +93,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initHealthBar()
         if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
             isActive = true
+            GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+            GameCenterHelper.getInstance().updateMatchData()
             print("Ist aktiver Spieler")
         } else {
             isActive = false
@@ -295,6 +297,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if(isActive) {
             //TODO: Gegebenenfalls inaktiv schalten vor den Timer ziehen
             self.isActive = false
+            GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+            GameCenterHelper.getInstance().updateMatchData()
             wasActive = true
             print("Starte Timer (Active)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
@@ -324,6 +328,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 } else {
                     self.initBall(for: 2)
                 }
+                GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+                GameCenterHelper.getInstance().updateMatchData()
                 self.isActive = true
                 self.updateStatusLabel()
                 
