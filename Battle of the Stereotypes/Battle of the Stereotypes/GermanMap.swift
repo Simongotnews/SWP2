@@ -463,10 +463,11 @@ class GermanMap: SKScene {
     
     // Initialisieren der Spieler
     func initPlayer(){
-        player1 = Player(bundesland: niedersachsen!)
+        //ID aus GameCenter ändern
+        player1 = Player(bundesland: niedersachsen!, id: 1)
         player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
         
-        player2 = Player(bundesland: bayern!)
+        player2 = Player(bundesland: bayern!, id: 2)
         player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
     }
     

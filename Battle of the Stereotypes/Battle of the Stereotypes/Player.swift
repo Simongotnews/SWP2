@@ -30,9 +30,9 @@ class Player {
     //der aktuelle Kämpfer in der Kampfszene
     var fighter: Fighter!
     
-    init(bundesland: Bundesland) {
+    init(bundesland: Bundesland, id: Int) {
         //muss später vom GameCenter entschieden werden
-        self.id = 1
+        self.id = id
         self.bundesland = bundesland
         self.coins = 2000; //2000 Münzen Startguthaben
     }

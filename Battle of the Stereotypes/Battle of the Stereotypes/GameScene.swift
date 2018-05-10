@@ -214,7 +214,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //Geschoss soll immer nur bei dem anderen Spieler didBegin() triggern
         if player==1 {
             ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory
-            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory 
+            ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory
             
         } else {
             ball.physicsBody?.contactTestBitMask = groundCategory | leftDummyCategory
@@ -289,8 +289,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
             let max = 1700.0
             let force = (Double(forceCounter) * max) / 100
-            ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse * force, dy: yImpulse * force))
-            //es soll eine Kollision mit dem Grund und dem Dummy simulieren
+            let finalXImpulse = xImpulse * force
+            let finalYImpulse = yImpulse * force
+            ball.physicsBody?.applyImpulse(CGVector(dx: finalXImpulse, dy: finalYImpulse))
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
@@ -330,7 +331,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //Spielerwechsel, wenn Spieler geworfen hat und klickt
-        if didCollide {
+        if fireMode {
             germanMapReference.activePlayerID = (germanMapReference.activePlayerID == 1) ? 2 : 1
             //setze Geschoss für anderen Spieler und initialisiert Bools auf default Werte
             if leftDummyID == germanMapReference.player1.id {
@@ -342,7 +343,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //wenn gefeuert wurde, darf nichts mehr gedrückt werden
-        if fireMode == true {
+        if fireMode {
             return
         }
         
@@ -370,11 +371,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //Erstelle Pfeil, aber nur für meinen Kämpfer
         if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == leftDummyID){
-            setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy)
             createArrow(node: leftDummy)
         }
         else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == rightDummyID){
-            setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy)
             createArrow(node: rightDummy)
         }
         
@@ -391,7 +390,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.removeAction(forKey: "powerBarAction")
             throwProjectile()
             powerBarReset()
-            fireMode = false;
             allowsRotation = true
         }
     }
