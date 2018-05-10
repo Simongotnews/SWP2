@@ -471,7 +471,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy() {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
-            updateStatistics(attackerIndex: 3, defenderIndex: 1, health: rightDummyHealth)
+            updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummyHealth)
             collisionEffect(leftDummy)
             leftDummyHealth -= leftDummyHealth
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
