@@ -298,10 +298,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** Funktion um den GameState der auf GameCenter gespeichert wird zu updaten. Funktioniert nur wenn man am Zug ist. */
     func updateMatchData(gameStatus : GameState.StructGameState) {
         if(isLocalPlayersTurn()) {
-            currentMatch.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: gameStatus), completionHandler: {(error: Error?) -> Void in
+            currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameStatus), withResolvedExchanges: currentMatch.completedExchanges!) { (error: Error?) -> Void in
+                //.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: gameStatus), completionHandler: {(error: Error?) -> Void in
                 print("Fehler: Es ist ein Fehler beim Updaten der MatchData aufgetreten")
                 print(error as Any)
-        })
+            }
         }
     }
     
