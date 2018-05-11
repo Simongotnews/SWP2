@@ -15,6 +15,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     
     //Hintergrund
     var background: SKSpriteNode!
+    //Hintergrund des Buttons
+    var backgroundOfButton: SKSpriteNode!
     //playButton
     var playGameButton: Button!
     
@@ -47,12 +49,18 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         playGameButton = Button(texture: SKTexture(imageNamed: "playbutton_klein4"), size: CGSize(width: 80, height: 70), isPressable: true)
         playGameButton.alpha = 1
         playGameButton.zPosition = 1
-        
         playGameButton.setScale(1.1)
         playGameButton.position = CGPoint(x: -0, y: -200)
         self.addChild(playGameButton)
+        
+        //Button mit Hintergrundbild hinterlegen, da er auf Holzhintergrund sonst leicht transparent ist (analog zu UIButton)
+        backgroundOfButton = SKSpriteNode(imageNamed: "playbutton_klein4")
+        backgroundOfButton.size = CGSize(width: 80, height: 70)
+        backgroundOfButton.alpha = 1
+        backgroundOfButton.zPosition = 0 //Position hinter Button aber vor Holzhintergrund
+        backgroundOfButton.position = CGPoint(x: -0, y: -200)
+        self.addChild(backgroundOfButton)
     }
-    
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
