@@ -509,7 +509,7 @@ class GermanMap: SKScene {
         
         //Erstelle Tabelle mit allen Einträgen
         let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
-        var values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, neutraleBl, 2]
+        let values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, neutraleBl, 2]
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
         

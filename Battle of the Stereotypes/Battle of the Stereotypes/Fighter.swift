@@ -22,6 +22,9 @@ class Fighter: SKSpriteNode {
         self.damage = damage
         
     }
+    func blink() {
+        run(SKAction.repeat(SKAction.sequence([SKAction.fadeAlpha(to: 0.5, duration: 0.1),SKAction.fadeAlpha(to: 1.0, duration: 0.1) ]), count: 5))
+    }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

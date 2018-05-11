@@ -54,11 +54,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Hintergrund
     var background: SKSpriteNode!
     
-    var leftDummy: SKSpriteNode!
+    var leftDummy: Fighter!
     //ID für linken Dummy, muss später noch geändert werden, da Dummy durch Fighter Klasse ersetzt wird!!!
     var leftDummyID: Int!
     //ID für rechten Dummy
-    var rightDummy: SKSpriteNode!
+    var rightDummy: Fighter!
     var rightDummyID: Int!
     
     var leftDummyHealthLabel:SKLabelNode!
@@ -126,7 +126,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func initDummys(){
         let leftDummyTexture = SKTexture(imageNamed: "dummy")
-        leftDummy = SKSpriteNode(texture: leftDummyTexture)
+        leftDummy = Fighter(lifePoints: leftDummyHealthInitial, damage: 0, texture: leftDummyTexture, size: CGSize(width: leftDummyTexture.size().width, height: leftDummyTexture.size().height))
         leftDummy.name = "leftdummy"
         leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
         
@@ -143,7 +143,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(leftDummy)
         
         let rightDummyTexture = SKTexture(imageNamed: "dummy")
-        rightDummy = SKSpriteNode(texture: leftDummyTexture)
+        rightDummy = Fighter(lifePoints: rightDummyHealthInitial, damage: 0, texture: rightDummyTexture, size: CGSize(width: rightDummyTexture.size().width, height: rightDummyTexture.size().height))
         rightDummy.name = "rightdummy"
         rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 280)
         
@@ -472,7 +472,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //ball.removeFromParent()
         if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
             updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummyHealth)
-            collisionEffect(leftDummy)
+            leftDummy.blink()
             leftDummyHealth -= leftDummyHealth
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             if leftDummyHealth < 0 {
@@ -482,7 +482,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
             updateStatistics(attackerIndex: 1, defenderIndex: 3, health: rightDummyHealth)
-            collisionEffect(rightDummy)
+            rightDummy.blink()
             rightDummyHealth -= rightDummyHealth
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             if rightDummyHealth < 0 {
@@ -546,10 +546,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         germanMapReference.table.setValue(index: attackerIndex, value: eigeneTruppenStaerke)
         germanMapReference.table.setValue(index: attackerIndex-1, value: anzahlEigeneBl)
         germanMapReference.table.update()
-    }
-    
-    func collisionEffect(_ dummy: SKSpriteNode){
-        dummy.run(SKAction.repeat(SKAction.sequence([SKAction.fadeAlpha(to: 0.5, duration: 0.1),SKAction.fadeAlpha(to: 1.0, duration: 0.1) ]), count: 5))
     }
     
     func transitToGermanMap(){
