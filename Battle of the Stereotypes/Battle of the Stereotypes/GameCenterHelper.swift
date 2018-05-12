@@ -94,6 +94,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             let matchData = currentMatch.matchData
             currentMatch.loadMatchData(completionHandler: nil)
             gameState = GameState.decodeStruct(dataToDecode: matchData!, structInstance: GameState.StructGameState())
+            //self.workExchangesAfterReloadTest()
         }
         print("Turn Event erhalten")
     }
@@ -167,6 +168,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Spieler erhält eine Antwort auf einen Exchange Request */
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
+        mergeExchangesToSave()
         isWaitingOnReply = false
         for reply in replies {
             //let reply = GameState.decodeExchangeReply(data: reply.data!)
@@ -293,6 +295,78 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         let matchMakerViewController = GKTurnBasedMatchmakerViewController.init(matchRequest: matchRequest)
         matchMakerViewController.turnBasedMatchmakerDelegate=self as GKTurnBasedMatchmakerViewControllerDelegate
         underlyingViewController.present(matchMakerViewController, animated: true)
+    }
+    
+    func mergeCompletedExchangesToSave() {
+        if(isLocalPlayersTurn()){
+            if(currentMatch.completedExchanges?.count != nil){
+                currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: currentMatch.completedExchanges!, completionHandler: {(error: Error?) -> Void in
+                    if (error != nil){
+                        print("CompletedExchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
+                    } else{
+                        print("CompletedExchanges erfolgreich in Save eingebunden.")
+                    }
+                })
+            }
+        }
+    }
+    
+    func mergeExchangesToSave() {
+        if(isLocalPlayersTurn()){
+            if(currentMatch.exchanges?.count != nil){
+            currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: currentMatch.exchanges!, completionHandler: {(error: Error?) -> Void in
+                    if (error != nil){
+                        print("Exchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
+                    } else{
+                        print("Exchanges erfolgreich in Save eingebunden.")
+                    }
+                })
+            }
+        }
+    }
+    
+    func cancelActiveExchanges(){
+        if(isLocalPlayersTurn()){
+            if(currentMatch.activeExchanges?.count != nil){
+                for exchange in currentMatch.exchanges!{
+                    if (exchange != nil){
+                        exchange.cancel(withLocalizableMessageKey: "ForReinitializingGameState", arguments: ["XY", "Z"], completionHandler: {(error: Error?) -> Void in
+                            if (error != nil){
+                                print("Fehler beim Löschen einer Exchange")
+                            } else {
+                                print("Eine Exchange gelöscht")
+                            }
+                        })
+                    }
+                }
+            }
+        }
+    }
+    
+    func listExchanges(){
+        //if (isLocalPlayersTurn()){
+            if (currentMatch.exchanges?.count != nil){
+                print("Aktuelle Liste der Exchanges")
+                for exchange in currentMatch.exchanges!{
+                    print("Exchange#\(String(describing: exchange.sendDate)) -Status: \(exchange.status.rawValue)")
+                }
+            }
+        //}
+    }
+    
+    func workExchangesAfterReloadTest(){
+        if (true){
+            if (currentMatch.exchanges?.count != nil){
+                for exchange in currentMatch.exchanges!{
+                    if (!(exchange.sender?.player?.playerID != GKLocalPlayer.localPlayer().playerID)){
+                        if (exchange.status.rawValue != 3){
+                            handleThrowExchange(throwExchange: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructThrowExchangeRequest()))
+                            
+                        }
+                    }
+                }
+            }
+        }
     }
     
     /** Funktion um den GameState der auf GameCenter gespeichert wird zu updaten. Funktioniert nur wenn man am Zug ist. */

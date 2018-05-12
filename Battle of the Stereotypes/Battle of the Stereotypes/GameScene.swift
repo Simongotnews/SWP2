@@ -81,8 +81,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var playerHP = 100
     
     override func didMove(to view: SKView) {
-        //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        self.physicsWorld.gravity = CGVector(dx: 0, dy: -9.82)
         self.physicsWorld.contactDelegate = self
+        
+        //Spielstandroutinen
+        GameCenterHelper.getInstance().listExchanges()
+        //GameCenterHelper.getInstance().cancelActiveExchanges()
+        //GameCenterHelper.getInstance().mergeExchangesToSave()
+        //GameCenterHelper.getInstance().mergeCompletedExchangesToSave()
         
         initBackground()
         initDummys()
@@ -93,7 +99,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
             isActive = true
             GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-            GameCenterHelper.getInstance().updateMatchData()
+            //GameCenterHelper.getInstance().updateMatchData()
             print("Ist aktiver Spieler")
         } else {
             isActive = false
@@ -101,8 +107,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         initBallOnStart()
         updateStatusLabel()
+        GameCenterHelper.getInstance().workExchangesAfterReloadTest()
     }
-    
+
+    override func update(_ currentTime: TimeInterval) {
+        // Called before each frame is rendered
+    }
+
     func initBackground(){ //initialisiere den Boden und den Hintergrund
         let groundTexture = SKTexture(imageNamed: "Boden")
         ground = SKSpriteNode(texture: groundTexture)
@@ -180,9 +191,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummyHealthLabel.fontColor = UIColor.white
         leftDummyHealthLabel.zPosition=3
         leftDummyHealth = 100
-        
         self.addChild(leftDummyHealthLabel)
-        
         rightDummyHealthLabel = SKLabelNode(text: "Health: 100")
         rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 135, y: rightDummy.size.height / 2 + 50)
         rightDummyHealthLabel.fontName = "Americantypewriter-Bold"
@@ -190,44 +199,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummyHealthLabel.fontColor = UIColor.white
         rightDummyHealthLabel.zPosition=3
         rightDummyHealth = 100
-        
         self.addChild(rightDummyHealthLabel)
     }
     
-    func initBallOnStart(){
-        if (isActive == GameCenterHelper.getInstance().isLocalPlayersTurn()){
-            initBall(for: 1)
-        } else {
-            initBall(for: 2)
-        }
-    }
     
-    func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
-        let ballTexture = SKTexture(imageNamed: "Krug")
-        firedBool = true
-        ball = SKSpriteNode(texture: ballTexture)
-        ball.size = CGSize(width: 30, height: 30)
-        if player==1 {  //Gegebenenfalls hier ContactTestBitmask anpassen, falls Friendly-Fire unerwünscht
-            ball.position = leftDummy.position
-            ball.position.x += 45
-        } else {
-            ball.position = rightDummy.position
-            ball.position.x -= 45
-        }
-        ball.zPosition=3 // TODO Skeltek: Wieso hardcoded? Vermutlich besser von Dummy-Position abhänig machen
-        ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
-        ball.physicsBody?.mass = 1
-        //Geschoss soll mehr "bouncen"
-        ball.physicsBody?.restitution=0.4
-        //Am Anfang soll das Wurfgeschoss noch undynamisch sein und nicht beeinträchtigt von Physics
-        ball.physicsBody?.allowsRotation=false
-        ball.physicsBody?.isDynamic=false
-        ball.physicsBody?.affectedByGravity=true
-        ball.physicsBody?.categoryBitMask=weaponCategory
-        ball.physicsBody?.contactTestBitMask = groundCategory | leftDummyCategory | rightDummyCategory
-        
-        self.addChild(ball)
-    }
     
     func initPowerBar(){ //initialisiere den Kraftbalken
         powerBarGray.fillColor = SKColor.gray
@@ -272,6 +247,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: playerHP)
     }
     
+    func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
+        let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
+        
+        let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
+        
+        UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
+        let context = UIGraphicsGetCurrentContext()
+        
+        fillColor.setFill()
+        let barWidth = (barSize.width - 1) * CGFloat(hp) / CGFloat(100)
+        let barRect = CGRect(x: 0.5, y: 0.5, width: barWidth, height: barSize.height - 1)
+        context!.fill(barRect)
+        
+        let spriteImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        node.texture = SKTexture(image: spriteImage!)
+        node.size = barSize
+    }
     func updateStatusLabel()
     {
         var statusText : String = ""
@@ -291,80 +285,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         statusLabel.text = statusText
     }
     
-    func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
-        print("Werfe Geschoss")
-        var wasActive = false
-        if(isActive) {
-            //TODO: Gegebenenfalls inaktiv schalten vor den Timer ziehen
-            self.isActive = false
-            GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
-            GameCenterHelper.getInstance().updateMatchData()
-            wasActive = true
-            print("Starte Timer (Active)")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                print("Timer (Active) läuft")
-                var attackParams = GameState.StructThrowExchangeRequest()
-                attackParams.xImpulse = xImpulse
-                attackParams.yImpulse = yImpulse
-                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: attackParams, messageKey: GameState.IdentifierThrowExchange)
-                //self.isActive = false
-                self.updateStatusLabel()
-                //TODO: Makeshift-Lösung: Wurfobjekt entfernen wegen unzureichender Implementierung
-                self.ball.removeFromParent()
-                if (!GameCenterHelper.getInstance().isLocalPlayersTurn()){
-                    self.initBall(for: 1)
-                } else {
-                    self.initBall(for: 2)
-                }            }
-            print("Timerevent (Active) abgehandelt")
-        } else{
-            print("Starte Timer (Passive)")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                print("Timer (Passive) läuft")
-                //TODO: Makeshift-Lösung: Wurfobjekt entfernen wegen unzureichender Implementierung
-                self.ball.removeFromParent()
-                if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
-                    self.initBall(for: 1)
-                } else {
-                    self.initBall(for: 2)
-                }
-                GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-                GameCenterHelper.getInstance().updateMatchData()
-                self.isActive = true
-                self.updateStatusLabel()
-                
-            }
-            print("Timerevent abgehandelt")
-        }
-        //GameCenterHelper.getInstance().exchangeRequest.damage = 0
-        ball.physicsBody?.affectedByGravity=true
-        ball.physicsBody?.isDynamic=true
-        ball.physicsBody?.allowsRotation=true
-        
-        
-        
-        if((GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1 && wasActive) || (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 && !wasActive)) {
-            ball.physicsBody?.applyImpulse(CGVector(dx: -(xImpulse), dy: yImpulse))
+    func initBallOnStart(){
+        if (isActive == GameCenterHelper.getInstance().isLocalPlayersTurn()){
+            initBall(for: 1)
         } else {
-        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
+            initBall(for: 2)
         }
-        // Zum Verschicken des ExchangeRequests
-        //GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
-        //GameCenterHelper.getInstance().exchangeRequest.forceCounter = forceCounter
-        
-        //Boden soll mit Gegner Dummy interagieren
-        //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
-        //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
-        ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory | leftDummyCategory
-        //es soll eine Kollision mit dem Grund und dem Dummy simulieren
-        //ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory //Anmerkung Skeltek: Wozu soll das gut sein?
-        ball.physicsBody?.usesPreciseCollisionDetection = true
-        if (arrow != nil){
-            arrow.removeFromParent()
-        }
-        allowsRotation = true
-        //}
     }
+    
+    func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (player = 1 oder 2)
+        let ballTexture = SKTexture(imageNamed: "Krug")
+        firedBool = true
+        ball = SKSpriteNode(texture: ballTexture)
+        ball.size = CGSize(width: 30, height: 30)
+        if player==1 {  //Gegebenenfalls hier ContactTestBitmask anpassen, falls Friendly-Fire unerwünscht
+            ball.position = leftDummy.position
+            ball.position.x += 45
+        } else {
+            ball.position = rightDummy.position
+            ball.position.x -= 45
+        }
+        ball.zPosition=3 // TODO Skeltek: Wieso hardcoded? Vermutlich besser von Dummy-Position abhänig machen
+        ball.physicsBody = SKPhysicsBody(texture: ballTexture, size: ball.size)
+        ball.physicsBody?.mass = 1
+        //Geschoss soll mehr "bouncen"
+        ball.physicsBody?.restitution=0.4
+        //Am Anfang soll das Wurfgeschoss noch undynamisch sein und nicht beeinträchtigt von Physics
+        ball.physicsBody?.allowsRotation=false
+        ball.physicsBody?.isDynamic=false
+        ball.physicsBody?.affectedByGravity=true
+        ball.physicsBody?.categoryBitMask=weaponCategory
+        ball.physicsBody?.contactTestBitMask = groundCategory | leftDummyCategory | rightDummyCategory
+        
+        self.addChild(ball)
+    }
+    
     func powerBarRun(){
         initPowerBar()
         let wait = SKAction.wait(forDuration: 0.03)
@@ -390,7 +345,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBarGreen.removeFromParent()
     }
     
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if (!isActive) {
             print("Spieler ist nicht aktiv!")
@@ -411,51 +365,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if self.contains(touch.location(in: self)) {
                     fireMode = true;
                     powerBarRun()
-                    
-                    
                 }
             }
         }
         if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil && (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0)){
-            setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy) //Skeltek: Führt kausal ins Nichts?
+            //setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy) //Skeltek: Führt kausal ins Nichts?
             createArrow(node: leftDummy)
         }
         else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil && (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1)){
-            setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy) //Skeltek: Führt kausal ins Nichts?
+            //setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy) //Skeltek: Führt kausal ins Nichts?
             createArrow(node: rightDummy)
-        }
-        
-        
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch:UITouch = touches.first!
-        if childNode(withName: "arrow") != nil {
-            allowsRotation = false
-            adjustedArrow = true
-        }
-        if fireMode == true{
-            self.removeAction(forKey: "powerBarAction")
-            
-            //Berechnung des Winkels
-            let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
-            print("Winkel: \(winkel)")
-            //Berechnung des Impulsvektors (nur Richtung)
-            var xImpulse = cos(winkel)
-            print("X-Impuls ist: \(xImpulse)")
-            var yImpulse = sqrt(1-pow(xImpulse, 2))
-            print("X-Impuls ist: \(yImpulse)")
-            //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
-            //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
-            //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
-            let max = 1700.0
-            let force = (Double(forceCounter) * max) / 100
-            xImpulse *= force
-            yImpulse *= force
-            throwProjectile(xImpulse: xImpulse, yImpulse: yImpulse)
-            powerBarReset()
-            fireMode = false;
-            allowsRotation = true
         }
     }
     
@@ -490,9 +409,48 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch:UITouch = touches.first!
+        if childNode(withName: "arrow") != nil {
+            allowsRotation = false
+            adjustedArrow = true
+        }
+        if fireMode == true{
+            self.removeAction(forKey: "powerBarAction")
+            
+            //Berechnung des Winkels
+            let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
+            print("Winkel: \(winkel)")
+            //Berechnung des Impulsvektors (nur Richtung)
+            var xImpulse = cos(winkel)
+            print("X-Impuls ist: \(xImpulse)")
+            var yImpulse = sqrt(1-pow(xImpulse, 2))
+            print("X-Impuls ist: \(yImpulse)")
+            //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
+            //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
+            //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
+            let max = 1700.0
+            let force = (Double(forceCounter) * max) / 100
+            xImpulse *= force
+            yImpulse *= force
+            throwProjectile(xImpulse: xImpulse, yImpulse: yImpulse)
+            powerBarReset()
+            fireMode = false;
+            allowsRotation = true
+        }
+    }
+    
     func setCategoryBitmask(activeNode: SKSpriteNode, unactiveNode: SKSpriteNode){  //Anmerkung Skeltek: Wird zu gar nichts verwendet
+        print("1LeftDummyCategory: \(leftDummyCategory)")
+        print("1Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
+        print("1RightDummyCategory: \(rightDummyCategory)")
+        print("1Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")
         activeNode.physicsBody?.categoryBitMask = leftDummyCategory
         unactiveNode.physicsBody?.categoryBitMask = rightDummyCategory
+        print("2LeftDummyCategory: \(leftDummyCategory)")
+        print("2Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
+        print("2RightDummyCategory: \(rightDummyCategory)")
+        print("2Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")
     }
     
     func createArrow(node: SKSpriteNode){
@@ -506,8 +464,83 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if(node.name == "rightdummy"){
             arrow.xScale = arrow.xScale * -1;
         }
-        
         self.addChild(arrow)
+    }
+    
+    //Alles zu Wurf und Kollision folgt
+    func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
+        print("Werfe Geschoss")
+        var wasActive = false
+        if(isActive) {
+            //TODO: Gegebenenfalls inaktiv schalten vor den Timer ziehen
+            self.isActive = false
+            //GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+            //GameCenterHelper.getInstance().updateMatchData()
+            wasActive = true
+            print("Starte Timer (Active)")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                print("Timer (Active) läuft")
+                var attackParams = GameState.StructThrowExchangeRequest()
+                attackParams.xImpulse = xImpulse
+                attackParams.yImpulse = yImpulse
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: attackParams, messageKey: GameState.IdentifierThrowExchange)
+                //self.isActive = false
+                self.updateStatusLabel()
+                //TODO: Makeshift-Lösung: Wurfobjekt entfernen wegen unzureichender Implementierung
+                self.ball.removeFromParent()
+                if (!GameCenterHelper.getInstance().isLocalPlayersTurn()){
+                    self.initBall(for: 1)
+                } else {
+                    self.initBall(for: 2)
+                }            }
+            print("Timerevent (Active) abgehandelt")
+        } else{
+            print("Starte Timer (Passive)")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                print("Timer (Passive) läuft")
+                //TODO: Makeshift-Lösung: Wurfobjekt entfernen wegen unzureichender Implementierung
+                self.ball.removeFromParent()
+                if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
+                    self.initBall(for: 1)
+                } else {
+                    self.initBall(for: 2)
+                }
+                //GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+                //GameCenterHelper.getInstance().updateMatchData()
+                self.isActive = true
+                self.updateStatusLabel()
+                
+            }
+            print("Timerevent abgehandelt")
+        }
+        //GameCenterHelper.getInstance().exchangeRequest.damage = 0
+        ball.physicsBody?.affectedByGravity=true
+        ball.physicsBody?.isDynamic=true
+        ball.physicsBody?.allowsRotation=true
+        
+        
+        
+        if((GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1 && wasActive) || (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 && !wasActive)) {
+            ball.physicsBody?.applyImpulse(CGVector(dx: -(xImpulse), dy: yImpulse))
+        } else {
+            ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
+        }
+        // Zum Verschicken des ExchangeRequests
+        //GameCenterHelper.getInstance().exchangeRequest.angleForArrow = Float(angleForArrow2)
+        //GameCenterHelper.getInstance().exchangeRequest.forceCounter = forceCounter
+        
+        //Boden soll mit Gegner Dummy interagieren
+        //Boden soll mit dem Wurfgeschoss interagieren und dann didbegin triggern
+        //wird benötigt damit keine Schadensberechnung erfolgt wenn Boden zuerst berührt wird
+        ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory | leftDummyCategory
+        //es soll eine Kollision mit dem Grund und dem Dummy simulieren
+        //ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory //Anmerkung Skeltek: Wozu soll das gut sein?
+        ball.physicsBody?.usesPreciseCollisionDetection = true
+        if (arrow != nil){
+            arrow.removeFromParent()
+        }
+        allowsRotation = true
+        //}
     }
     
     func didBegin(_ contact: SKPhysicsContact){
@@ -517,7 +550,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var secondBody:SKPhysicsBody
         firstBody = contact.bodyA
         secondBody = contact.bodyB
-        
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
         print("Checking whether contact is ground category")
         if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0)          {
@@ -526,14 +558,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             secondBody.categoryBitMask = groundCategory //Skeltek: Geschoss soll zu 'Boden' deklariert werden
             //firedBool = false //Skeltek: Test, später wieder aktivieren
         }
-        
-        if ((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0 && ((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0{
+        if ((((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0) && (((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0)){
             //firedBool = false
             //Hier sollte Schadensabfertigung nur aufgerufen werden falls active
             projectileDidCollideWithDummy(contact)
-            
             //GameCenterHelper.getInstance().sendExchangeRequest()
-            
         }
     }
     
@@ -541,6 +570,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("projectile Collided with Dummy!")
         //ball.removeFromParent()
         //Wenn Dummy getroffen, entsprechend Schaden verursachen //Skel: Später noch 'isAcive' hinzufügen
+        
+        print("LeftDummyCategory: \(leftDummyCategory)")
+        print("Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
+        print("RightDummyCategory: \(rightDummyCategory)")
+        print("Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")
+        
         if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0) && firedBool){
             leftDummyHealth -= 50
             firedBool = false
@@ -557,29 +592,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth)
-    }
-    
-    func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int) {
-        let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
-        
-        let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
-        
-        UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
-        let context = UIGraphicsGetCurrentContext()
-        
-        fillColor.setFill()
-        let barWidth = (barSize.width - 1) * CGFloat(hp) / CGFloat(100)
-        let barRect = CGRect(x: 0.5, y: 0.5, width: barWidth, height: barSize.height - 1)
-        context!.fill(barRect)
-        
-        let spriteImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        node.texture = SKTexture(image: spriteImage!)
-        node.size = barSize
-    }
-    
-    override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
     }
 }
