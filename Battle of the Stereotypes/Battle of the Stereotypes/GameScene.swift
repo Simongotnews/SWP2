@@ -89,6 +89,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //GameCenterHelper.getInstance().cancelActiveExchanges()
         //GameCenterHelper.getInstance().mergeExchangesToSave()
         //GameCenterHelper.getInstance().mergeCompletedExchangesToSave()
+
         
         initBackground()
         initDummys()
@@ -96,15 +97,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initDummyLabels()
         //initilialisiere Geschoss für Spieler 1
         initHealthBar()
-        if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
+        
+        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().gameState.turnOwnerActive){
             isActive = true
-            GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-            //GameCenterHelper.getInstance().updateMatchData()
-            print("Ist aktiver Spieler")
         } else {
             isActive = false
-            print("Ist inaktiver Spieler")
         }
+        
         initBallOnStart()
         updateStatusLabel()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {        GameCenterHelper.getInstance().workExchangesAfterReloadTest()
@@ -371,11 +370,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil && (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0)){
-            //setCategoryBitmask(activeNode: leftDummy, unactiveNode: rightDummy) //Skeltek: Führt kausal ins Nichts?
             createArrow(node: leftDummy)
         }
         else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil && (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1)){
-            //setCategoryBitmask(activeNode: rightDummy, unactiveNode: leftDummy) //Skeltek: Führt kausal ins Nichts?
             createArrow(node: rightDummy)
         }
     }
@@ -386,7 +383,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let touch:UITouch = touches.first!
                 let pos = touch.location(in: self)
                 
-                _ = self.atPoint(pos)
+                _ = self.atPoint(pos)   //WTF ist das?
                 let touchedNode = self.atPoint(pos)
                 
                 let deltaX = self.arrow.position.x - pos.x
@@ -419,7 +416,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if fireMode == true{
             self.removeAction(forKey: "powerBarAction")
-            
             //Berechnung des Winkels
             let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
             print("Winkel: \(winkel)")
@@ -441,20 +437,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             allowsRotation = true
         }
     }
-    
-    func setCategoryBitmask(activeNode: SKSpriteNode, unactiveNode: SKSpriteNode){  //Anmerkung Skeltek: Wird zu gar nichts verwendet
-        print("1LeftDummyCategory: \(leftDummyCategory)")
-        print("1Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
-        print("1RightDummyCategory: \(rightDummyCategory)")
-        print("1Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")
-        activeNode.physicsBody?.categoryBitMask = leftDummyCategory
-        unactiveNode.physicsBody?.categoryBitMask = rightDummyCategory
-        print("2LeftDummyCategory: \(leftDummyCategory)")
-        print("2Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
-        print("2RightDummyCategory: \(rightDummyCategory)")
-        print("2Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")
-    }
-    
+
     func createArrow(node: SKSpriteNode){
         arrow = SKSpriteNode(imageNamed: "pfeil")
         let centerLeft = node.position
@@ -471,11 +454,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Alles zu Wurf und Kollision folgt
     func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
-        print("1LeftDummyCategory: \(leftDummyCategory)")
-        print("1Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
-        print("1RightDummyCategory: \(rightDummyCategory)")
-        print("1Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")
-        print("Werfe Geschoss")
         var wasActive = false
         if(isActive) {
             //TODO: Gegebenenfalls inaktiv schalten vor den Timer ziehen
@@ -498,13 +476,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.initBall(for: 1)
                 } else {
                     self.initBall(for: 2)
-                }            }
-            print("Timerevent (Active) abgehandelt")
+                }
+            }
         } else{
             print("Starte Timer (Passive)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                print("Timer (Passive) läuft")
-                //TODO: Makeshift-Lösung: Wurfobjekt entfernen wegen unzureichender Implementierung
+                print("Timer (Passive)")
                 self.ball.removeFromParent()
                 if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
                     self.initBall(for: 1)
@@ -517,15 +494,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.updateStatusLabel()
                 
             }
-            print("Timerevent abgehandelt")
         }
-        //GameCenterHelper.getInstance().exchangeRequest.damage = 0
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
-        
-        
-        
+
         if((GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 1 && wasActive) || (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 && !wasActive)) {
             ball.physicsBody?.applyImpulse(CGVector(dx: -(xImpulse), dy: yImpulse))
         } else {
@@ -546,33 +519,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             arrow.removeFromParent()
         }
         allowsRotation = true
-        print("2LeftDummyCategory: \(leftDummyCategory)")
-        print("2Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
-        print("2RightDummyCategory: \(rightDummyCategory)")
-        print("2Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")        //}
+        //}
     }
     
     func didBegin(_ contact: SKPhysicsContact){
-        print("didBegin (Collision detected)")
-        print("TypeA is " + String(contact.bodyA.categoryBitMask))
         var firstBody:SKPhysicsBody
         var secondBody:SKPhysicsBody
         firstBody = contact.bodyA
         secondBody = contact.bodyB
         //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
-        print("Checking whether contact is ground category")
-        if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0)          {
-            print("changing Weapons Category to 'Ground'")
+        if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0){
             firedBool = false
-            //firstBody.categoryBitMask = groundCategory
-            //secondBody.categoryBitMask = groundCategory //Skeltek: Geschoss soll zu 'Boden' deklariert werden
-            //firedBool = false //Skeltek: Test, später wieder aktivieren
         }
         if ((((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0) && (((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0)){
-            //firedBool = false
             //Hier sollte Schadensabfertigung nur aufgerufen werden falls active
             projectileDidCollideWithDummy(contact)
-            //GameCenterHelper.getInstance().sendExchangeRequest()
         }
     }
     
@@ -580,12 +541,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("projectile Collided with Dummy!")
         //ball.removeFromParent()
         //Wenn Dummy getroffen, entsprechend Schaden verursachen //Skel: Später noch 'isAcive' hinzufügen
-        
-        print("LeftDummyCategory: \(leftDummyCategory)")
-        print("Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
-        print("RightDummyCategory: \(rightDummyCategory)")
-        print("Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")
-        
         if ((((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0) && firedBool){
             leftDummyHealth -= 50
             firedBool = false

@@ -95,6 +95,19 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             currentMatch.loadMatchData(completionHandler: nil)
             gameState = GameState.decodeStruct(dataToDecode: matchData!, structInstance: GameState.StructGameState())
             //self.workExchangesAfterReloadTest()
+        } else if (isLocalPlayersTurn()){
+            if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
+                GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+                //GameCenterHelper.getInstance().updateMatchData()
+                print("Ist aktiver Spieler")
+            }
+            currentMatch.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: GameCenterHelper.sharedInstance.gameState)) { (error : Error?) -> Void in
+                if (error != nil){
+                    print(error as Any)
+                } else {
+                    print("Zustand bei neuem Spiel gespeichert")
+                }
+            }
         }
         print("Turn Event erhalten")
         //self.workExchangesAfterReloadTest()
@@ -314,7 +327,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     }
     
     func mergeExchangesToSave() {
-        if(isLocalPlayersTurn()){
+        if(true){   //TODO: Replace with isLocalPlayersTurn() later maybe
             if(currentMatch.exchanges?.count != nil){
             currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: currentMatch.exchanges!, completionHandler: {(error: Error?) -> Void in
                     if (error != nil){
