@@ -113,6 +113,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        if (GameCenterHelper.getInstance().gameState.gameScreenDepth < 2){
+            //zurück zur Karte
+        }
     }
 
     func initBackground(){ //initialisiere den Boden und den Hintergrund

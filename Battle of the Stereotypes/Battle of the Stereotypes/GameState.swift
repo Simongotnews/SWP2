@@ -43,6 +43,8 @@ class GameState {
         var health = [100, 100]
         /** Wie lautet die PlayerID des aktiven Spielers in der GameScene, TurnOwner muss diesen Wert immer up-to-date halten */
         var turnOwnerActive : Int = 0
+        /** Im aktuellen Spiel letzter Bildschirm nach "Tiefe" - 0.Start -1.Karte - 2.Schlacht */
+        var gameScreenDepth : Int = 0
     }
     
     /*

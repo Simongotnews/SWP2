@@ -255,12 +255,19 @@ class GermanMap: SKScene {
         //if(!GameCenterHelper.getInstance().isGameCenterRunning()) {
         //    return
         //}
+        GameCenterHelper.getInstance().gameState.gameScreenDepth = 2
         let transition = SKTransition.crossFade(withDuration: 2)
         gameScene = SKScene(fileNamed: "GameScene") as! GameScene
         gameScene?.scaleMode = .aspectFill
         self.view?.presentScene(gameScene!, transition: transition)
     }
-    
-    
+    override func update(_ currentTime: TimeInterval) {
+        // Called before each frame is rendered
+        if ((GameCenterHelper.getInstance().gameState) != nil){
+            if (GameCenterHelper.getInstance().gameState.gameScreenDepth > 1){
+                transitToGameScene()
+            }
+        }
+    }
 }
 
