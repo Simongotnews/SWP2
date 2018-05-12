@@ -26,7 +26,7 @@ class GermanMap: SKScene {
     
     var mapSide:SKSpriteNode!
     var statsSide:SKSpriteNode!
-
+    
     //playButton
     var playButton: Button!
     

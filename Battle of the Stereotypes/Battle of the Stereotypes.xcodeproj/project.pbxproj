@@ -307,6 +307,7 @@
 				3F2B5A4C209AFEE2005B29C7 /* Button.swift in Sources */,
 				3F2DF3032093B6F700FC7469 /* GermanMap.swift in Sources */,
 				3F2DF3142094907A00FC7469 /* Bundesland.swift in Sources */,
+				3F1FEF10209756190049F94F /* GameState.swift in Sources */,
 				3F2DF3162094909200FC7469 /* Player.swift in Sources */,
 				3FA47FEE20850BE900ADE0A8 /* AppDelegate.swift in Sources */,
 				3F555E6620A327AA00F4F3E4 /* StartScene.swift in Sources */,
