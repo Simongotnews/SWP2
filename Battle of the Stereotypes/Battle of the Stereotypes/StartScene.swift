@@ -13,6 +13,8 @@ import GameplayKit
 
 class StartScene: SKScene, SKPhysicsContactDelegate{
     
+    static var germanMapScene : GermanMap!
+    
     //Hintergrund
     var background: SKSpriteNode!
     //Hintergrund des Buttons
@@ -94,6 +96,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
                 
                 // Set the scale mode to scale to fit the window
                 sceneNode.scaleMode = .aspectFill
+                
+                StartScene.germanMapScene = sceneNode
                 
                 // Present the scene
                 if let view = self.view as! SKView? {

@@ -62,13 +62,13 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("MatchMakerViewController Match gefunden")
         currentMatch = match
         if(isLocalPlayersTurn()) {
-            //GameViewController.germanMapScene.gameScene.isActive = true
-            //GameViewController.germanMapScene.gameScene.updateStatusLabel()
-            //GameViewController.germanMapScene.gameScene.hasTurn = true
+            StartScene.germanMapScene.activePlayerID = getIndexOfLocalPlayer()
+            //StartScene.germanMapScene.gameScene.updateStatusLabel()
+            //StartScene.germanMapScene.gameScene.hasTurn = true
         } else {
-            //GameViewController.germanMapScene.gameScene.isActive = false
-            //GameViewController.germanMapScene.gameScene.updateStatusLabel()
-            //GameViewController.germanMapScene.gameScene.hasTurn = false
+            StartScene.germanMapScene.activePlayerID = getIndexOfNextPlayer()
+            //StartScene.germanMapScene.gameScene.updateStatusLabel()
+            //StartScene.germanMapScene.gameScene.hasTurn = false
             
         }
         // TODO: Ab hier ermöglichen das eigentliche Spiel zu spielen
@@ -132,7 +132,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             print("Fehlerhafter MessageKey von ExchangeRequest")
         }
         //TODO: Folgende Zeile ist nur temporär
-        //GameViewController.germanMapScene.gameScene.isActive = false
+        StartScene.germanMapScene.activePlayerID = getIndexOfNextPlayer()
         
         //if(damage != 0) {
         // Schade Spieler
@@ -144,8 +144,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         exchange.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: exchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
-                //GameViewController.germanMapScene.gameScene.isActive = true
-                //GameViewController.germanMapScene.gameScene.updateStatusLabel()
+                StartScene.germanMapScene.activePlayerID = self.getIndexOfLocalPlayer()
+                //StartScene.germanMapScene.gameScene.updateStatusLabel()
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
                 print(error as Any)
@@ -162,9 +162,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func handleThrowExchange(throwExchange : GameState.StructThrowExchangeRequest) {
        print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchange))
         // Hier Schuss simulieren
-        //GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
-        //GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
-        //GameViewController.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
+        //StartScene.germanMapScene.gameScene.forceCounter = forceCounter
+        //StartScene.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
+        //StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
     }
     
     /** TODO: Implementieren */
@@ -437,7 +437,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
         currentMatch.endTurn(withNextParticipants: [nextParticipant], turnTimeout: TimeInterval(5.0), match: GameState.encodeStruct(structToEncode: gameState), completionHandler: { (error: Error?) in
             if(error == nil ) {
-                //GameViewController.germanMapScene.gameScene.isActive = false     // Operation erfolgreich
+                //StartScene.germanMapScene.gameScene.isActive = false     // Operation erfolgreich
             } else {
                 print("Fehler gefunden beim Turn beenden")
                 print(error as Any)

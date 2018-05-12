@@ -11,6 +11,8 @@ import GameplayKit
 
 class GermanMap: SKScene {
     
+    //Referenz auf gameScene
+    var gameScene : GameScene = GameScene(fileNamed: "GameScene")!
     //Id des Spielers, der am Zug ist
     var turnPlayerID: Int = 1
     //Id des Spielers, der gerade wirft in der Kampfszene
@@ -110,7 +112,6 @@ class GermanMap: SKScene {
     var initialized: Bool = false
 
     override func didMove(to view: SKView) {
-       
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
         if initialized == false {
             //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
@@ -147,8 +148,8 @@ class GermanMap: SKScene {
         let touch:UITouch = touches.first!
         touchesBeganLocation = touch.location(in: self)
         
-        //wenn man nicht am Zug ist, darf man nichts drücken
-        if player1.id != turnPlayerID {
+        //wenn man nicht am Zug ist, darf man nichts drücken // andre-jar,Skeltek: Passt so hier oder?
+        if !GameCenterHelper.getInstance().isLocalPlayersTurn() {
             return
         }
         
@@ -471,11 +472,11 @@ class GermanMap: SKScene {
     
     // Initialisieren der Spieler
     func initPlayer(){
-        //ID aus GameCenter ändern
-        player1 = Player(bundesland: niedersachsen!, id: 1)
+        //ID aus GameCenter ändern // andre-jar,Skeltek: Ist denke ich hiermit gelöst
+        player1 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
         player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
         
-        player2 = Player(bundesland: bayern!, id: 2)
+        player2 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfNextPlayer())
         player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
     }
     
@@ -659,14 +660,14 @@ class GermanMap: SKScene {
     
     func transitToGameScene(){
         let transition = SKTransition.crossFade(withDuration: 2)
-        let gameScene = GameScene(fileNamed: "GameScene")
-        gameScene?.scaleMode = .aspectFill
-        gameScene?.setAngreifer(angreifer: blAngreifer!)
-        gameScene?.setVerteidiger(verteidiger: blVerteidiger!)
+        
+        gameScene.scaleMode = .aspectFill
+        gameScene.setAngreifer(angreifer: blAngreifer!)
+        gameScene.setVerteidiger(verteidiger: blVerteidiger!)
         
         //halte eine Referenz auf diese Szene in der Kampfscene
-        gameScene?.germanMapReference = self
+        gameScene.germanMapReference = self
         
-        self.view?.presentScene(gameScene!, transition: transition)
+        self.view?.presentScene(gameScene, transition: transition)
     }
 }
