@@ -107,7 +107,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         initBallOnStart()
         updateStatusLabel()
-        GameCenterHelper.getInstance().workExchangesAfterReloadTest()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {        GameCenterHelper.getInstance().workExchangesAfterReloadTest()
+            
+        }
     }
 
     override func update(_ currentTime: TimeInterval) {
@@ -469,6 +471,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Alles zu Wurf und Kollision folgt
     func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
+        print("1LeftDummyCategory: \(leftDummyCategory)")
+        print("1Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
+        print("1RightDummyCategory: \(rightDummyCategory)")
+        print("1Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")
         print("Werfe Geschoss")
         var wasActive = false
         if(isActive) {
@@ -540,7 +546,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             arrow.removeFromParent()
         }
         allowsRotation = true
-        //}
+        print("2LeftDummyCategory: \(leftDummyCategory)")
+        print("2Left Dummy has Category: \(leftDummy.physicsBody?.categoryBitMask)")
+        print("2RightDummyCategory: \(rightDummyCategory)")
+        print("2Right Dummy has Category: \(rightDummy.physicsBody?.categoryBitMask)")        //}
     }
     
     func didBegin(_ contact: SKPhysicsContact){
@@ -554,8 +563,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("Checking whether contact is ground category")
         if (((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & groundCategory) != 0)          {
             print("changing Weapons Category to 'Ground'")
-            firstBody.categoryBitMask = groundCategory
-            secondBody.categoryBitMask = groundCategory //Skeltek: Geschoss soll zu 'Boden' deklariert werden
+            firedBool = false
+            //firstBody.categoryBitMask = groundCategory
+            //secondBody.categoryBitMask = groundCategory //Skeltek: Geschoss soll zu 'Boden' deklariert werden
             //firedBool = false //Skeltek: Test, später wieder aktivieren
         }
         if ((((firstBody.categoryBitMask | secondBody.categoryBitMask) & weaponCategory) != 0) && (((firstBody.categoryBitMask | secondBody.categoryBitMask) & (leftDummyCategory | rightDummyCategory)) != 0)){

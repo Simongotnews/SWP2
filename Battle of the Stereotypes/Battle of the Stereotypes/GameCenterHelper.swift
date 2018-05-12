@@ -97,6 +97,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             //self.workExchangesAfterReloadTest()
         }
         print("Turn Event erhalten")
+        //self.workExchangesAfterReloadTest()
+        
     }
     
     /** Spieler erhält einen Exchange Request */
