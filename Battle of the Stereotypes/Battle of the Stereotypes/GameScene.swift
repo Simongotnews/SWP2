@@ -322,6 +322,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBarGray.removeFromParent()
         powerBarGreen.removeFromParent()
     }
+ 
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
         //wenn man gerade nicht aktiv ist, darf man nichts machen
@@ -396,16 +397,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let sprite = childNode(withName: "arrow") {
             if(allowsRotation == true){
-                let touch:UITouch = touches.first!
-                let pos = touch.location(in: self)
+            let touch:UITouch = touches.first!
+            let pos = touch.location(in: self)
+            
+            _ = self.atPoint(pos)
+            let touchedNode = self.atPoint(pos)
                 
-                _ = self.atPoint(pos)
-                let touchedNode = self.atPoint(pos)
-                
-                let deltaX = self.arrow.position.x - pos.x
-                let deltaY = self.arrow.position.y - pos.y
-                
-                if(touchedNode.name == "leftdummy"){
+            let deltaX = self.arrow.position.x - pos.x
+            let deltaY = self.arrow.position.y - pos.y
+            
+            if(touchedNode.name == "leftdummy"){
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
                     if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
@@ -413,10 +414,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
                     }
                 }
-                else if(touchedNode.name == "rightdummy"){
-                    angleForArrow = atan2(deltaY, deltaX)
-                    if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
-                        sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
+            else if(touchedNode.name == "rightdummy"){
+                angleForArrow = atan2(deltaY, deltaX)
+                if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                    sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
                     }
                 }
             }
@@ -442,7 +443,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(arrow)
     }
-    
+
     func didBegin(_ contact: SKPhysicsContact){
         var firstBody:SKPhysicsBody
         var secondBody:SKPhysicsBody
@@ -503,7 +504,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
         
         let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
-        
+    
         UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
         let context = UIGraphicsGetCurrentContext()
         
@@ -518,7 +519,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.texture = SKTexture(image: spriteImage!)
         node.size = barSize
     }
-    
+
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
