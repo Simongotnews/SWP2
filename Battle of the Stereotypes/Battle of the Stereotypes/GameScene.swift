@@ -210,7 +210,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let ballTexture = SKTexture(imageNamed: "Krug")
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
-        if player==1 {
+        if player==0 {
             ball.position = leftDummy.position
             ball.position.x += 30
         } else {
@@ -359,7 +359,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //Spielerwechsel, wenn Spieler geworfen hat und klickt
         if fireMode {
-            germanMapReference.activePlayerID = (germanMapReference.activePlayerID == 0) ? 1 : 0
+            germanMapReference.activePlayerID = germanMapReference.player2.id
             //setze Geschoss für anderen Spieler und initialisiert Bools auf default Werte
             if leftDummyID == germanMapReference.player1.id {
                 initBall(for: 1)

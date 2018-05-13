@@ -484,13 +484,13 @@ class GermanMap: SKScene {
         if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
             activePlayerID = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
         } else {
-            activePlayerID = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+            activePlayerID = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
         }
         //ID aus GameCenter ändern // andre-jar,Skeltek: Ist denke ich hiermit gelöst
         player1 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
         player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
         
-        player2 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfNextPlayer())
+        player2 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
         player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
     }
     

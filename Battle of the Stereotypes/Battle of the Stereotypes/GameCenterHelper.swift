@@ -185,9 +185,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         mergeExchangesToSave()
         isWaitingOnReply = false
         for reply in replies {
-            let reply = GameState.decodeStruct(dataToDecode: reply.data!, structInstance: GameState.StructGenericExchangeReply())
-            print("Reply erhalten: " + GameState.genericExchangeReplyToString(genericExchangeReply: reply))
-
+            let replyStruct = GameState.decodeStruct(dataToDecode: reply.data!, structInstance: GameState.StructGenericExchangeReply())
+            print("Reply erhalten: " + GameState.genericExchangeReplyToString(genericExchangeReply: replyStruct))
+            if(reply.message == GameState.IdentifierThrowExchange) {
+                StartScene.germanMapScene.activePlayerID = Int((exchange.sender?.player?.playerID)!)!
+            }
             
             var tempExchangeArray = [GKTurnBasedExchange]()
             tempExchangeArray.append(exchange)
@@ -226,6 +228,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         } else {
             return getIndexOfLocalPlayer()
         }
+    }
+    
+    /** Gibt den Index anderen Spielers vom Match bei einem 2 Spieler Match zurück. */
+    func getIndexOfOtherPlayer() -> Int {
+        return getIndexOfLocalPlayer() == 0 ? 1 : 0
     }
     
     /** Gibt an ob der lokale Spieler gerade am Zug ist */
