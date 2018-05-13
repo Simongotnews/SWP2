@@ -37,7 +37,8 @@ class GameState {
         // BattleScene spezifisch:
         /** Leben der Spieler */
         var health = [100, 100]
-        /** Wie lautet die PlayerID des aktiven Spielers in der GameScene, TurnOwner muss diesen Wert immer up-to-date halten */
+        /** Wie lautet die PlayerID des aktiven Spielers in der GameScene, TurnOwner muss diesen Wert immer up-to-date halten TODO: Falls man das Spiel später ausfallsicher machen will und Neustarten etc. möglich machen will,
+            ist die Speicherung überall notwendig. Aktuell aber unbenutzt. */
         var turnOwnerActive : Int = 0
         /** Im aktuellen Spiel letzter Bildschirm nach "Tiefe" - 0.Start -1.Karte - 2.Schlacht */
         var gameScreenDepth : Int = 0

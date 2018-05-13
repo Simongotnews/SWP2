@@ -294,6 +294,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     /** Dient zum Updaten der Statusanzeige */
     func updateStatusLabel()
     {
+        if(statusLabel == nil) {
+            return
+        }
         var statusText : String = ""
             if(StartScene.germanMapScene.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
                 statusText += "Spieler: DU "

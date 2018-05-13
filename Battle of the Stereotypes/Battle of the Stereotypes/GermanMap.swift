@@ -16,7 +16,7 @@ class GermanMap: SKScene {
     //Id des Spielers, der am Zug ist
     var turnPlayerID: Int = 1
     //Id des Spielers, der gerade wirft in der Kampfszene
-    var activePlayerID: Int = 0 //noch 0, da keiner dran ist
+    var activePlayerID: Int = -1 //noch -1, da keiner dran ist
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
@@ -204,8 +204,8 @@ class GermanMap: SKScene {
             
             // Schicke die Infos an den Gegner, damit dieser bei einem Angriff Bescheid weiß welche Bundesländer in der Scene beteiligt sind
             var arrowExchange = GameState.StructArrowExchangeRequest()
-            arrowExchange.startBundesland = blAngreifer.description
-            arrowExchange.endBundesland = blVerteidiger.description
+            arrowExchange.startBundesland = blAngreifer.blNameString
+            arrowExchange.endBundesland = blVerteidiger.blNameString
             GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
         }
     }
@@ -481,6 +481,11 @@ class GermanMap: SKScene {
     
     // Initialisieren der Spieler
     func initPlayer(){
+        if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
+            activePlayerID = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+        } else {
+            activePlayerID = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+        }
         //ID aus GameCenter ändern // andre-jar,Skeltek: Ist denke ich hiermit gelöst
         player1 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
         player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
