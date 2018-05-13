@@ -161,7 +161,10 @@ class GermanMap: SKScene {
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
+                
                 transitToGameScene()
+                // Exchange, um anderen Spieler in die GameScene zu schicken
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
                 return
             }
         }
@@ -198,6 +201,12 @@ class GermanMap: SKScene {
         if(isAttackValid()){
             setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
             showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
+            
+            // Schicke die Infos an den Gegner, damit dieser bei einem Angriff Bescheid weiß welche Bundesländer in der Scene beteiligt sind
+            var arrowExchange = GameState.StructArrowExchangeRequest()
+            arrowExchange.startBundesland = blAngreifer.description
+            arrowExchange.endBundesland = blVerteidiger.description
+            GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
         }
     }
     

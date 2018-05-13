@@ -19,7 +19,12 @@ class GameViewController: UIViewController {
        // Load 'StartScene.sks' as a GKScene. This provides gameplay related content
         // including entities and graphs.
        if let scene = GKScene(fileNamed: "StartScene") {//statt GKSc
-            
+        
+            GameCenterHelper.getInstance().underlyingViewController = self
+            GameCenterHelper.getInstance().authenticateLocalPlayer()
+        
+            // Lösche alle aktiven Matches für Testzwecke
+            // GameCenterHelper.getInstance().removeGames()
             
             // Get the SKScene from the loaded GKScene
             if let sceneNode = scene.rootNode as! StartScene? {

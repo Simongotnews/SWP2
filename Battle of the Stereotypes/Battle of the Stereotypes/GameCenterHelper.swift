@@ -24,7 +24,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     var gameState : GameState.StructGameState = GameState.StructGameState()
     /** Singleton Instanz */
     static let sharedInstance = GameCenterHelper()
-    
+    /** Variable ob getInstance schonmal aufgerufen wurde */
+    static var wasCalled_getInstance = false
     
     private override init() {
         // private, da Singleton
@@ -34,9 +35,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     static func getInstance() -> GameCenterHelper
     {
         // TODO: Sicherstellen, dass die Instanz immer vorhanden ist, da sonst die Anwendung abstürzt
-        if(sharedInstance.underlyingViewController == nil) {
-            //print("Warnung! Kein View Controller für den GameCenterHelper gesetzt")
+        if(sharedInstance.underlyingViewController == nil && wasCalled_getInstance) {
+            print("Warnung! Kein View Controller für den GameCenterHelper gesetzt")
         }
+        wasCalled_getInstance = true
         return GameCenterHelper.sharedInstance
     }
     
@@ -133,7 +135,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         var exchangeReply = GameState.StructGenericExchangeReply()
         exchangeReply.actionCompleted = true
         print(GameState.genericExchangeReplyToString(genericExchangeReply: exchangeReply))
-        exchange.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: exchangeReply), completionHandler: {(error: Error?) -> Void in
+        exchange.reply(withLocalizableMessageKey: exchange.message! , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: exchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
                 StartScene.germanMapScene.activePlayerID = self.getIndexOfLocalPlayer()
@@ -148,6 +150,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** TODO: Implementieren */
     func handleArrowExchange(arrowExchange : GameState.StructArrowExchangeRequest) {
         print(GameState.arrowExchangeRequestToString(arrowExchangeRequest: arrowExchange))
+        StartScene.germanMapScene.blVerteidiger = StartScene.germanMapScene.getBundesland(arrowExchange.endBundesland)
+        StartScene.germanMapScene.blAngreifer = StartScene.germanMapScene.getBundesland(arrowExchange.startBundesland)
     }
     
     /** TODO: Implementieren */
@@ -165,6 +169,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** TODO: Implementieren */
     func handleAttackButtonExchange(attackButtonExchange : GameState.StructAttackButtonExchangeRequest) {
        print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchange))
+       // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
+       StartScene.germanMapScene.transitToGameScene()
     }
     
     /** Spieler erhält Information das der Exchange abgebrochen wurde */

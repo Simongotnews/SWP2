@@ -19,10 +19,6 @@ class GameState {
     static let IdentifierDamageExchange = "Gegner hat Schaden gemacht"
     /** String, um bei der Übertragung einzelne Werte zu trennen */
     static let seperator : String = "|"
-    /* String, der alle Bundesländer enthält damit man weiß wozu die Werte im GameState gehören */
-    static var bundeslaender = ["BadenWuerttemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg",
-        "Hessen", "MecklenburgVorpommern", "Niedersachsen", "NordrheinWestfalen", "RheinlandPhalz",
-                "Saarland", "Sachsen", "SachsenAnhalt", "SchleswigHolstein", "Thueringen"]
     
     /*
       Structs
@@ -54,9 +50,9 @@ class GameState {
     /** ExchangeRequest für Pfeil Ziehen auf der Map */
     struct StructArrowExchangeRequest : Codable {
         /** Startbundesland von wo aus der Pfeil gezogen wurde */
-        var startBundesland: Int = 0
+        var startBundesland: String = ""
         /** Endbundes wo der Pfeil hingezogen wurde */
-        var endBundesland: Int = 0
+        var endBundesland: String = ""
         /** Wieviele Truppen sollen in endBundesland transferiert werden */
         var troupsSent : Int = 0
     }
