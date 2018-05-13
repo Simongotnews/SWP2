@@ -318,7 +318,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ball.physicsBody?.allowsRotation=true
             ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
             ball.physicsBody?.usesPreciseCollisionDetection = true
+            if(arrow != nil) {
             arrow.removeFromParent()
+            }
             allowsRotation = true
         
     }
