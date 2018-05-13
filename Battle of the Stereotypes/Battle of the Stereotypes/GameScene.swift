@@ -312,7 +312,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
-        if childNode(withName: "arrow") != nil {
+        
             ball.physicsBody?.affectedByGravity=true
             ball.physicsBody?.isDynamic=true
             ball.physicsBody?.allowsRotation=true
@@ -320,7 +320,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
-        }
+        
     }
     
     func powerBarRun(){
@@ -351,7 +351,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
         //wenn man gerade nicht aktiv ist, darf man nichts machen
-        if germanMapReference.player1.id != germanMapReference.activePlayerID {
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer() != germanMapReference.activePlayerID {
             return
         }
         
@@ -406,6 +406,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
+        //wenn man gerade nicht aktiv ist, darf man nichts machen
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer() != germanMapReference.activePlayerID {
+            return
+        }
         if childNode(withName: "arrow") != nil {
             allowsRotation = false
             adjustedArrow = true
@@ -426,7 +430,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let force = (Double(forceCounter) * max) / 100
             let finalXImpulse = xImpulse * force
             let finalYImpulse = yImpulse * force
-            throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse)
+            if childNode(withName: "arrow") != nil {
+                throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse)
+            }
             var throwExchange = GameState.StructThrowExchangeRequest()
             throwExchange.xImpulse = finalXImpulse
             throwExchange.yImpulse = finalYImpulse
@@ -437,6 +443,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        //wenn man gerade nicht aktiv ist, darf man nichts machen
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer() != germanMapReference.activePlayerID {
+            return
+        }
         if let sprite = childNode(withName: "arrow") {
             if(allowsRotation == true){
                 let touch:UITouch = touches.first!
