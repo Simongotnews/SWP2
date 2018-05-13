@@ -188,7 +188,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             let replyStruct = GameState.decodeStruct(dataToDecode: reply.data!, structInstance: GameState.StructGenericExchangeReply())
             print("Reply erhalten: " + GameState.genericExchangeReplyToString(genericExchangeReply: replyStruct))
             if(reply.message == GameState.IdentifierThrowExchange) {
-                StartScene.germanMapScene.activePlayerID = Int((exchange.sender?.player?.playerID)!)!
+                StartScene.germanMapScene.activePlayerID = getIndexOfOtherPlayer()
             }
             
             var tempExchangeArray = [GKTurnBasedExchange]()

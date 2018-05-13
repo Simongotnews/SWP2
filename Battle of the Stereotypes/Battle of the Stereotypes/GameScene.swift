@@ -196,7 +196,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(rightDummyHealthLabel)
     }
     
-    func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler (1 = links, 2 = rechts)
+    func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler mit der PlayerID
         //fallse es schon ein Geschoss gibt -> lösche es
         ball?.removeFromParent()
         
@@ -210,7 +210,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let ballTexture = SKTexture(imageNamed: "Krug")
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
-        if player==0 {
+        if player==leftDummyID {
             ball.position = leftDummy.position
             ball.position.x += 30
         } else {
@@ -230,7 +230,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.categoryBitMask=weaponCategory
         
         //Geschoss soll immer nur bei dem anderen Spieler didBegin() triggern
-        if player==0 {
+        if player==leftDummyID {
             ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory
             ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory
             
@@ -361,11 +361,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if fireMode {
             germanMapReference.activePlayerID = germanMapReference.player2.id
             //setze Geschoss für anderen Spieler und initialisiert Bools auf default Werte
-            if leftDummyID == germanMapReference.player1.id {
-                initBall(for: 1)
-            } else {
-                initBall(for: 0)
-            }
+            initBall(for: germanMapReference.player2.id)
             return
         }
         
@@ -508,7 +504,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
             updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummyHealth)
             leftDummy.blink()
-            leftDummyHealth -= Int(floor(contact.collisionImpulse/8))
+            leftDummyHealth -= Int(floor(contact.collisionImpulse/32))
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
@@ -518,7 +514,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
             updateStatistics(attackerIndex: 1, defenderIndex: 3, health: rightDummyHealth)
             rightDummy.blink()
-            rightDummyHealth -= Int(floor(contact.collisionImpulse/8))
+            rightDummyHealth -= Int(floor(contact.collisionImpulse/32))
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
