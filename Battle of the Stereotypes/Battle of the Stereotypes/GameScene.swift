@@ -97,7 +97,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initDummyLabels()
         initStatusLabel()
         //initilialisiere Geschoss für Spieler 1
-        initBall(for: 1)
+        initBall(for: 0)
         initHealthBar()
     }
     
@@ -230,7 +230,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.categoryBitMask=weaponCategory
         
         //Geschoss soll immer nur bei dem anderen Spieler didBegin() triggern
-        if player==1 {
+        if player==0 {
             ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory
             ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory
             
@@ -359,12 +359,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //Spielerwechsel, wenn Spieler geworfen hat und klickt
         if fireMode {
-            germanMapReference.activePlayerID = (germanMapReference.activePlayerID == 1) ? 2 : 1
+            germanMapReference.activePlayerID = (germanMapReference.activePlayerID == 0) ? 1 : 0
             //setze Geschoss für anderen Spieler und initialisiert Bools auf default Werte
             if leftDummyID == germanMapReference.player1.id {
-                initBall(for: 2)
-            } else {
                 initBall(for: 1)
+            } else {
+                initBall(for: 0)
             }
             return
         }

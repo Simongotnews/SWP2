@@ -213,7 +213,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         for participant in currentMatch.participants! {
             if(participant.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
-                return currentMatch.participants!.index(of: participant)! + 1
+                return currentMatch.participants!.index(of: participant)!
             }
         }
         return -1
@@ -222,9 +222,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
     func getIndexOfNextPlayer() -> Int {
         if(!isLocalPlayersTurn()) {
-         return (getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)! + 1
+         return (getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!
         } else {
-            return getIndexOfLocalPlayer() + 1
+            return getIndexOfLocalPlayer()
         }
     }
     
