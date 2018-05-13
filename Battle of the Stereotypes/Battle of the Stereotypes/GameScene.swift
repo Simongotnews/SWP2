@@ -83,6 +83,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var angreiferNameLabel: SKLabelNode!
     var verteidigerNameLabel: SKLabelNode!
     
+    
     override func didMove(to view: SKView) {
         //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         self.physicsWorld.contactDelegate = self
@@ -273,25 +274,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealthInitial, initialHealthPoints: rightDummyHealthInitial)
     }
     
-    func throwProjectile() { //Wurf des Projektils, Flugbahn
+    func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
         if childNode(withName: "arrow") != nil {
             ball.physicsBody?.affectedByGravity=true
             ball.physicsBody?.isDynamic=true
             ball.physicsBody?.allowsRotation=true
-            
-            //Berechnung des Winkels
-            let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
-            //Berechnung des Impulsvektors (nur Richtung)
-            let xImpulse = cos(winkel)
-            let yImpulse = sqrt(1-pow(xImpulse, 2))
-            //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
-            //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
-            //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
-            let max = 1700.0
-            let force = (Double(forceCounter) * max) / 100
-            let finalXImpulse = xImpulse * force
-            let finalYImpulse = yImpulse * force
-            ball.physicsBody?.applyImpulse(CGVector(dx: finalXImpulse, dy: finalYImpulse))
+            ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
             ball.physicsBody?.usesPreciseCollisionDetection = true
             arrow.removeFromParent()
             allowsRotation = true
@@ -322,7 +310,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBarGray.removeFromParent()
         powerBarGreen.removeFromParent()
     }
- 
+    
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
         //wenn man gerade nicht aktiv ist, darf man nichts machen
@@ -388,7 +376,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if fireMode == true{
             self.removeAction(forKey: "powerBarAction")
-            throwProjectile()
+            
+            //Berechnung des Winkels
+            let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
+            //Berechnung des Impulsvektors (nur Richtung)
+            let xImpulse = cos(winkel)
+            let yImpulse = sqrt(1-pow(xImpulse, 2))
+            //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
+            //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
+            //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
+            let max = 1700.0
+            let force = (Double(forceCounter) * max) / 100
+            let finalXImpulse = xImpulse * force
+            let finalYImpulse = yImpulse * force
+            throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse)
             powerBarReset()
             allowsRotation = true
         }
@@ -397,16 +398,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let sprite = childNode(withName: "arrow") {
             if(allowsRotation == true){
-            let touch:UITouch = touches.first!
-            let pos = touch.location(in: self)
-            
-            _ = self.atPoint(pos)
-            let touchedNode = self.atPoint(pos)
+                let touch:UITouch = touches.first!
+                let pos = touch.location(in: self)
                 
-            let deltaX = self.arrow.position.x - pos.x
-            let deltaY = self.arrow.position.y - pos.y
-            
-            if(touchedNode.name == "leftdummy"){
+                _ = self.atPoint(pos)
+                let touchedNode = self.atPoint(pos)
+                
+                let deltaX = self.arrow.position.x - pos.x
+                let deltaY = self.arrow.position.y - pos.y
+                
+                if(touchedNode.name == "leftdummy"){
                     angleForArrow = atan2(deltaX, deltaY)
                     angleForArrow = angleForArrow * -1
                     if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
@@ -414,19 +415,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
                     }
                 }
-            else if(touchedNode.name == "rightdummy"){
-                angleForArrow = atan2(deltaY, deltaX)
-                if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
-                    sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
+                else if(touchedNode.name == "rightdummy"){
+                    angleForArrow = atan2(deltaY, deltaX)
+                    if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
+                        sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
                     }
                 }
             }
         }
-    }
-    
-    func setCategoryBitmask(activeNode: SKSpriteNode, unactiveNode: SKSpriteNode){
-        activeNode.physicsBody?.categoryBitMask = leftDummyCategory
-        unactiveNode.physicsBody?.categoryBitMask = rightDummyCategory
     }
     
     func createArrow(node: SKSpriteNode){
@@ -443,47 +439,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(arrow)
     }
-
-    func didBegin(_ contact: SKPhysicsContact){
-        var firstBody:SKPhysicsBody
-        var secondBody:SKPhysicsBody
-        
-        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
-            firstBody = contact.bodyA
-            secondBody = contact.bodyB
-        }else {
-            firstBody = contact.bodyB
-            secondBody = contact.bodyA
-        }
-        
-        //ACHTUNG: wenn Ball zuerst Boden berührt -> keine Schadensberechnung
-        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & groundCategory) != 0 && didCollide == false{
-            didCollide = true
-        }
-        
-        if (firstBody.categoryBitMask & weaponCategory) != 0 && (secondBody.categoryBitMask & rightDummyCategory) != 0 && didCollide == false{
-            projectileDidCollideWithDummy()
-            didCollide = true
-        }
     
+    func didBegin(_ contact: SKPhysicsContact){
+        if (!didCollide && ((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) == (weaponCategory|groundCategory))){
+            didCollide = true
+        }
+        if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
+            didCollide = true
+            projectileDidCollideWithDummy(contact)
+        }
     }
     
-    func projectileDidCollideWithDummy() {
+    func projectileDidCollideWithDummy(_ contact : SKPhysicsContact) {
         //ball.removeFromParent()
-        if(leftDummy.physicsBody?.categoryBitMask == rightDummyCategory){
+        if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
             updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummyHealth)
             leftDummy.blink()
-            leftDummyHealth -= leftDummyHealth
+            leftDummyHealth -= Int(floor(contact.collisionImpulse/8))
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
                 leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             }
         }
-        else if(rightDummy.physicsBody?.categoryBitMask == rightDummyCategory){
+        else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
             updateStatistics(attackerIndex: 1, defenderIndex: 3, health: rightDummyHealth)
             rightDummy.blink()
-            rightDummyHealth -= rightDummyHealth
+            rightDummyHealth -= Int(floor(contact.collisionImpulse/8))
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
@@ -504,7 +486,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
         
         let fillColor = UIColor(red: 113.0/255, green: 202.0/255, blue: 53.0/255, alpha:1)
-    
+        
         UIGraphicsBeginImageContextWithOptions(barSize, false, 0)
         let context = UIGraphicsGetCurrentContext()
         
@@ -519,7 +501,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.texture = SKTexture(image: spriteImage!)
         node.size = barSize
     }
-
+    
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
     }
@@ -580,5 +562,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bundesLandNameLabel.zPosition=3
         addChild(bundesLandNameLabel)
     }
-
+    
 }
