@@ -83,32 +83,53 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         match.endMatchInTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: nil)
     }
     
+    // Spiel speichern und Laden im GameCenter
+    /** Speichert Spiel+Daten ohne turn abzugeben */
+    func saveGameDataToGameCenter() -> Void {
+        let dataToSave = GameState.encodeStruct(structToEncode: gameState)
+        self.currentMatch.saveCurrentTurn(withMatch: dataToSave) { (error : Error?) in
+            if (error != nil){
+                print("Fehler beim Speichern des Spielstandes")
+            } else {
+                print("Spiel erfolgreich gespeichert")
+            }
+        }
+    }
+    /** Lädt Spiel+Daten */
+    func loadGameDataFromGameCenter() -> Void {
+        currentMatch.loadMatchData { (data : Data?, error : Error?) in
+            print("Lade Spiel + Daten")
+            if (error == nil){
+                print("Spiel geladen")
+                if ((self.currentMatch.matchData?.count)! > 0){
+                    print("Daten gefunden und geladen")
+                    //Skeltek: Spielzustand aus übernommenen Daten extrahieren -> lokale Daten synchronisieren
+                    self.gameState = GameState.decodeStruct(dataToDecode: data!, structInstance: GameState.StructGameState())
+                } else{
+                    print("Keine Daten gefunden -> Speichere Daten in GameCenter")
+                    self.saveGameDataToGameCenter()
+                }
+            } else {
+                print("Fehler beim Laden des Spiels und der Spieldaten: " + error.debugDescription)
+            }
+        }
+    }
+    
     // GKLocalPlayerListener Methoden
     
     /** Methode zum Turnevent abhandeln */
     func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
+        print("Turn Event erhalten")
         currentMatch=match
-        // Abfrage nötig weil schon vor dem aktiven Match TurnEvents stattfinden können
-        if(match.participants![0].lastTurnDate != nil) {
-            let matchData = currentMatch.matchData
-            currentMatch.loadMatchData(completionHandler: nil)
-            gameState = GameState.decodeStruct(dataToDecode: matchData!, structInstance: GameState.StructGameState())
-            //self.workExchangesAfterReloadTest()
-        } else if (isLocalPlayersTurn()){
-            if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
+        self.loadGameDataFromGameCenter()
+        
+        if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
                 GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
                 //GameCenterHelper.getInstance().updateMatchData()
                 print("Ist aktiver Spieler")
-            }
-            currentMatch.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: GameCenterHelper.sharedInstance.gameState)) { (error : Error?) -> Void in
-                if (error != nil){
-                    print(error as Any)
-                } else {
-                    print("Zustand bei neuem Spiel gespeichert")
-                }
-            }
+        } else {
+            GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
         }
-        print("Turn Event erhalten")
         //self.workExchangesAfterReloadTest()
         
     }
@@ -160,7 +181,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         // Hier Schuss simulieren
         StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player2.id)
         StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
-    }
+        StartScene.germanMapScene.gameScene.touchpadLocked = false    }
     
     /** TODO: Implementieren */
     func handleDamageExchange(damageExchange : GameState.StructDamageExchangeRequest) {

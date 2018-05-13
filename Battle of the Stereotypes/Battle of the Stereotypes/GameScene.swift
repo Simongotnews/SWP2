@@ -11,6 +11,9 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    //*Zeigt a ob Eingaben geblockt sind*/
+    var touchpadLocked = true
+    
     // Statusanzeige
     var statusLabel: SKLabelNode!
     
@@ -352,8 +355,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
-        //wenn man gerade nicht aktiv ist, darf man nichts machen
-        if GameCenterHelper.getInstance().getIndexOfLocalPlayer() != germanMapReference.activePlayerID {
+        
+        //Keine Eingabe bei aktiviertem Lock
+        if (touchpadLocked){
             return
         }
         
@@ -405,7 +409,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         //wenn man gerade nicht aktiv ist, darf man nichts machen
-        if GameCenterHelper.getInstance().getIndexOfLocalPlayer() != germanMapReference.activePlayerID {
+        if touchpadLocked {
             return
         }
         if childNode(withName: "arrow") != nil {
@@ -414,6 +418,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if fireMode == true{
+            touchpadLocked = true
             self.removeAction(forKey: "powerBarAction")
             
             //Berechnung des Winkels
@@ -430,11 +435,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let finalYImpulse = yImpulse * force
             if childNode(withName: "arrow") != nil {
                 throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse)
+                var throwExchange = GameState.StructThrowExchangeRequest()
+                throwExchange.xImpulse = finalXImpulse
+                throwExchange.yImpulse = finalYImpulse
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: throwExchange, messageKey: GameState.IdentifierThrowExchange)
             }
-            var throwExchange = GameState.StructThrowExchangeRequest()
-            throwExchange.xImpulse = finalXImpulse
-            throwExchange.yImpulse = finalYImpulse
-            GameCenterHelper.getInstance().sendExchangeRequest(structToSend: throwExchange, messageKey: GameState.IdentifierThrowExchange)
             powerBarReset()
             allowsRotation = true
         }
@@ -442,7 +447,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         //wenn man gerade nicht aktiv ist, darf man nichts machen
-        if GameCenterHelper.getInstance().getIndexOfLocalPlayer() != germanMapReference.activePlayerID {
+        if (touchpadLocked) {
             return
         }
         if let sprite = childNode(withName: "arrow") {
@@ -612,5 +617,4 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bundesLandNameLabel.zPosition=3
         addChild(bundesLandNameLabel)
     }
-    
 }
