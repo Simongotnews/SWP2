@@ -11,6 +11,9 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    // Statusanzeige
+    var statusLabel: SKLabelNode!
+    
     //Referenz auf die Kartenansicht
     var germanMapReference: GermanMap!
     
@@ -92,6 +95,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initBackButton()
         initDummys()
         initDummyLabels()
+        initStatusLabel()
         //initilialisiere Geschoss für Spieler 1
         initBall(for: 1)
         initHealthBar()
@@ -159,6 +163,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummyID = (germanMapReference.activePlayerID == 1) ? 2 : 1
         
         self.addChild(rightDummy)
+    }
+    
+    /** Initialisierung für die Statusanzeige */
+    func initStatusLabel()
+    {
+        statusLabel = SKLabelNode(text: "Spieler: DU (links)")
+        statusLabel.position = CGPoint(x: 0 , y: 100)
+        statusLabel.fontName = "Americantypewriter-Bold"
+        statusLabel.fontSize = 26
+        statusLabel.fontColor = UIColor.red
+        statusLabel.zPosition=3
+        self.updateStatusLabel()
+        self.addChild(statusLabel)
     }
     
     func initDummyLabels(){
@@ -272,6 +289,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealthInitial, initialHealthPoints: leftDummyHealthInitial)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealthInitial, initialHealthPoints: rightDummyHealthInitial)
+    }
+    
+    /** Dient zum Updaten der Statusanzeige */
+    func updateStatusLabel()
+    {
+        var statusText : String = ""
+            if(StartScene.germanMapScene.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+                statusText += "Spieler: DU "
+            } else {
+                statusText += "Spieler: Gegner "
+            }
+            if(leftDummyID == StartScene.germanMapScene.activePlayerID) {
+                statusText += "(links)"
+            } else {
+                statusText += "(rechts)"
+            }
+        statusLabel.text = statusText
     }
     
     func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
@@ -390,6 +424,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let finalXImpulse = xImpulse * force
             let finalYImpulse = yImpulse * force
             throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse)
+            var throwExchange = GameState.StructThrowExchangeRequest()
+            throwExchange.xImpulse = finalXImpulse
+            throwExchange.yImpulse = finalYImpulse
+            GameCenterHelper.getInstance().sendExchangeRequest(structToSend: throwExchange, messageKey: GameState.IdentifierThrowExchange)
             powerBarReset()
             allowsRotation = true
         }
@@ -532,6 +570,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func transitToGermanMap(){
         //switch turn
+        // TODO: Switch Turn später duch Turn abgeben im GameCenterHelper ersetzen
         germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1
         germanMapReference.activePlayerID = 0
         self.view?.presentScene(germanMapReference)

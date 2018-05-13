@@ -47,7 +47,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("MatchMakerViewController abgebrochen")
         // TODO: Abbrechen sollte nicht erlaubt werden
         underlyingViewController.dismiss(animated:true, completion:nil)
-        //findBattleMatch()
     }
     
     /** TurnBasedMatchView fehlgeschlagen */
@@ -63,15 +62,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         currentMatch = match
         if(isLocalPlayersTurn()) {
             StartScene.germanMapScene.activePlayerID = getIndexOfLocalPlayer()
-            //StartScene.germanMapScene.gameScene.updateStatusLabel()
-            //StartScene.germanMapScene.gameScene.hasTurn = true
+            StartScene.germanMapScene.gameScene.updateStatusLabel()
         } else {
             StartScene.germanMapScene.activePlayerID = getIndexOfNextPlayer()
-            //StartScene.germanMapScene.gameScene.updateStatusLabel()
-            //StartScene.germanMapScene.gameScene.hasTurn = false
-            
+            StartScene.germanMapScene.gameScene.updateStatusLabel()
         }
-        // TODO: Ab hier ermöglichen das eigentliche Spiel zu spielen
     }
     
     /** aufgerufen wenn der GameCenterViewController beendet wird */
@@ -131,9 +126,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         default:
             print("Fehlerhafter MessageKey von ExchangeRequest")
         }
-        //TODO: Folgende Zeile ist nur temporär
-        StartScene.germanMapScene.activePlayerID = getIndexOfNextPlayer()
-        
         //if(damage != 0) {
         // Schade Spieler
         //}
@@ -145,7 +137,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if(error == nil ) {
                 // Operation erfolgreich
                 StartScene.germanMapScene.activePlayerID = self.getIndexOfLocalPlayer()
-                //StartScene.germanMapScene.gameScene.updateStatusLabel()
+                StartScene.germanMapScene.gameScene.updateStatusLabel()
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
                 print(error as Any)
@@ -162,9 +154,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func handleThrowExchange(throwExchange : GameState.StructThrowExchangeRequest) {
        print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchange))
         // Hier Schuss simulieren
-        //StartScene.germanMapScene.gameScene.forceCounter = forceCounter
-        //StartScene.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
-        //StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
+        StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
     }
     
     /** TODO: Implementieren */
@@ -188,8 +178,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         mergeExchangesToSave()
         isWaitingOnReply = false
         for reply in replies {
-            //let reply = GameState.decodeExchangeReply(data: reply.data!)
-            //print("Reply erhalten [projectileShot=" + String(reply.projectileFired) + "]")
+            let reply = GameState.decodeStruct(dataToDecode: reply.data!, structInstance: GameState.StructGenericExchangeReply())
+            print("Reply erhalten: " + GameState.genericExchangeReplyToString(genericExchangeReply: reply))
 
             
             var tempExchangeArray = [GKTurnBasedExchange]()
