@@ -73,9 +73,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         //wenn Back-Button gedrückt wurde, zur Bundesländer-Übersicht wechseln
         if playGameButton != nil {
             if playGameButton.isPressable == true && playGameButton.contains(touch.location(in: self)) {
-                
+                print("Loading GermanMapScene:")
                 loadGermanMapScene()
-                
             return
             }
         }
@@ -89,7 +88,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
             
             // Get the SKScene from the loaded GKScene
             if let sceneNode = scene.rootNode as! GermanMap? {
-                
+                StartScene.germanMapScene = sceneNode   //Skeltek: Referenzen bitte immer direkt nach dem Instanzieren setzen
                 // Copy gameplay related content over to the scene
                 sceneNode.entities = scene.entities
                 sceneNode.graphs = scene.graphs
@@ -97,10 +96,9 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
                 // Set the scale mode to scale to fit the window
                 sceneNode.scaleMode = .aspectFill
                 
-                StartScene.germanMapScene = sceneNode
-                
                 // Present the scene
                 if let view = self.view as! SKView? {
+                    print("Showing loaded Scene")
                     view.presentScene(sceneNode)
                     
                     view.ignoresSiblingOrder = true

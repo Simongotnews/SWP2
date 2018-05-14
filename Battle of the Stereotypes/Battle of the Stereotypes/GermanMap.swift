@@ -112,8 +112,9 @@ class GermanMap: SKScene {
     var initialized: Bool = false
 
     override func didMove(to view: SKView) {
+        print("GermanMapScene didMove is executing")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
-        if initialized == false {
+        //if initialized == false {
             //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
             self.anchorPoint = CGPoint(x: 0, y: 0)
             
@@ -140,7 +141,8 @@ class GermanMap: SKScene {
             initCoinLabel()
             
             initialized = true
-        }
+            print("GermanMapScene didMove finished")
+        //}
         
     }
     

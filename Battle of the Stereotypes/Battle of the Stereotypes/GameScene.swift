@@ -11,8 +11,8 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    //*Zeigt a ob Eingaben geblockt sind*/
-    var touchpadLocked = true
+    //*Zeigt an ob Eingaben geblockt sind*/
+    var touchpadLocked = (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfNextPlayer())
     
     // Statusanzeige
     var statusLabel: SKLabelNode!
