@@ -66,6 +66,9 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
+        print("Derzeitig am Zug ist Spieler #\(GameCenterHelper.getInstance().getIndexOfCurrentPlayer())")
+        print("Eigener Spieler #\(GameCenterHelper.getInstance().getIndexOfLocalPlayer())")
+        print("Nächste Spieler #\(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
