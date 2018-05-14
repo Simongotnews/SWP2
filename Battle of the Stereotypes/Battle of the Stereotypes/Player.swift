@@ -27,6 +27,8 @@ class Player {
     //Bundesländer, welche der Spieler momentan besitzt
     var blEigene = Array<Bundesland>()
     
+    var damage: Float!
+    
     //der aktuelle Kämpfer in der Kampfszene
     var fighter: Fighter!
     
@@ -35,6 +37,7 @@ class Player {
         self.id = id
         self.bundesland = bundesland
         self.coins = 2000; //2000 Münzen Startguthaben
+        self.damage = 20
     }
     
     func setCoins(coinsNewValue :Int){  //Variable coins komplett neu setzen
@@ -71,6 +74,30 @@ class Player {
              anzahlBl = anzahlBl + bundesland.anzahlTruppen
         }
         return anzahlBl
+    }
+    
+    //Berechnet den gesamten Schaden mit Einbeziehen aller Komponenten
+    func getFinalDamage(collisionImpulse: CGFloat) -> Int! {
+        var finalDamage = self.damage
+        
+        //Berechnung des Zusatzschadens aufgrund der Aufkommenskraft des Geschosses beim Gegner
+        //wenn collisionImpulse < 300 ist, gibt es keinen Bonusschaden
+        //1000 ist der Maximalwert und man bekommt 100% Bonusschaden
+        //wenn der Wert dazwischen ist, wird ein Wert zwischen 0 und 100% ausgerechnet
+        var bonusDamagePercentage:Float = 0
+        if collisionImpulse > 1000 {
+            bonusDamagePercentage = 1
+        } else if collisionImpulse < 300 {
+            bonusDamagePercentage = 0
+        } else {
+            let collisionImpulseTemp = collisionImpulse - 300
+            bonusDamagePercentage = Float(collisionImpulseTemp / 700)
+        }
+        
+        //Rechne den Bonusschaden dazu
+        finalDamage = finalDamage! * (1 + bonusDamagePercentage)
+        
+        return Int(finalDamage!)
     }
     
 }
