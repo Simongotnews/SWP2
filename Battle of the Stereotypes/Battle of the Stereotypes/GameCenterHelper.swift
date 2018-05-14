@@ -180,6 +180,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** TODO: Implementieren */
     func handleArrowExchange(arrowExchange : GameState.StructArrowExchangeRequest) {
+        //TODO: Skeltek Wenn nicht richtige Ansicht, erstmal nicht ausführen
         print(GameState.arrowExchangeRequestToString(arrowExchangeRequest: arrowExchange))
         StartScene.germanMapScene.blVerteidiger = StartScene.germanMapScene.getBundesland(arrowExchange.endBundesland)
         StartScene.germanMapScene.blAngreifer = StartScene.germanMapScene.getBundesland(arrowExchange.startBundesland)
@@ -218,7 +219,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         //TODO: Wenn Exchange kein Arrow-Exchange, dann mergen aller CompletedExchanges
         if (isLocalPlayersTurn()){
             print("Resolving Exchange(you merge)")
-            mergeCompletedExchangesToSave()
+            //mergeCompletedExchangesToSave()
+            mergeCompletedExchangeToSave(exchange: exchange)
         }
         if (!(exchange.sender?.player != match.currentParticipant)){   //Wenn man nicht Turnowner
             isWaitingOnReply = false
@@ -364,6 +366,16 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
     }
     
+    func mergeCompletedExchangeToSave(exchange : GKTurnBasedExchange) -> Void{
+        currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: [exchange], completionHandler: {(error: Error?) -> Void in
+            if (error != nil){
+                print("CompletedExchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
+            } else{
+                print("CompletedExchanges erfolgreich in Save eingebunden.")
+            }
+        })
+    }
+    
     func cancelActiveExchanges(){
         if(isLocalPlayersTurn()){
             if(currentMatch.activeExchanges?.count != nil){
@@ -446,9 +458,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print(error as Any)
             }
         })
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
+        if (messageKey == GameState.IdentifierThrowExchange){
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
             StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player2.id)
-        })
+            })
+        }
     }
     
     /** Methode wenn der lokale Spieler seinen Zug beendet hat */
