@@ -41,7 +41,7 @@ class GameState {
             ist die Speicherung überall notwendig. Aktuell aber unbenutzt. */
         var turnOwnerActive : Int = 0
         /** Im aktuellen Spiel letzter Bildschirm nach "Tiefe" - 0.Start -1.Karte - 2.Schlacht */
-        var gameScreenDepth : Int = 0
+        var currentScene : Int = 0
     }
     
     /*

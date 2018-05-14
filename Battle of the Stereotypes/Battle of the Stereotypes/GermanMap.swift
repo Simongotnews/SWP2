@@ -14,9 +14,9 @@ class GermanMap: SKScene {
     //Referenz auf gameScene
     var gameScene : GameScene = GameScene(fileNamed: "GameScene")!
     //Id des Spielers, der am Zug ist
-    var turnPlayerID: Int = 1
+    var turnPlayerID: Int = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
     //Id des Spielers, der gerade wirft in der Kampfszene
-    var activePlayerID: Int = -1 //noch -1, da keiner dran ist
+    var activePlayerID: Int = GameCenterHelper.getInstance().gameState.turnOwnerActive //noch -1, da keiner dran ist
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
@@ -114,7 +114,7 @@ class GermanMap: SKScene {
     override func didMove(to view: SKView) {
         print("GermanMapScene didMove is executing")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
-        //if initialized == false {
+        if initialized == false {
             //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
             self.anchorPoint = CGPoint(x: 0, y: 0)
             
@@ -142,7 +142,7 @@ class GermanMap: SKScene {
             
             initialized = true
             print("GermanMapScene didMove finished")
-        //}
+        }
         
     }
     
@@ -483,17 +483,22 @@ class GermanMap: SKScene {
     
     // Initialisieren der Spieler
     func initPlayer(){
-        if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
-            activePlayerID = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-        } else {
-            activePlayerID = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
-        }
-        //ID aus GameCenter ändern // andre-jar,Skeltek: Ist denke ich hiermit gelöst
-        player1 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
-        player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
         
-        player2 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
-        player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
+        activePlayerID = GameCenterHelper.getInstance().gameState.turnOwnerActive
+        
+        //ID aus GameCenter ändern // Skeltek: Sollte so nur bei neuem Spiel ausgeführt werden, sonst aus geladenem Spiel Infos holen
+        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
+            player1 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
+            player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
+            player2 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
+            player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
+            
+        } else {
+            player2 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
+            player2?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
+            player1 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
+            player1?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
+        }
     }
     
     // Initialisieren des Geld-Labels des Spielers
@@ -518,10 +523,10 @@ class GermanMap: SKScene {
     }
     
     func initStatistics() {
-        let anzahlEigeneBl: Int = (activePlayer?.blEigene.count)!
-        let eigeneTruppenStaerke: Int = (activePlayer?.calculateTruppenStaerke())!
-        let anzahlGegnerischeBl: Int = (unActivePlayer?.blEigene.count)!
-        let gegnerischeTruppenStaerke: Int = (unActivePlayer?.calculateTruppenStaerke())!
+        let anzahlEigeneBl: Int = (player1?.blEigene.count)!
+        let eigeneTruppenStaerke: Int = (player1?.calculateTruppenStaerke())!
+        let anzahlGegnerischeBl: Int = (player2?.blEigene.count)!
+        let gegnerischeTruppenStaerke: Int = (player2?.calculateTruppenStaerke())!
         let neutraleBl: Int = 16 - anzahlEigeneBl - anzahlGegnerischeBl
         
         //Erstelle Tabelle mit allen Einträgen
