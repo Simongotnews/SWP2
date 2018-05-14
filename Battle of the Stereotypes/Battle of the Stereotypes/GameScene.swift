@@ -100,7 +100,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         initDummyLabels()
         initStatusLabel()
         //initilialisiere Geschoss für Spieler 1
-        initBall(for: 0)
+        initBall(for: GameCenterHelper.getInstance().getIndexOfCurrentPlayer()) //Skeltek: Notlösung, später entsprechend ersetzen
         initHealthBar()
     }
     
@@ -361,19 +361,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         
-        //Spielerwechsel, wenn Spieler geworfen hat und klickt
-        if fireMode {
-            germanMapReference.activePlayerID = germanMapReference.player2.id
-            //setze Geschoss für anderen Spieler und initialisiert Bools auf default Werte
-            initBall(for: germanMapReference.player2.id)
-            return
-        }
-        
         //wenn gefeuert wurde, darf nichts mehr gedrückt werden
-        if fireMode {
-            return
-        }
-        
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)

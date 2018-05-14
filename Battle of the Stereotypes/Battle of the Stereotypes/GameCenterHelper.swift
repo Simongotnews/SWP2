@@ -189,8 +189,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func handleThrowExchange(throwExchange : GameState.StructThrowExchangeRequest) {
        print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchange))
         // Hier Schuss simulieren
-        StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player2.id)
         StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
+            StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player1.id)        })
         StartScene.germanMapScene.gameScene.touchpadLocked = false    }
     
     /** TODO: Implementieren */
@@ -444,6 +445,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("[" + String(describing: self) + "]" + "Fehler beim ExchangeRequest senden")
                 print(error as Any)
             }
+        })
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
+            StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player2.id)
         })
     }
     
