@@ -62,13 +62,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     private func turnBasedMatchmakerViewController(_ viewController: GKMatchmakerViewController, didFind match: GKTurnBasedMatch) {
         print("MatchMakerViewController Match gefunden")
         currentMatch = match
-        if(isLocalPlayersTurn()) {
-            StartScene.germanMapScene.activePlayerID = getIndexOfLocalPlayer()
-            StartScene.germanMapScene.gameScene.updateStatusLabel()
-        } else {
-            StartScene.germanMapScene.activePlayerID = getIndexOfNextPlayer()
-            StartScene.germanMapScene.gameScene.updateStatusLabel()
-        }
+        StartScene.germanMapScene.activePlayerID = gameState.turnOwnerActive
+        StartScene.germanMapScene.gameScene.updateStatusLabel()
     }
     
     /** aufgerufen wenn der GameCenterViewController beendet wird */
@@ -126,20 +121,12 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         self.spielGeladen = false
         currentMatch=match
         self.loadGameDataFromGameCenter()
+        print("TurnOwnerActive nach Spiel Laden: \(gameState.turnOwnerActive)")
+        StartScene.germanMapScene?.activePlayerID = self.gameState.turnOwnerActive  //TODO Skeltek: Alles was nach Spiel laden upgedatet werden soll in separater update() Methoder aktualisieren
+        print("Spieler am Zug/Turn: \(self.gameState.turnOwnerActive)")
 
-
-
-        if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
-            GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()   //TODO Skeltek: Vermutlich überflüssig seit Laden von Spieldaten implementiert, beim nächsten Commit/Sprint löschen
-                //GameCenterHelper.getInstance().updateMatchData()
-                print("Lokaler Spieler am Zug/Turn")
-        } else {
-            GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
-            print("Entfernter Spieler am Zug/Turn")
-        }
-        
         if (true){
-            //TODO Skeltek: Falls noch kein Spiel gespielt,
+            //TODO Skeltek: Falls noch kein Spiel gespielt, Neustart. Ansonsten nur lokale daten updaten und falls Spiel schon gelaufen, in entsprechenden Screen wechseln vor Weiterverarbeitung
         }
         //self.workExchangesAfterReloadTest()
     }
@@ -214,33 +201,43 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** Wird aufgerufen, wenn eine Exchange von allen Empfängern empfangen oder abgebrochen wurde Empfänger: Exchange-Absender + Turnowner */
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch){
         print("Exchange completed")
-        //TODO: Wenn Exchange kein Arrow-Exchange, dann mergen aller CompletedExchanges
+        
+        // CurrentParticipant soll abgeschlossene Exchanges mergen (nach Änderung relevanter Spieldaten.
+        //Andere Spieler bekommen automatisch Turn Event und laden (veränderte) Spieldaten neu.
         if (isLocalPlayersTurn()){
             print("Resolving Exchange(you merge)")
-            //mergeCompletedExchangesToSave()
-            mergeCompletedExchangeToSave(exchange: exchange)
-        }
-        if (!(exchange.sender?.player != match.currentParticipant)){   //Wenn man nicht Turnowner
-            isWaitingOnReply = false
-            for reply in replies {
-                let replyStruct = GameState.decodeStruct(dataToDecode: reply.data!, structInstance: GameState.StructGenericExchangeReply())
-                print("Reply erhalten: " + GameState.genericExchangeReplyToString(genericExchangeReply: replyStruct))
-                if(reply.message == GameState.IdentifierThrowExchange) {
-                    StartScene.germanMapScene.activePlayerID = getIndexOfOtherPlayer() //!!!
+            if (exchange.message == GameState.IdentifierThrowExchange){
+                if (exchange.sender?.player == GKLocalPlayer.localPlayer()){
+                    print("Setze aktiven Spieler auf (nextPlayer): \(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
+                    gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+                    //TODO Skeltek: Spieldaten updates() aufrufen
+                    StartScene.germanMapScene.gameScene.updateStatusLabel()
+                } else{
+                    print("Setze aktiven Spieler auf (currentPlayer) : \(GameCenterHelper.getInstance().getIndexOfCurrentPlayer())")
+                    gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+                    StartScene.germanMapScene.gameScene.updateStatusLabel()
                 }
             }
+            mergeCompletedExchangeToSave(exchange: exchange)
         }
     }
     
     // Eigene Methoden
-    
+    /** Gibt Index des Spieler welcher am Zug/Turn ist */
     func getIndexOfCurrentPlayer() -> Int {
         for participant in self.currentMatch.participants!{
             if participant == currentMatch.currentParticipant{
+                print("getIndexOfCurrentPlayer: \(currentMatch.participants!.index(of: participant)!)")
                 return currentMatch.participants!.index(of: participant)!
             }
         }
-        return 1
+        return -1
+    }
+    
+    /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
+    func getIndexOfNextPlayer() -> Int {
+        print("getIndexOfNextPlayer: \((getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!)")
+        return (getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!
     }
     
     /** Gibt den Index des lokalen Spieler zum Match zurück. Falls der Spieler nicht teil des Matches ist oder das Spiel nicht läuft oder er nicht authentifiziert ist, gibt es -1 zurück */
@@ -251,19 +248,16 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         for participant in currentMatch.participants! {
             if(participant.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
+                print("getIndexOfLocalPlayer: \(currentMatch.participants!.index(of: participant)!)")
                 return currentMatch.participants!.index(of: participant)!
             }
         }
         return -1
     }
     
-    /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
-    func getIndexOfNextPlayer() -> Int {
-         return (getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!
-    }
-    
     /** Gibt den Index anderen Spielers vom Match bei einem 2 Spieler Match zurück. */
     func getIndexOfOtherPlayer() -> Int {
+        print("getIndexOfLocaLPlayer: \(getIndexOfLocalPlayer() == 0 ? 1 : 0)")
         return getIndexOfLocalPlayer() == 0 ? 1 : 0
     }
     
@@ -278,7 +272,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 return false
             }
         }
-        if(currentMatch.currentParticipant?.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
+        if(currentMatch.currentParticipant?.player == GKLocalPlayer.localPlayer()) {
             return true
         } else {
             return false
@@ -350,7 +344,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         underlyingViewController.present(matchMakerViewController, animated: true)
     }
     
-    func mergeCompletedExchangesToSave() {
+    func mergeCompletedExchangesToSave() { //TODO Skeltek: Vermutlich redundant
         if(isLocalPlayersTurn()){
             if((currentMatch.completedExchanges?.count)! > 0){
                 currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: currentMatch.completedExchanges!, completionHandler: {(error: Error?) -> Void in

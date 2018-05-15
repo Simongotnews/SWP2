@@ -117,5 +117,4 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
             }
         }
     }
-    
 }

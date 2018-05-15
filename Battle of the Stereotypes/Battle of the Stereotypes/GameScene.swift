@@ -102,8 +102,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             initDummys()
             initDummyLabels()
             initStatusLabel()
+            updateStatusLabel()
             //initilialisiere Geschoss für Spieler 1
-            initBall(for: GameCenterHelper.getInstance().getIndexOfCurrentPlayer()) //Skeltek: Notlösung, später entsprechend ersetzen
+            initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive) //Skeltek: Notlösung, später entsprechend ersetzen
             initHealthBar()
         } else {
             refreshScene()
@@ -155,7 +156,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         leftDummy.zPosition=3
         
         //lege Spieler ID des linken Dummies fest
-        leftDummyID = germanMapReference.activePlayerID
+        leftDummyID = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
         
         self.addChild(leftDummy)
         
@@ -172,7 +173,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.zPosition=3
         
         //lege Spieler ID des rechten Dummies fest
-        rightDummyID = (germanMapReference.activePlayerID == 1) ? 2 : 1
+        rightDummyID = GameCenterHelper.getInstance().getIndexOfNextPlayer()
         
         self.addChild(rightDummy)
     }
@@ -180,7 +181,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     /** Initialisierung für die Statusanzeige */
     func initStatusLabel()
     {
-        statusLabel = SKLabelNode(text: "Spieler: DU (links)")
+        statusLabel = SKLabelNode(text: "_")
         statusLabel.position = CGPoint(x: 0 , y: 100)
         statusLabel.fontName = "Americantypewriter-Bold"
         statusLabel.fontSize = 26
@@ -310,7 +311,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         var statusText : String = ""
-            if(StartScene.germanMapScene.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+            if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
                 statusText += "Spieler: DU "
             } else {
                 statusText += "Spieler: Gegner "
@@ -364,7 +365,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
-        
+        print("Spieler am Zug: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
         //Keine Eingabe bei aktiviertem Lock
         if (touchpadLocked){
             return
