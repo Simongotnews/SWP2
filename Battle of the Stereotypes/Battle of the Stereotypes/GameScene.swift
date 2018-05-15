@@ -113,6 +113,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func refreshScene(){
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
+    /** Aktualisiert lokale Variablen */
+    func updateStats(){
+        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().gameState.turnOwnerActive){
+            touchpadLocked = false
+        }
+        updateStatusLabel()
+    }
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
         let groundTexture = SKTexture(imageNamed: "Boden")
@@ -316,7 +323,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else {
                 statusText += "Spieler: Gegner "
             }
-            if(leftDummyID == StartScene.germanMapScene.activePlayerID) {
+        print("leftDummyID: \(leftDummyID!)")
+        print("activePlayerID: \(StartScene.germanMapScene.activePlayerID)")
+            if(leftDummyID! == StartScene.germanMapScene.activePlayerID) {
                 statusText += "(links)"
             } else {
                 statusText += "(rechts)"

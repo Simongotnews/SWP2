@@ -107,6 +107,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
                 // Present the scene
                 if let view = self.view as! SKView? {
                     print("Showing loaded Scene")
+                    GameViewController.currentlyShownSceneNumber = 1
                     view.presentScene(sceneNode)
 
                     view.ignoresSiblingOrder = true
