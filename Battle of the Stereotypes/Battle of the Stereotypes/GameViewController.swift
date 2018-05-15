@@ -12,6 +12,8 @@ import GameplayKit
 
 class GameViewController: UIViewController {
     static var startScene : StartScene!
+    static var currentlyShownSceneNumber = 0
+    static var gameHasStarted = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +50,9 @@ class GameViewController: UIViewController {
                 }
             }
         }
+    }
+    func refreshScene(){
+        //TODO Skeltel: Möglicherweise hier nützlich
     }
 
     override var shouldAutorotate: Bool {

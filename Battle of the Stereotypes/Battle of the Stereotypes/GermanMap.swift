@@ -10,6 +10,7 @@ import SpriteKit
 import GameplayKit
 
 class GermanMap: SKScene {
+    let sceneID = 1
     
     //Referenz auf gameScene
     var gameScene : GameScene = GameScene(fileNamed: "GameScene")!
@@ -142,8 +143,13 @@ class GermanMap: SKScene {
             
             initialized = true
             print("GermanMapScene didMove finished")
+        } else {
+            refreshScene()
         }
-        
+    }
+    
+    func refreshScene(){
+        //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -203,7 +209,7 @@ class GermanMap: SKScene {
         if(isAttackValid()){
             setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
             showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
-            
+
             // Schicke die Infos an den Gegner, damit dieser bei einem Angriff Bescheid weiß welche Bundesländer in der Scene beteiligt sind
             var arrowExchange = GameState.StructArrowExchangeRequest()
             arrowExchange.startBundesland = blAngreifer.blNameString
@@ -211,7 +217,7 @@ class GermanMap: SKScene {
             GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
         }
     }
-    
+
     func splitScene() {
         //Erstelle die linke Hälfte
         leftScene = SKNode()
@@ -246,7 +252,7 @@ class GermanMap: SKScene {
         backgroundMap.position = CGPoint(x: 0, y: 0)    // Anker am Viewrand
         backgroundMap.zPosition = 1
         mapSide.addChild(backgroundMap)
-        
+
         // die Size als globales Tupel speichern fuer BL
         mapSize = (backgroundMap.size.width, backgroundMap.size.height)
     }
@@ -255,7 +261,7 @@ class GermanMap: SKScene {
         // Hinzufügen der einzelnen BL an der korrekten Stelle als Klasse Bundesland:
         // Hinzufügen der Truppenstärke sowie der Labels zur Anzeige der Truppenstärke eines Bundeslandes
         // HINWEIS: die Größe der einzelnen Kartenelemente richtet sich nach der Size der Hintergrundmap!
-        
+
         // Baden-Württemberg:
         badenWuerttemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuerttemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         badenWuerttemberg?.setPosition()

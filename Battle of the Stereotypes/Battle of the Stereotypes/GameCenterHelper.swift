@@ -127,23 +127,21 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         currentMatch=match
         self.loadGameDataFromGameCenter()
 
-        var notification = false
-//        while (!spielGeladen) {
-//            if (!notification){
-//                print("Warte auf Ladevorgang von Spiel + Daten")
-//                notification = true
-//            }
-//        }   //Hier nicht vorbei solange Spiel nicht geladen!!! (Spiel Laden ist assynchron -> Ende Ladevorgang ruft CompletionHandler auf)
+
+
         if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
-                GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+            GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()   //TODO Skeltek: Vermutlich überflüssig seit Laden von Spieldaten implementiert, beim nächsten Commit/Sprint löschen
                 //GameCenterHelper.getInstance().updateMatchData()
                 print("Lokaler Spieler am Zug/Turn")
         } else {
             GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
             print("Entfernter Spieler am Zug/Turn")
         }
-        //self.workExchangesAfterReloadTest()
         
+        if (true){
+            //TODO Skeltek: Falls noch kein Spiel gespielt,
+        }
+        //self.workExchangesAfterReloadTest()
     }
     
     /** */

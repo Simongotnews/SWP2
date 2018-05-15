@@ -10,6 +10,7 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    let sceneID = 2
     
     //*Zeigt an ob Eingaben geblockt sind*/
     var touchpadLocked = (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfNextPlayer())
@@ -89,19 +90,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var angreiferNameLabel: SKLabelNode!
     var verteidigerNameLabel: SKLabelNode!
     
-    
+    var initialized : Bool = false
     override func didMove(to view: SKView) {
-        //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
-        self.physicsWorld.contactDelegate = self
+        if (!initialized){
+            initialized = true
+            //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+            self.physicsWorld.contactDelegate = self
         
-        initBackground()
-        initBackButton()
-        initDummys()
-        initDummyLabels()
-        initStatusLabel()
-        //initilialisiere Geschoss für Spieler 1
-        initBall(for: GameCenterHelper.getInstance().getIndexOfCurrentPlayer()) //Skeltek: Notlösung, später entsprechend ersetzen
-        initHealthBar()
+            initBackground()
+            initBackButton()
+            initDummys()
+            initDummyLabels()
+            initStatusLabel()
+            //initilialisiere Geschoss für Spieler 1
+            initBall(for: GameCenterHelper.getInstance().getIndexOfCurrentPlayer()) //Skeltek: Notlösung, später entsprechend ersetzen
+            initHealthBar()
+        } else {
+            refreshScene()
+        }
+    }
+    func refreshScene(){
+        //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund

@@ -12,6 +12,7 @@ import GameplayKit
 
 
 class StartScene: SKScene, SKPhysicsContactDelegate{
+    let sceneID = 0
     
     static var germanMapScene : GermanMap!
     
@@ -32,6 +33,10 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         initBackground()
         initStartGameButton()
         
+    }
+    
+    func refreshScene(){
+        //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
     
     func initBackground(){ //initialisiere den Hintergrund
@@ -103,7 +108,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
                 if let view = self.view as! SKView? {
                     print("Showing loaded Scene")
                     view.presentScene(sceneNode)
-                    
+
                     view.ignoresSiblingOrder = true
                     
                     view.showsFPS = true
