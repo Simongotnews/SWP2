@@ -92,6 +92,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var initialized : Bool = false
     override func didMove(to view: SKView) {
+        GameViewController.currentlyShownSceneNumber = 2
         if (!initialized){
             //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
             self.physicsWorld.contactDelegate = self

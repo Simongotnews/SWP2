@@ -175,6 +175,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** TODO: Implementieren */
     func handleThrowExchange(throwExchange : GameState.StructThrowExchangeRequest) {
        print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchange))
+        if (GameViewController.currentlyShownSceneNumber != 2){
+            print("Exchange Request bekommen aber nicht durchführbar")
+            return
+        }
         // Hier Schuss simulieren
         StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
         DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
@@ -210,7 +214,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if (exchange.message == GameState.IdentifierThrowExchange){
                 if (exchange.sender?.player == GKLocalPlayer.localPlayer()){
                     print("Setze aktiven Spieler auf (nextPlayer): \(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
-                    gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+                    if (!GameViewController.debugMode){
+                        gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+                    } else {
+                        gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+                    }
                     //TODO Skeltek: Spieldaten updates() aufrufen
                     StartScene.germanMapScene.gameScene.updateStatusLabel()
                 } else{

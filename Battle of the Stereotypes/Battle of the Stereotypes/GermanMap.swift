@@ -115,6 +115,7 @@ class GermanMap: SKScene {
     override func didMove(to view: SKView) {
         print("GermanMapScene didMove is executing")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
+        GameViewController.currentlyShownSceneNumber = 1
         if initialized == false {
             //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
             self.anchorPoint = CGPoint(x: 0, y: 0)
