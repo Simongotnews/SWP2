@@ -96,7 +96,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (!initialized){
             //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
             self.physicsWorld.contactDelegate = self
-        
+            
             initBackground()
             initBackButton()
             initDummys()
@@ -325,32 +325,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         var statusText : String = ""
-            if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
-                statusText += "Spieler: DU "
-            } else {
-                statusText += "Spieler: Gegner "
-            }
+        if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+            statusText += "Spieler: DU "
+        } else {
+            statusText += "Spieler: Gegner "
+        }
         print("leftDummyID: \(leftDummyID!)")
         print("activePlayerID: \(StartScene.germanMapScene.activePlayerID)")
-            if(leftDummyID! == StartScene.germanMapScene.activePlayerID) {
-                statusText += "(links)"
-            } else {
-                statusText += "(rechts)"
-            }
+        if(leftDummyID! == StartScene.germanMapScene.activePlayerID) {
+            statusText += "(links)"
+        } else {
+            statusText += "(rechts)"
+        }
         statusLabel.text = statusText
     }
     
     func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
         
-            ball.physicsBody?.affectedByGravity=true
-            ball.physicsBody?.isDynamic=true
-            ball.physicsBody?.allowsRotation=true
-            ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
-            ball.physicsBody?.usesPreciseCollisionDetection = true
-            if(arrow != nil) {
+        ball.physicsBody?.affectedByGravity=true
+        ball.physicsBody?.isDynamic=true
+        ball.physicsBody?.allowsRotation=true
+        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
+        ball.physicsBody?.usesPreciseCollisionDetection = true
+        if(arrow != nil) {
             arrow.removeFromParent()
-            }
-            allowsRotation = true
+        }
+        allowsRotation = true
         
     }
     
