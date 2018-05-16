@@ -12,6 +12,9 @@ import GameplayKit
 
 
 class StartScene: SKScene, SKPhysicsContactDelegate{
+    let sceneID = 0
+    
+    static var germanMapScene : GermanMap!
     
     //Hintergrund
     var background: SKSpriteNode!
@@ -30,6 +33,10 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         initBackground()
         initStartGameButton()
         
+    }
+    
+    func refreshScene(){
+        //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
     
     func initBackground(){ //initialisiere den Hintergrund
@@ -64,6 +71,9 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
+        print("Derzeitig am Zug ist Spieler #\(GameCenterHelper.getInstance().getIndexOfCurrentPlayer())")
+        print("Eigener Spieler #\(GameCenterHelper.getInstance().getIndexOfLocalPlayer())")
+        print("Nächste Spieler #\(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
@@ -71,9 +81,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         //wenn Back-Button gedrückt wurde, zur Bundesländer-Übersicht wechseln
         if playGameButton != nil {
             if playGameButton.isPressable == true && playGameButton.contains(touch.location(in: self)) {
-                
+                print("Loading GermanMapScene:")
                 loadGermanMapScene()
-                
             return
             }
         }
@@ -87,7 +96,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
             
             // Get the SKScene from the loaded GKScene
             if let sceneNode = scene.rootNode as! GermanMap? {
-                
+                StartScene.germanMapScene = sceneNode   //Skeltek: Referenzen bitte immer direkt nach dem Instanzieren setzen
                 // Copy gameplay related content over to the scene
                 sceneNode.entities = scene.entities
                 sceneNode.graphs = scene.graphs
@@ -97,8 +106,10 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
                 
                 // Present the scene
                 if let view = self.view as! SKView? {
+                    print("Showing loaded Scene")
+                    GameViewController.currentlyShownSceneNumber = 1
                     view.presentScene(sceneNode)
-                    
+
                     view.ignoresSiblingOrder = true
                     
                     view.showsFPS = true
@@ -107,5 +118,4 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
             }
         }
     }
-    
 }

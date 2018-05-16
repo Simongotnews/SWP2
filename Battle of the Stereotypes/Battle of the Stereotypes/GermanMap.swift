@@ -10,11 +10,14 @@ import SpriteKit
 import GameplayKit
 
 class GermanMap: SKScene {
+    let sceneID = 1
     
+    //Referenz auf gameScene
+    var gameScene : GameScene = GameScene(fileNamed: "GameScene")!
     //Id des Spielers, der am Zug ist
-    var turnPlayerID: Int = 1
+    var turnPlayerID: Int = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
     //Id des Spielers, der gerade wirft in der Kampfszene
-    var activePlayerID: Int = 0 //noch 0, da keiner dran ist
+    var activePlayerID: Int = GameCenterHelper.getInstance().gameState.turnOwnerActive //noch -1, da keiner dran ist
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
@@ -110,7 +113,7 @@ class GermanMap: SKScene {
     var initialized: Bool = false
 
     override func didMove(to view: SKView) {
-       
+        print("GermanMapScene didMove is executing")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
         if initialized == false {
             //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
@@ -139,16 +142,22 @@ class GermanMap: SKScene {
             initCoinLabel()
             
             initialized = true
+            print("GermanMapScene didMove finished")
+        } else {
+            refreshScene()
         }
-        
+    }
+    
+    func refreshScene(){
+        //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         touchesBeganLocation = touch.location(in: self)
         
-        //wenn man nicht am Zug ist, darf man nichts drücken
-        if player1.id != turnPlayerID {
+        //wenn man nicht am Zug ist, darf man nichts drücken // andre-jar,Skeltek: Passt so hier oder?
+        if !GameCenterHelper.getInstance().isLocalPlayersTurn() {
             return
         }
         
@@ -156,11 +165,14 @@ class GermanMap: SKScene {
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
                 //der angreifende Spieler ist aktiv und darf dann zuerst werfen in der Kampfszene
-                activePlayerID = player1.id
+                activePlayerID = GameCenterHelper.getInstance().gameState.turnOwnerActive
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
+                
                 transitToGameScene()
+                // Exchange, um anderen Spieler in die GameScene zu schicken
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
                 return
             }
         }
@@ -197,9 +209,15 @@ class GermanMap: SKScene {
         if(isAttackValid()){
             setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
             showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
+
+            // Schicke die Infos an den Gegner, damit dieser bei einem Angriff Bescheid weiß welche Bundesländer in der Scene beteiligt sind
+            var arrowExchange = GameState.StructArrowExchangeRequest()
+            arrowExchange.startBundesland = blAngreifer.blNameString
+            arrowExchange.endBundesland = blVerteidiger.blNameString
+            GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
         }
     }
-    
+
     func splitScene() {
         //Erstelle die linke Hälfte
         leftScene = SKNode()
@@ -234,7 +252,7 @@ class GermanMap: SKScene {
         backgroundMap.position = CGPoint(x: 0, y: 0)    // Anker am Viewrand
         backgroundMap.zPosition = 1
         mapSide.addChild(backgroundMap)
-        
+
         // die Size als globales Tupel speichern fuer BL
         mapSize = (backgroundMap.size.width, backgroundMap.size.height)
     }
@@ -243,7 +261,7 @@ class GermanMap: SKScene {
         // Hinzufügen der einzelnen BL an der korrekten Stelle als Klasse Bundesland:
         // Hinzufügen der Truppenstärke sowie der Labels zur Anzeige der Truppenstärke eines Bundeslandes
         // HINWEIS: die Größe der einzelnen Kartenelemente richtet sich nach der Size der Hintergrundmap!
-        
+
         // Baden-Württemberg:
         badenWuerttemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuerttemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         badenWuerttemberg?.setPosition()
@@ -471,12 +489,22 @@ class GermanMap: SKScene {
     
     // Initialisieren der Spieler
     func initPlayer(){
-        //ID aus GameCenter ändern
-        player1 = Player(bundesland: niedersachsen!, id: 1)
-        player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
         
-        player2 = Player(bundesland: bayern!, id: 2)
-        player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
+        activePlayerID = GameCenterHelper.getInstance().gameState.turnOwnerActive
+        
+        //ID aus GameCenter ändern // Skeltek: Sollte so nur bei neuem Spiel ausgeführt werden, sonst aus geladenem Spiel Infos holen
+        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){    //TODO Skeltek: getIndexOfCurrentPlayer hier falsch, später durch Spieleröffner ersetzen
+            player1 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
+            player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
+            player2 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
+            player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
+            
+        } else {
+            player2 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
+            player2?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
+            player1 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
+            player1?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
+        }
     }
     
     // Initialisieren des Geld-Labels des Spielers
@@ -501,10 +529,10 @@ class GermanMap: SKScene {
     }
     
     func initStatistics() {
-        let anzahlEigeneBl: Int = (activePlayer?.blEigene.count)!
-        let eigeneTruppenStaerke: Int = (activePlayer?.calculateTruppenStaerke())!
-        let anzahlGegnerischeBl: Int = (unActivePlayer?.blEigene.count)!
-        let gegnerischeTruppenStaerke: Int = (unActivePlayer?.calculateTruppenStaerke())!
+        let anzahlEigeneBl: Int = (player1?.blEigene.count)!
+        let eigeneTruppenStaerke: Int = (player1?.calculateTruppenStaerke())!
+        let anzahlGegnerischeBl: Int = (player2?.blEigene.count)!
+        let gegnerischeTruppenStaerke: Int = (player2?.calculateTruppenStaerke())!
         let neutraleBl: Int = 16 - anzahlEigeneBl - anzahlGegnerischeBl
         
         //Erstelle Tabelle mit allen Einträgen
@@ -659,14 +687,14 @@ class GermanMap: SKScene {
     
     func transitToGameScene(){
         let transition = SKTransition.crossFade(withDuration: 2)
-        let gameScene = GameScene(fileNamed: "GameScene")
-        gameScene?.scaleMode = .aspectFill
-        gameScene?.setAngreifer(angreifer: blAngreifer!)
-        gameScene?.setVerteidiger(verteidiger: blVerteidiger!)
+        
+        gameScene.scaleMode = .aspectFill
+        gameScene.setAngreifer(angreifer: blAngreifer!)
+        gameScene.setVerteidiger(verteidiger: blVerteidiger!)
         
         //halte eine Referenz auf diese Szene in der Kampfscene
-        gameScene?.germanMapReference = self
+        gameScene.germanMapReference = self
         
-        self.view?.presentScene(gameScene!, transition: transition)
+        self.view?.presentScene(gameScene, transition: transition)
     }
 }

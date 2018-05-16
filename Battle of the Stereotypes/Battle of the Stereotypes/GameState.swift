@@ -19,10 +19,6 @@ class GameState {
     static let IdentifierDamageExchange = "Gegner hat Schaden gemacht"
     /** String, um bei der Übertragung einzelne Werte zu trennen */
     static let seperator : String = "|"
-    /* String, der alle Bundesländer enthält damit man weiß wozu die Werte im GameState gehören */
-    static var bundeslaender = ["BadenWuerttemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg",
-        "Hessen", "MecklenburgVorpommern", "Niedersachsen", "NordrheinWestfalen", "RheinlandPhalz",
-                "Saarland", "Sachsen", "SachsenAnhalt", "SchleswigHolstein", "Thueringen"]
     
     /*
       Structs
@@ -41,10 +37,11 @@ class GameState {
         // BattleScene spezifisch:
         /** Leben der Spieler */
         var health = [100, 100]
-        /** Wie lautet die PlayerID des aktiven Spielers in der GameScene, TurnOwner muss diesen Wert immer up-to-date halten */
+        /** Wie lautet die PlayerID des aktiven Spielers in der GameScene, TurnOwner muss diesen Wert immer up-to-date halten TODO: Falls man das Spiel später ausfallsicher machen will und Neustarten etc. möglich machen will,
+            ist die Speicherung überall notwendig. Aktuell aber unbenutzt. */
         var turnOwnerActive : Int = 0
         /** Im aktuellen Spiel letzter Bildschirm nach "Tiefe" - 0.Start -1.Karte - 2.Schlacht */
-        var gameScreenDepth : Int = 0
+        var currentScene : Int = 0
     }
     
     /*
@@ -54,9 +51,9 @@ class GameState {
     /** ExchangeRequest für Pfeil Ziehen auf der Map */
     struct StructArrowExchangeRequest : Codable {
         /** Startbundesland von wo aus der Pfeil gezogen wurde */
-        var startBundesland: Int = 0
+        var startBundesland: String = ""
         /** Endbundes wo der Pfeil hingezogen wurde */
-        var endBundesland: Int = 0
+        var endBundesland: String = ""
         /** Wieviele Truppen sollen in endBundesland transferiert werden */
         var troupsSent : Int = 0
     }

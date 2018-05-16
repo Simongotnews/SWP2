@@ -24,7 +24,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     var gameState : GameState.StructGameState = GameState.StructGameState()
     /** Singleton Instanz */
     static let sharedInstance = GameCenterHelper()
-    
+    /** Variable ob getInstance schonmal aufgerufen wurde */
+    static var wasCalled_getInstance = false
     
     private override init() {
         // private, da Singleton
@@ -34,9 +35,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     static func getInstance() -> GameCenterHelper
     {
         // TODO: Sicherstellen, dass die Instanz immer vorhanden ist, da sonst die Anwendung abstürzt
-        if(sharedInstance.underlyingViewController == nil) {
-            //print("Warnung! Kein View Controller für den GameCenterHelper gesetzt")
+        if(sharedInstance.underlyingViewController == nil && wasCalled_getInstance) {
+            print("Warnung! Kein View Controller für den GameCenterHelper gesetzt")
         }
+        wasCalled_getInstance = true
         return GameCenterHelper.sharedInstance
     }
     
@@ -47,7 +49,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("MatchMakerViewController abgebrochen")
         // TODO: Abbrechen sollte nicht erlaubt werden
         underlyingViewController.dismiss(animated:true, completion:nil)
-        //findBattleMatch()
     }
     
     /** TurnBasedMatchView fehlgeschlagen */
@@ -61,17 +62,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     private func turnBasedMatchmakerViewController(_ viewController: GKMatchmakerViewController, didFind match: GKTurnBasedMatch) {
         print("MatchMakerViewController Match gefunden")
         currentMatch = match
-        if(isLocalPlayersTurn()) {
-            //GameViewController.germanMapScene.gameScene.isActive = true
-            //GameViewController.germanMapScene.gameScene.updateStatusLabel()
-            //GameViewController.germanMapScene.gameScene.hasTurn = true
-        } else {
-            //GameViewController.germanMapScene.gameScene.isActive = false
-            //GameViewController.germanMapScene.gameScene.updateStatusLabel()
-            //GameViewController.germanMapScene.gameScene.hasTurn = false
-            
-        }
-        // TODO: Ab hier ermöglichen das eigentliche Spiel zu spielen
+        StartScene.germanMapScene.activePlayerID = gameState.turnOwnerActive
+        StartScene.germanMapScene.gameScene.updateStatusLabel()
     }
     
     /** aufgerufen wenn der GameCenterViewController beendet wird */
@@ -86,35 +78,61 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         match.endMatchInTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: nil)
     }
     
+    // Spiel speichern und Laden im GameCenter
+    /** Speichert Spiel+Daten ohne turn abzugeben */
+    var spielGeladen = false
+    func saveGameDataToGameCenter() -> Void {
+        let dataToSave = GameState.encodeStruct(structToEncode: gameState)
+        self.currentMatch.saveCurrentTurn(withMatch: dataToSave) { (error : Error?) in
+            if (error != nil){
+                print("Fehler beim Speichern des Spielstandes")
+            } else {
+                print("Spiel erfolgreich gespeichert")
+                self.spielGeladen = true    //Wer speichert hat ohnehin aktuellen Spielstand
+            }
+        }
+    }
+    /** Lädt Spiel+Daten */
+    func loadGameDataFromGameCenter() -> Void {
+        currentMatch.loadMatchData { (data : Data?, error : Error?) in
+            print("Lade Spiel + Daten")
+            if (error == nil){
+                print("Spiel geladen")
+                if ((self.currentMatch.matchData?.count)! > 0){
+                    print("Daten gefunden und geladen")
+                    //Skeltek: Spielzustand aus übernommenen Daten extrahieren -> lokale Daten synchronisieren
+                    self.gameState = GameState.decodeStruct(dataToDecode: data!, structInstance: GameState.StructGameState())
+                    self.spielGeladen = true
+                } else{
+                    print("Keine Daten gefunden -> Speichere Daten in GameCenter")
+                    self.saveGameDataToGameCenter()
+                }
+            } else {
+                print("Fehler beim Laden des Spiels und der Spieldaten: " + error.debugDescription)
+            }
+        }
+    }
+    
     // GKLocalPlayerListener Methoden
     
     /** Methode zum Turnevent abhandeln */
     func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
-        currentMatch=match
-        // Abfrage nötig weil schon vor dem aktiven Match TurnEvents stattfinden können
-        if(match.participants![0].lastTurnDate != nil) {
-            let matchData = currentMatch.matchData
-            currentMatch.loadMatchData(completionHandler: nil)
-            gameState = GameState.decodeStruct(dataToDecode: matchData!, structInstance: GameState.StructGameState())
-            //self.workExchangesAfterReloadTest()
-        } else if (isLocalPlayersTurn()){
-            if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
-                GameCenterHelper.getInstance().gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-                //GameCenterHelper.getInstance().updateMatchData()
-                print("Ist aktiver Spieler")
-            }
-            currentMatch.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: GameCenterHelper.sharedInstance.gameState)) { (error : Error?) -> Void in
-                if (error != nil){
-                    print(error as Any)
-                } else {
-                    print("Zustand bei neuem Spiel gespeichert")
-                }
-            }
-        }
         print("Turn Event erhalten")
+        self.spielGeladen = false
+        currentMatch=match
+        self.loadGameDataFromGameCenter()
+        print("TurnOwnerActive nach Spiel Laden: \(gameState.turnOwnerActive)")
+        StartScene.germanMapScene?.activePlayerID = self.gameState.turnOwnerActive  //TODO Skeltek: Alles was nach Spiel laden upgedatet werden soll in separater update() Methoder aktualisieren
+        print("Spieler am Zug/Turn: \(self.gameState.turnOwnerActive)")
+        StartScene.germanMapScene?.gameScene.updateStatusLabel()
+
+        if (true){
+            //TODO Skeltek: Falls noch kein Spiel gespielt, Neustart. Ansonsten nur lokale daten updaten und falls Spiel schon gelaufen, in entsprechenden Screen wechseln vor Weiterverarbeitung
+        }
         //self.workExchangesAfterReloadTest()
-        
     }
+    
+    /** */
     
     /** Spieler erhält einen Exchange Request */
     func player(_ player: GKPlayer, receivedExchangeRequest exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
@@ -131,21 +149,14 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         default:
             print("Fehlerhafter MessageKey von ExchangeRequest")
         }
-        //TODO: Folgende Zeile ist nur temporär
-        //GameViewController.germanMapScene.gameScene.isActive = false
-        
-        //if(damage != 0) {
-        // Schade Spieler
-        //}
-        
         var exchangeReply = GameState.StructGenericExchangeReply()
         exchangeReply.actionCompleted = true
         print(GameState.genericExchangeReplyToString(genericExchangeReply: exchangeReply))
-        exchange.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: exchangeReply), completionHandler: {(error: Error?) -> Void in
+        exchange.reply(withLocalizableMessageKey: exchange.message! , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: exchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
-                //GameViewController.germanMapScene.gameScene.isActive = true
-                //GameViewController.germanMapScene.gameScene.updateStatusLabel()
+                StartScene.germanMapScene.activePlayerID = self.getIndexOfLocalPlayer()
+                StartScene.germanMapScene.gameScene.updateStats()
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
                 print(error as Any)
@@ -155,17 +166,20 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** TODO: Implementieren */
     func handleArrowExchange(arrowExchange : GameState.StructArrowExchangeRequest) {
+        //TODO: Skeltek Wenn nicht richtige Ansicht, erstmal nicht ausführen
         print(GameState.arrowExchangeRequestToString(arrowExchangeRequest: arrowExchange))
+        StartScene.germanMapScene.blVerteidiger = StartScene.germanMapScene.getBundesland(arrowExchange.endBundesland)
+        StartScene.germanMapScene.blAngreifer = StartScene.germanMapScene.getBundesland(arrowExchange.startBundesland)
     }
     
     /** TODO: Implementieren */
     func handleThrowExchange(throwExchange : GameState.StructThrowExchangeRequest) {
        print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchange))
         // Hier Schuss simulieren
-        //GameViewController.germanMapScene.gameScene.forceCounter = forceCounter
-        //GameViewController.germanMapScene.gameScene.angleForArrow2 = CGFloat(angleForArrow)
-        //GameViewController.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
-    }
+        StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
+            StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player1.id)        })
+        StartScene.germanMapScene.gameScene.touchpadLocked = false    }
     
     /** TODO: Implementieren */
     func handleDamageExchange(damageExchange : GameState.StructDamageExchangeRequest) {
@@ -175,6 +189,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** TODO: Implementieren */
     func handleAttackButtonExchange(attackButtonExchange : GameState.StructAttackButtonExchangeRequest) {
        print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchange))
+       // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
+       StartScene.germanMapScene.transitToGameScene()
     }
     
     /** Spieler erhält Information das der Exchange abgebrochen wurde */
@@ -183,30 +199,48 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("Exchange abgebrochen")
     }
     
-    /** Spieler erhält eine Antwort auf einen Exchange Request */
-    func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
-        mergeExchangesToSave()
-        isWaitingOnReply = false
-        for reply in replies {
-            //let reply = GameState.decodeExchangeReply(data: reply.data!)
-            //print("Reply erhalten [projectileShot=" + String(reply.projectileFired) + "]")
-
-            
-            var tempExchangeArray = [GKTurnBasedExchange]()
-            tempExchangeArray.append(exchange)
-            /*  currentMatch.saveMergedMatch(GameState.encodeGameState(gameState: gameState), withResolvedExchanges: tempExchangeArray, completionHandler: { (error: Error?) in
-                 if (error == nil) {
-                     // Operation erfolgreich
-                 }
-                 else {
-                     print("Fehler bei saveMergedMatch")
-                     print(error as Any)
-                 }
-             }) */
+    /** Wird aufgerufen, wenn eine Exchange von allen Empfängern empfangen oder abgebrochen wurde Empfänger: Exchange-Absender + Turnowner */
+    func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch){
+        print("Exchange completed")
+        
+        // CurrentParticipant soll abgeschlossene Exchanges mergen (nach Änderung relevanter Spieldaten.
+        //Andere Spieler bekommen automatisch Turn Event und laden (veränderte) Spieldaten neu.
+        if (isLocalPlayersTurn()){
+            print("Resolving Exchange(you merge)")
+            if (exchange.message == GameState.IdentifierThrowExchange){
+                if (exchange.sender?.player == GKLocalPlayer.localPlayer()){
+                    print("Setze aktiven Spieler auf (nextPlayer): \(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
+                    gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+                    //TODO Skeltek: Spieldaten updates() aufrufen
+                    StartScene.germanMapScene.gameScene.updateStatusLabel()
+                } else{
+                    print("Setze aktiven Spieler auf (currentPlayer) : \(GameCenterHelper.getInstance().getIndexOfCurrentPlayer())")
+                    gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+                    StartScene.germanMapScene.gameScene.updateStatusLabel()
+                }
+            }
+            mergeCompletedExchangeToSave(exchange: exchange)
+            StartScene.germanMapScene.gameScene.updateStats()
         }
     }
     
     // Eigene Methoden
+    /** Gibt Index des Spieler welcher am Zug/Turn ist */
+    func getIndexOfCurrentPlayer() -> Int {
+        for participant in self.currentMatch.participants!{
+            if participant == currentMatch.currentParticipant{
+                print("getIndexOfCurrentPlayer: \(currentMatch.participants!.index(of: participant)!)")
+                return currentMatch.participants!.index(of: participant)!
+            }
+        }
+        return -1
+    }
+    
+    /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
+    func getIndexOfNextPlayer() -> Int {
+        print("getIndexOfNextPlayer: \((getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!)")
+        return (getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!
+    }
     
     /** Gibt den Index des lokalen Spieler zum Match zurück. Falls der Spieler nicht teil des Matches ist oder das Spiel nicht läuft oder er nicht authentifiziert ist, gibt es -1 zurück */
     func getIndexOfLocalPlayer() -> Int {
@@ -216,19 +250,17 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         for participant in currentMatch.participants! {
             if(participant.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
+                print("getIndexOfLocalPlayer: \(currentMatch.participants!.index(of: participant)!)")
                 return currentMatch.participants!.index(of: participant)!
             }
         }
         return -1
     }
     
-    /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
-    func getIndexOfNextPlayer() -> Int {
-        if(!isLocalPlayersTurn()) {
-         return (getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!
-        } else {
-            return getIndexOfLocalPlayer()
-        }
+    /** Gibt den Index anderen Spielers vom Match bei einem 2 Spieler Match zurück. */
+    func getIndexOfOtherPlayer() -> Int {
+        print("getIndexOfOtherPlayer: \(getIndexOfLocalPlayer() == 0 ? 1 : 0)")
+        return getIndexOfLocalPlayer() == 0 ? 1 : 0
     }
     
     /** Gibt an ob der lokale Spieler gerade am Zug ist */
@@ -242,7 +274,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 return false
             }
         }
-        if(currentMatch.currentParticipant?.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
+        if(currentMatch.currentParticipant?.player == GKLocalPlayer.localPlayer()) {
             return true
         } else {
             return false
@@ -314,9 +346,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         underlyingViewController.present(matchMakerViewController, animated: true)
     }
     
-    func mergeCompletedExchangesToSave() {
+    func mergeCompletedExchangesToSave() { //TODO Skeltek: Vermutlich redundant
         if(isLocalPlayersTurn()){
-            if(currentMatch.completedExchanges?.count != nil){
+            if((currentMatch.completedExchanges?.count)! > 0){
                 currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: currentMatch.completedExchanges!, completionHandler: {(error: Error?) -> Void in
                     if (error != nil){
                         print("CompletedExchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
@@ -328,18 +360,14 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
     }
     
-    func mergeExchangesToSave() {
-        if(true){   //TODO: Replace with isLocalPlayersTurn() later maybe
-            if(currentMatch.exchanges?.count != nil){
-            currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: currentMatch.exchanges!, completionHandler: {(error: Error?) -> Void in
-                    if (error != nil){
-                        print("Exchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
-                    } else{
-                        print("Exchanges erfolgreich in Save eingebunden.")
-                    }
-                })
+    func mergeCompletedExchangeToSave(exchange : GKTurnBasedExchange) -> Void{
+        currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: [exchange], completionHandler: {(error: Error?) -> Void in
+            if (error != nil){
+                print("CompletedExchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
+            } else{
+                print("CompletedExchanges erfolgreich in Save eingebunden.")
             }
-        }
+        })
     }
     
     func cancelActiveExchanges(){
@@ -424,6 +452,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print(error as Any)
             }
         })
+        if (messageKey == GameState.IdentifierThrowExchange){
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
+            StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player2.id)
+            })
+        }
     }
     
     /** Methode wenn der lokale Spieler seinen Zug beendet hat */
@@ -437,7 +470,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
         currentMatch.endTurn(withNextParticipants: [nextParticipant], turnTimeout: TimeInterval(5.0), match: GameState.encodeStruct(structToEncode: gameState), completionHandler: { (error: Error?) in
             if(error == nil ) {
-                //GameViewController.germanMapScene.gameScene.isActive = false     // Operation erfolgreich
+                //StartScene.germanMapScene.gameScene.isActive = false     // Operation erfolgreich
             } else {
                 print("Fehler gefunden beim Turn beenden")
                 print(error as Any)

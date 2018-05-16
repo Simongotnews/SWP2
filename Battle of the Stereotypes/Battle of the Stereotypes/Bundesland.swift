@@ -148,8 +148,9 @@ class Bundesland: SKSpriteNode {
         }
     }
     
-    func setPosition(){
-        self.position = CGPoint(x: 0, y:0)      // Ankerpunkt setzen
+    func setPosition(x : Int = 0, y : Int = 0){
+        
+        self.position = CGPoint(x: x, y: y)      // Ankerpunkt setzen
         self.zPosition = 3                      // in Vordergrund bringen
     }
     
