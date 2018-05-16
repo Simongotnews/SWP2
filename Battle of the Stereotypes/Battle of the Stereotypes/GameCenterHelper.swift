@@ -124,6 +124,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("TurnOwnerActive nach Spiel Laden: \(gameState.turnOwnerActive)")
         StartScene.germanMapScene?.activePlayerID = self.gameState.turnOwnerActive  //TODO Skeltek: Alles was nach Spiel laden upgedatet werden soll in separater update() Methoder aktualisieren
         print("Spieler am Zug/Turn: \(self.gameState.turnOwnerActive)")
+        StartScene.germanMapScene?.gameScene.updateStatusLabel()
 
         if (true){
             //TODO Skeltek: Falls noch kein Spiel gespielt, Neustart. Ansonsten nur lokale daten updaten und falls Spiel schon gelaufen, in entsprechenden Screen wechseln vor Weiterverarbeitung
@@ -155,7 +156,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if(error == nil ) {
                 // Operation erfolgreich
                 StartScene.germanMapScene.activePlayerID = self.getIndexOfLocalPlayer()
-                StartScene.germanMapScene.gameScene.updateStatusLabel()
+                StartScene.germanMapScene.gameScene.updateStats()
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
                 print(error as Any)
@@ -219,6 +220,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 }
             }
             mergeCompletedExchangeToSave(exchange: exchange)
+            StartScene.germanMapScene.gameScene.updateStats()
         }
     }
     
@@ -257,7 +259,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Gibt den Index anderen Spielers vom Match bei einem 2 Spieler Match zurück. */
     func getIndexOfOtherPlayer() -> Int {
-        print("getIndexOfLocaLPlayer: \(getIndexOfLocalPlayer() == 0 ? 1 : 0)")
+        print("getIndexOfOtherPlayer: \(getIndexOfLocalPlayer() == 0 ? 1 : 0)")
         return getIndexOfLocalPlayer() == 0 ? 1 : 0
     }
     

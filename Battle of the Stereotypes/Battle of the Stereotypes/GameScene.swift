@@ -93,7 +93,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var initialized : Bool = false
     override func didMove(to view: SKView) {
         if (!initialized){
-            initialized = true
             //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
             self.physicsWorld.contactDelegate = self
         
@@ -102,7 +101,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             initDummys()
             initDummyLabels()
             initStatusLabel()
-            updateStatusLabel()
+            initialized = true  //TODO Skeltek: Notlösung, später korrigieren
+            updateStats()
             //initilialisiere Geschoss für Spieler 1
             initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive) //Skeltek: Notlösung, später entsprechend ersetzen
             initHealthBar()
@@ -117,8 +117,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func updateStats(){
         if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().gameState.turnOwnerActive){
             touchpadLocked = false
+        } else {
+            touchpadLocked = true
         }
-        updateStatusLabel()
+        if initialized{
+            germanMapReference.player1.id? = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+            germanMapReference.player2.id? = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
+            updateStatusLabel()
+        }
     }
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
@@ -375,6 +381,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
         print("Spieler am Zug: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
+        print("player1.id: \(germanMapReference.player1.id)")
+        print("leftDummyID: \(leftDummyID)")
+        print("rightDummyID: \(rightDummyID)")
         //Keine Eingabe bei aktiviertem Lock
         if (touchpadLocked){
             return
@@ -426,13 +435,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if fireMode == true{
             touchpadLocked = true
+            fireMode = false
             self.removeAction(forKey: "powerBarAction")
             
             //Berechnung des Winkels
-            let winkel = ((Double.pi/2) * Double(angleForArrow2) / 1.5)
+            let winkel = Double(angleForArrow2)
             //Berechnung des Impulsvektors (nur Richtung)
             let xImpulse = cos(winkel)
-            let yImpulse = sqrt(1-pow(xImpulse, 2))
+            let yImpulse = sin(winkel)
             //Nun muss noch die Stärke anhand des Kraftbalkens einbezogen werden
             //die maximale Kraft ist 1700 -> prozentual berechnen wir davon die aktuelle Kraft
             //forceCounter trägt die eingestellte Kraft des Spielers (0 bis 100)
@@ -469,17 +479,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let deltaY = self.arrow.position.y - pos.y
                 
                 if(touchedNode.name == "leftdummy"){
-                    angleForArrow = atan2(deltaX, deltaY)
-                    angleForArrow = angleForArrow * -1
-                    if(0.0 <= angleForArrow + CGFloat(90 * (Double.pi/180)) && 1.5 >= angleForArrow + CGFloat(90 * (Double.pi/180))){
-                        sprite.zRotation = angleForArrow + CGFloat(90 * (Double.pi/180))
-                        angleForArrow2 = angleForArrow + CGFloat(90 * (Double.pi/180))
+                    angleForArrow = atan2(deltaY, deltaX)
+                    print("Winkel: \(angleForArrow)")
+                    if(0.0 <= angleForArrow && angleForArrow <= CGFloat(Double.pi)){
+                        sprite.zRotation = angleForArrow
+                        angleForArrow2 = angleForArrow
                     }
                 }
                 else if(touchedNode.name == "rightdummy"){
+                    print("Winkel: \(angleForArrow)")
                     angleForArrow = atan2(deltaY, deltaX)
-                    if(3.0 < angleForArrow + CGFloat(90 * (Double.pi/180)) && 4.5 > angleForArrow + CGFloat(90 * (Double.pi/180))){
-                        sprite.zRotation = (angleForArrow + CGFloat(Double.pi/2)) + CGFloat(90 * (Double.pi/180))
+                    if(0 <= angleForArrow && CGFloat(Double.pi) >= angleForArrow){
+                        sprite.zRotation = angleForArrow
+                        angleForArrow2 = angleForArrow
                     }
                 }
             }
