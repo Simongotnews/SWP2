@@ -480,14 +480,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if(touchedNode.name == "leftdummy"){
                     angleForArrow = atan2(deltaY, deltaX)
-                    print("Winkel: \(angleForArrow)")
                     if(0.0 <= angleForArrow && angleForArrow <= CGFloat(Double.pi)){
                         sprite.zRotation = angleForArrow
                         angleForArrow2 = angleForArrow
                     }
                 }
                 else if(touchedNode.name == "rightdummy"){
-                    print("Winkel: \(angleForArrow)")
                     angleForArrow = atan2(deltaY, deltaX)
                     if(0 <= angleForArrow && CGFloat(Double.pi) >= angleForArrow){
                         sprite.zRotation = angleForArrow
