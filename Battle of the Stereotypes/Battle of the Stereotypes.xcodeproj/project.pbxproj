@@ -29,6 +29,7 @@
 		3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FFC20850BEC00ADE0A8 /* LaunchScreen.storyboard */; };
 		3FA4800920850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4800820850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift */; };
 		3FA4801420850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */; };
+		3FAA50A720ABD48A00D08178 /* Bundeslaender.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 3FAA50A620ABD48A00D08178 /* Bundeslaender.atlas */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		3FA4800F20850BEC00ADE0A8 /* Battle of the StereotypesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Battle of the StereotypesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battle_of_the_StereotypesUITests.swift; sourceTree = "<group>"; };
 		3FA4801520850BEC00ADE0A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3FAA50A620ABD48A00D08178 /* Bundeslaender.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; name = Bundeslaender.atlas; path = ../../../../Desktop/Bundeslaender.atlas; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +129,7 @@
 		3FA47FEC20850BE900ADE0A8 /* Battle of the Stereotypes */ = {
 			isa = PBXGroup;
 			children = (
+				3FAA50A620ABD48A00D08178 /* Bundeslaender.atlas */,
 				3FA47FED20850BE900ADE0A8 /* AppDelegate.swift */,
 				3FA47FF520850BE900ADE0A8 /* GameViewController.swift */,
 				3FA47FEF20850BE900ADE0A8 /* GameScene.sks */,
@@ -276,6 +279,7 @@
 			files = (
 				3F555E6820A3320F00F4F3E4 /* StartScene.sks in Resources */,
 				3FA47FF920850BE900ADE0A8 /* Main.storyboard in Resources */,
+				3FAA50A720ABD48A00D08178 /* Bundeslaender.atlas in Resources */,
 				3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */,
 				3FA47FFB20850BEC00ADE0A8 /* Assets.xcassets in Resources */,
 				3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */,
