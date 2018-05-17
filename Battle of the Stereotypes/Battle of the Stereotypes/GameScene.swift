@@ -126,6 +126,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.player2.id? = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
             updateStatusLabel()
         }
+        initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
     }
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
@@ -381,7 +382,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
-        print("Spieler am Zug: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
+        print("Spieler aktiv: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
         print("player1.id: \(germanMapReference.player1.id)")
         print("leftDummyID: \(leftDummyID)")
         print("rightDummyID: \(rightDummyID)")
@@ -505,9 +506,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         arrow.setScale(0.05)
         arrow.zPosition=3
         arrow.name = "arrow"
-        if(node.name == "rightdummy"){
-            arrow.xScale = arrow.xScale * -1;
-        }
         
         self.addChild(arrow)
     }
