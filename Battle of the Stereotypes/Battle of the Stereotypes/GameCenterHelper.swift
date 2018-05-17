@@ -181,9 +181,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         // Hier Schuss simulieren
         StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
-            StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player1.id)        })
-        StartScene.germanMapScene.gameScene.touchpadLocked = false    }
+    }
     
     /** TODO: Implementieren */
     func handleDamageExchange(damageExchange : GameState.StructDamageExchangeRequest) {
@@ -206,18 +204,32 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** Wird aufgerufen, wenn eine Exchange von allen Empfängern empfangen oder abgebrochen wurde Empfänger: Exchange-Absender + Turnowner */
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch){
         print("Exchange completed")
-        
+        if (!((exchange.replies?.count != nil)&&(exchange.replies!.count > 0))){    //Wenn keine Antworten -> Vermutlich Timeout Completion
+            if (exchange.sender?.player==player){
+                cancelExchange(exchange: exchange)
+                return
+            } else {
+                return
+            }
+        }
         // CurrentParticipant soll abgeschlossene Exchanges mergen (nach Änderung relevanter Spieldaten.
         //Andere Spieler bekommen automatisch Turn Event und laden (veränderte) Spieldaten neu.
         if (isLocalPlayersTurn()){
             print("Resolving Exchange(you merge)")
+            print("exchange.message: \(exchange.message)")
+            print("GameState.IdentifierThrowExchange: \(GameState.IdentifierThrowExchange)")
             if (exchange.message == GameState.IdentifierThrowExchange){
-                if (exchange.sender?.player == GKLocalPlayer.localPlayer()){
+                print("Vergleiche player und localPlayer:")
+                print("exchange.sender?.player: \(exchange.sender?.player)")
+                print("GKLocalPlayer.localPlayer(): \(GKLocalPlayer.localPlayer())")
+                if (exchange.sender?.player! == GKLocalPlayer.localPlayer()){
                     print("Setze aktiven Spieler auf (nextPlayer): \(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
                     if (!GameViewController.debugMode){
                         gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+                        print("Aktiv gesetzter Spieler: \(gameState.turnOwnerActive)")
                     } else {
                         gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+                        print("Aktiv gesetzter Spieler: \(gameState.turnOwnerActive)")
                     }
                     //TODO Skeltek: Spieldaten updates() aufrufen
                     StartScene.germanMapScene.gameScene.updateStatusLabel()
@@ -237,7 +249,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func getIndexOfCurrentPlayer() -> Int {
         for participant in self.currentMatch.participants!{
             if participant == currentMatch.currentParticipant{
-                print("getIndexOfCurrentPlayer: \(currentMatch.participants!.index(of: participant)!)")
                 return currentMatch.participants!.index(of: participant)!
             }
         }
@@ -246,7 +257,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
     func getIndexOfNextPlayer() -> Int {
-        print("getIndexOfNextPlayer: \((getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!)")
         return (getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!
     }
     
@@ -258,7 +268,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         for participant in currentMatch.participants! {
             if(participant.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
-                print("getIndexOfLocalPlayer: \(currentMatch.participants!.index(of: participant)!)")
                 return currentMatch.participants!.index(of: participant)!
             }
         }
@@ -267,7 +276,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Gibt den Index anderen Spielers vom Match bei einem 2 Spieler Match zurück. */
     func getIndexOfOtherPlayer() -> Int {
-        print("getIndexOfOtherPlayer: \(getIndexOfLocalPlayer() == 0 ? 1 : 0)")
         return getIndexOfLocalPlayer() == 0 ? 1 : 0
     }
     
@@ -378,21 +386,15 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         })
     }
     
-    func cancelActiveExchanges(){
-        if(isLocalPlayersTurn()){
-            if(currentMatch.activeExchanges?.count != nil){
-                for exchange in currentMatch.exchanges!{
-                    if (exchange != nil){
-                        exchange.cancel(withLocalizableMessageKey: "ForReinitializingGameState", arguments: ["XY", "Z"], completionHandler: {(error: Error?) -> Void in
-                            if (error != nil){
-                                print("Fehler beim Löschen einer Exchange")
-                            } else {
-                                print("Eine Exchange gelöscht")
-                            }
-                        })
-                    }
+    func cancelExchange(exchange : GKTurnBasedExchange) -> Void{
+        if (exchange.sender?.player == GKLocalPlayer.localPlayer()){
+            exchange.cancel(withLocalizableMessageKey: exchange.message!, arguments: ["invalid", "returnToSender"], completionHandler: {(error: Error?) -> Void in
+                if (error != nil){
+                    print("Fehler beim Löschen einer Exchange")
+                } else {
+                    print("Eine Exchange gelöscht")
                 }
-            }
+            })
         }
     }
     
@@ -460,11 +462,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print(error as Any)
             }
         })
-        if (messageKey == GameState.IdentifierThrowExchange){
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: {
-            StartScene.germanMapScene.gameScene.initBall(for: StartScene.germanMapScene.player2.id)
-            })
-        }
     }
     
     /** Methode wenn der lokale Spieler seinen Zug beendet hat */
