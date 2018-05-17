@@ -8,9 +8,19 @@
 
 import SpriteKit
 import GameplayKit
+import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     let sceneID = 2
+    
+    //Sound
+    var audioPlayer = AVAudioPlayer()
+    var hintergrundMusik: URL?
+    
+    var statusMusik = false
+    var statusSound = true
+    var buttonMusik: UIButton!
+    var buttonSound: UIButton!
     
     //*Zeigt an ob Eingaben geblockt sind*/
     var touchpadLocked = (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfNextPlayer())
@@ -110,7 +120,75 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             refreshScene()
         }
+    
+        //Sound
+        //...
+        hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
+        
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+        }catch{
+            print("Datei nicht gefunden")
+        }
+        //Wie oft abgespielt werden soll (-1 unendlich oft)
+        audioPlayer.numberOfLoops = -1
+        //Performance verbessern von Audioplayer
+        audioPlayer.prepareToPlay()
+        
+        audioPlayer.play()
+        
+        buttonMusik = UIButton(frame: CGRect(x: size.width-70, y: 10, width: 80, height: 80))
+        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+        
+        self.view?.addSubview(buttonMusik)
+        
+        buttonSound = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
+        buttonSound.setImage(UIImage(named: "SoundAN.png"), for: .normal)
+        buttonSound.addTarget(self, action: #selector(buttonSoundAction), for: .touchUpInside)
+        
+        self.view?.addSubview(buttonSound)
     }
+    @IBAction func buttonMusikAction(sender: UIButton!){
+        
+        if (statusMusik){
+            print("Musik An")
+            statusMusik = false
+            print(statusMusik)
+            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+            audioPlayer.play()
+            
+            
+        }else if (!statusMusik){
+            print("Musik Aus")
+            statusMusik = true
+            print(statusMusik)
+            buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
+            audioPlayer.pause()
+            
+        }
+        
+    }
+    @IBAction func buttonSoundAction(sender: UIButton!){
+        
+        if (!statusSound){
+            print("Sound An")
+            statusSound = true
+            buttonSound.setImage(UIImage(named: "SoundAn.png"), for: .normal)
+            
+            
+            
+            
+        }else if (statusSound){
+            print("Sound Aus")
+            statusSound = false
+            buttonSound.setImage(UIImage(named: "SoundAus.png"), for: .normal)
+            
+        }
+        
+    }
+    
+    
     func refreshScene(){
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
@@ -352,6 +430,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         allowsRotation = true
         
+        //Sound bei Wurf
+        if(statusSound){
+            ball.run(SKAction.playSoundFileNamed("wurf", waitForCompletion: true))
+        }
+        
     }
     
     func powerBarRun(){
@@ -519,6 +602,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
             didCollide = true
             projectileDidCollideWithDummy(contact)
+            //Sound bei Treffer
+            if(statusSound){
+                ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
+            }
         }
     }
     
@@ -603,6 +690,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func transitToGermanMap(){
+        audioPlayer.stop()
+        buttonMusik.removeFromSuperview()
+        buttonSound.removeFromSuperview()
         //switch turn
         // TODO: Switch Turn später duch Turn abgeben im GameCenterHelper ersetzen
         germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1

@@ -8,9 +8,18 @@
 
 import SpriteKit
 import GameplayKit
+import AVFoundation
 
 class GermanMap: SKScene {
     let sceneID = 1
+    
+    //Sound
+    var audioPlayer = AVAudioPlayer()
+    var hintergrundMusik: URL?
+    
+    var statusMusik = false
+    var buttonMusik: UIButton!
+
     
     //Referenz auf gameScene
     var gameScene : GameScene = GameScene(fileNamed: "GameScene")!
@@ -147,7 +156,53 @@ class GermanMap: SKScene {
         } else {
             refreshScene()
         }
+        
+        //Sound
+        //...
+        hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+        
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+        }catch{
+            print("Datei nicht gefunden")
+        }
+        //Wie oft abgespielt werden soll (-1 unendlich oft)
+        audioPlayer.numberOfLoops = -1
+        //Performance verbessern von Audioplayer
+        audioPlayer.prepareToPlay()
+        
+        audioPlayer.play()
+        
+        buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
+        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+        
+        self.view?.addSubview(buttonMusik)
+
     }
+    @IBAction func buttonMusikAction(sender: UIButton!){
+        
+        if (statusMusik){
+            print("Musik An")
+            statusMusik = false
+            print(statusMusik)
+            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+            audioPlayer.play()
+            
+            
+        }else if (!statusMusik){
+            print("Musik Aus")
+            statusMusik = true
+            print(statusMusik)
+            buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
+            audioPlayer.pause()
+            
+        }
+        
+    }
+
+        
+    
     
     func refreshScene(){
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
@@ -170,6 +225,7 @@ class GermanMap: SKScene {
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
+                
                 
                 transitToGameScene()
                 // Exchange, um anderen Spieler in die GameScene zu schicken
@@ -687,6 +743,10 @@ class GermanMap: SKScene {
     }
     
     func transitToGameScene(){
+        
+        audioPlayer.stop()
+        buttonMusik.removeFromSuperview()
+        
         let transition = SKTransition.crossFade(withDuration: 2)
         
         gameScene.scaleMode = .aspectFill

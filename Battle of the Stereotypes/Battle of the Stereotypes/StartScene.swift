@@ -9,12 +9,20 @@
 import Foundation
 import SpriteKit
 import GameplayKit
+import AVFoundation
 
 
 class StartScene: SKScene, SKPhysicsContactDelegate{
     let sceneID = 0
     
     static var germanMapScene : GermanMap!
+    
+    //Sound
+    var audioPlayer = AVAudioPlayer()
+    var hintergrundMusik: URL?
+    
+    var statusMusik = false
+    var buttonMusik: UIButton!
     
     //Hintergrund
     var background: SKSpriteNode!
@@ -32,6 +40,48 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         
         initBackground()
         initStartGameButton()
+        
+        //Sound
+        //...
+        hintergrundMusik = Bundle.main.url(forResource: "StartScene", withExtension: "mp3")
+        
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+        }catch{
+            print("Datei nicht gefunden")
+        }
+        //Wie oft abgespielt werden soll (-1 unendlich oft)
+        audioPlayer.numberOfLoops = -1
+        //Performance verbessern von Audioplayer
+        audioPlayer.prepareToPlay()
+        
+        audioPlayer.play()
+        
+        buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
+        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+        
+        self.view?.addSubview(buttonMusik)
+        
+    }
+    @IBAction func buttonMusikAction(sender: UIButton!){
+        
+        if (statusMusik){
+            print("Musik An")
+            statusMusik = false
+            print(statusMusik)
+            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+            audioPlayer.play()
+            
+            
+        }else if (!statusMusik){
+            print("Musik Aus")
+            statusMusik = true
+            print(statusMusik)
+            buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
+            audioPlayer.pause()
+            
+        }
         
     }
     
@@ -82,6 +132,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         if playGameButton != nil {
             if playGameButton.isPressable == true && playGameButton.contains(touch.location(in: self)) {
                 print("Loading GermanMapScene:")
+                
                 loadGermanMapScene()
             return
             }
@@ -90,6 +141,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     
     func loadGermanMapScene() { // Lade die Bundeslandübersicht-Scene
         
+        audioPlayer.stop()
+        buttonMusik.removeFromSuperview()
         // Load 'GameScene.sks' as a GKScene. This provides gameplay related content
         // including entities and graphs.
         if let scene = GKScene(fileNamed: "GermanMap") {
