@@ -564,31 +564,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 _ = self.atPoint(pos)
                 let touchedNode = self.atPoint(pos)
-                
                 let deltaX = self.arrow.position.x - pos.x
                 let deltaY = self.arrow.position.y - pos.y
-                
-                //Skeltek: touches Moved wird vermutlich nur alle paar Millisekunden ausgeführt, Verbesserung der Implementierung
-                //if(touchedNode.name == "leftdummy"){  //Fallunterscheidung so zunächst nicht mehr nötig, soll auch gegen Wind werfen können
-                    angleForArrow = atan2(deltaY, deltaX)
-                    print("Winkel für Pfeil: \(angleForArrow)")
-                
-                    if (angleForArrow <= -0.5 * CGFloat.pi){
-                        angleForArrow = CGFloat.pi
-                    }
+                angleForArrow = atan2(deltaY, deltaX)
+                if (angleForArrow <= -0.5 * CGFloat.pi){
+                    angleForArrow = CGFloat.pi
+                }
                 if (angleForArrow <= 0){
                     angleForArrow = 0
                 }
-                    sprite.zRotation = angleForArrow
-                    angleForArrow2 = angleForArrow
-                //}
-//                else if(touchedNode.name == "rightdummy"){
-//                    angleForArrow = atan2(deltaY, deltaX)
-//                    if(0 <= angleForArrow && angleForArrow <= CGFloat(Double.pi)){
-//                        sprite.zRotation = angleForArrow
-//                        angleForArrow2 = angleForArrow
-//                    }
-//                }
+                sprite.zRotation = angleForArrow
+                angleForArrow2 = angleForArrow
             }
         }
     }

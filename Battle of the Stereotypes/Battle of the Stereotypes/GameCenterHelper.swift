@@ -442,9 +442,16 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         if (exchange.sender?.player == GKLocalPlayer.localPlayer()){
             exchange.cancel(withLocalizableMessageKey: exchange.message!, arguments: ["X", "XY"], completionHandler: {(error: Error?) -> Void in
                 if (error != nil){
-                    print("Fehler beim Löschen einer Exchange")
+                    print("Fehler beim Löschen einer Exchange. Probiere sie stattdessen aufzulösen")
+                    self.mergeCompletedExchangeToSave(exchange: exchange)
                 } else {
                     print("Eine Exchange gelöscht")
+                    if (GameViewController.debugMode){
+                        self.mergeCompletedExchangeToSave(exchange: exchange)
+                        if (GameViewController.currentlyShownSceneNumber == 2){
+                            StartScene.germanMapScene.gameScene.updateStats()
+                        }
+                    }
                 }
             })
         }
@@ -502,9 +509,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     {
         var nextParticipant : GKTurnBasedParticipant
         nextParticipant = currentMatch.participants![getIndexOfOtherPlayer()]
-        
+        var timeOutDebug = 2.0  //Variable um Timeouts dynamisch einzustellen
+        if (GameViewController.debugMode) {timeOutDebug = 1.0} else {timeOutDebug = 5.0}
         // Ausgabe geht hier nicht weil man die Art des übergebenen Structs nicht kennt
-        currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeStruct(structToEncode: structToSend), localizableMessageKey: messageKey, arguments: ["X","Y"], timeout: TimeInterval(5.0), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
+        currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeStruct(structToEncode: structToSend), localizableMessageKey: messageKey, arguments: ["X","Y"], timeout: TimeInterval(timeOutDebug), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
                 self.isWaitingOnReply = true
