@@ -23,10 +23,11 @@ class GermanMap: SKScene {
     
     //Referenz auf gameScene
     var gameScene : GameScene = GameScene(fileNamed: "GameScene")!
+    //TODO Skeltek: Folgende Variablen werden nirgends verwendet und sind vermultich redundant
     //Id des Spielers, der am Zug ist
-    var turnPlayerID: Int = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+    //var turnPlayerID: Int = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
     //Id des Spielers, der gerade wirft in der Kampfszene
-    var activePlayerID: Int = GameCenterHelper.getInstance().gameState.turnOwnerActive //noch -1, da keiner dran ist
+    //var activePlayerID: Int = GameCenterHelper.getInstance().gameState.turnOwnerActive //noch -1, da keiner dran ist
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
@@ -221,7 +222,7 @@ class GermanMap: SKScene {
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
                 //der angreifende Spieler ist aktiv und darf dann zuerst werfen in der Kampfszene
-                activePlayerID = GameCenterHelper.getInstance().gameState.turnOwnerActive
+                //activePlayerID = GameCenterHelper.getInstance().gameState.turnOwnerActive //CHECK FOR CRASH
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
@@ -547,10 +548,8 @@ class GermanMap: SKScene {
     // Initialisieren der Spieler
     func initPlayer(){
         
-        activePlayerID = GameCenterHelper.getInstance().gameState.turnOwnerActive
-        
         //ID aus GameCenter ändern // Skeltek: Sollte so nur bei neuem Spiel ausgeführt werden, sonst aus geladenem Spiel Infos holen
-        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){    //TODO Skeltek: getIndexOfCurrentPlayer hier falsch, später durch Spieleröffner ersetzen
+        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfGameOwner()){    //TODO Skeltek: getIndexOfCurrentPlayer hier falsch, später durch Spieleröffner ersetzen
             player1 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
             player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
             player2 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())

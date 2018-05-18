@@ -195,16 +195,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     /** Aktualisiert lokale Variablen */
     func updateStats(){
         if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().gameState.turnOwnerActive){
+            print("+++Touchpad unlocked+++")
             touchpadLocked = false
         } else {
+            print("---Touchpad locked---")
             touchpadLocked = true
         }
-        if initialized{
-            germanMapReference.player1.id? = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-            germanMapReference.player2.id? = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
-            updateStatusLabel()
+        if initialized{ //TODO Skeltek: Check For Crashes
+            //germanMapReference.player1.id? = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+            //germanMapReference.player2.id? = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
+            //updateStatusLabel()
         }
-        initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+        updateStatusLabel()
+        if (GameViewController.currentlyShownSceneNumber == 2){
+            initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+        } else {
+            
+        }
     }
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
@@ -409,9 +416,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             statusText += "Spieler: Gegner "
         }
-        print("leftDummyID: \(leftDummyID!)")
-        print("activePlayerID: \(StartScene.germanMapScene.activePlayerID)")
-        if(leftDummyID! == StartScene.germanMapScene.activePlayerID) {
+        if(leftDummyID! == GameCenterHelper.getInstance().gameState.turnOwnerActive) {
             statusText += "(links)"
         } else {
             statusText += "(rechts)"
@@ -466,9 +471,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
         print("Spieler aktiv: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
-        print("player1.id: \(germanMapReference.player1.id)")
+        print("Eigene ID: \(germanMapReference.player1.id)")
         print("leftDummyID: \(leftDummyID)")
-        print("rightDummyID: \(rightDummyID)")
+        print("rightDummyID: \(rightDummyID)\n")
         //Keine Eingabe bei aktiviertem Lock
         if (touchpadLocked){
             return
@@ -563,20 +568,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let deltaX = self.arrow.position.x - pos.x
                 let deltaY = self.arrow.position.y - pos.y
                 
-                if(touchedNode.name == "leftdummy"){
+                //Skeltek: touches Moved wird vermutlich nur alle paar Millisekunden ausgeführt, Verbesserung der Implementierung
+                //if(touchedNode.name == "leftdummy"){  //Fallunterscheidung so zunächst nicht mehr nötig, soll auch gegen Wind werfen können
                     angleForArrow = atan2(deltaY, deltaX)
-                    if(0.0 <= angleForArrow && angleForArrow <= CGFloat(Double.pi)){
-                        sprite.zRotation = angleForArrow
-                        angleForArrow2 = angleForArrow
+                    print("Winkel für Pfeil: \(angleForArrow)")
+                
+                    if (angleForArrow <= -0.5 * CGFloat.pi){
+                        angleForArrow = CGFloat.pi
                     }
+                if (angleForArrow <= 0){
+                    angleForArrow = 0
                 }
-                else if(touchedNode.name == "rightdummy"){
-                    angleForArrow = atan2(deltaY, deltaX)
-                    if(0 <= angleForArrow && CGFloat(Double.pi) >= angleForArrow){
-                        sprite.zRotation = angleForArrow
-                        angleForArrow2 = angleForArrow
-                    }
-                }
+                    sprite.zRotation = angleForArrow
+                    angleForArrow2 = angleForArrow
+                //}
+//                else if(touchedNode.name == "rightdummy"){
+//                    angleForArrow = atan2(deltaY, deltaX)
+//                    if(0 <= angleForArrow && angleForArrow <= CGFloat(Double.pi)){
+//                        sprite.zRotation = angleForArrow
+//                        angleForArrow2 = angleForArrow
+//                    }
+//                }
             }
         }
     }
@@ -589,6 +601,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         arrow.setScale(0.05)
         arrow.zPosition=3
         arrow.name = "arrow"
+        arrow.zRotation = 0.5 * CGFloat.pi
         
         self.addChild(arrow)
     }
@@ -693,8 +706,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         buttonSound.removeFromSuperview()
         //switch turn
         // TODO: Switch Turn später duch Turn abgeben im GameCenterHelper ersetzen
-        germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1
-        germanMapReference.activePlayerID = 0
+        //germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1  //CHECK FOR CRASH
+        //germanMapReference.activePlayerID = 0
         self.view?.presentScene(germanMapReference)
     }
     
