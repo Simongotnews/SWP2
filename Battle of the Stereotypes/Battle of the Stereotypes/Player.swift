@@ -17,8 +17,6 @@ class Player {
     
     var coins: Int; //Geld des Spielers
     
-    //Bundesland für den Spieler, welches er am Anfang ausgewählt hat
-    var bundesland: Bundesland!
     //Anzahl der Bundesländer in Besitz
     var anzahlBl: Int!
     //Anzahl Truppen insgesamt
@@ -32,10 +30,9 @@ class Player {
     //der aktuelle Kämpfer in der Kampfszene
     var fighter: Fighter!
     
-    init(bundesland: Bundesland, id: Int) {
+    init(id: Int) {
         //muss später vom GameCenter entschieden werden
         self.id = id
-        self.bundesland = bundesland
         self.coins = 2000; //2000 Münzen Startguthaben
         self.damage = 20
     }

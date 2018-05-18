@@ -550,18 +550,41 @@ class GermanMap: SKScene {
         
         //ID aus GameCenter ändern // Skeltek: Sollte so nur bei neuem Spiel ausgeführt werden, sonst aus geladenem Spiel Infos holen
         if (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfGameOwner()){    //TODO Skeltek: getIndexOfCurrentPlayer hier falsch, später durch Spieleröffner ersetzen
-            player1 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
-            player1?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
-            player2 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
-            player2?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
+            player1 = Player(id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
+            player2 = Player(id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
+            
+            distributeBLsToPlayersRandomly()
             
         } else {
-            player2 = Player(bundesland: niedersachsen!, id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
-            player2?.blEigene = [niedersachsen, sachsenAnhalt, thueringen, hessen]
-            player1 = Player(bundesland: bayern!, id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
-            player1?.blEigene = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, mecklenburgVorpommern, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, schleswigHolstein]
+            player2 = Player(id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
+            player1 = Player(id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
+            
+            distributeBLsToPlayersRandomly()
         }
     }
+    
+    //zufälliges Zuweisen der Bundesländer an die Spieler bei Spielbeginn
+    func distributeBLsToPlayersRandomly(){
+        for bundesland in allBundeslaender{
+            
+            let zufallszahl : UInt32 = arc4random_uniform(2) //Zahlen (zwischen) 0 und 1 generieren
+            
+            if(zufallszahl < 1  && player1.blEigene.count < 8){ //wenn Zufallszahl < 1 ist, Bundesland an Spieler 1
+                player1?.blEigene.append(bundesland)
+            }else if(zufallszahl >= 1  && player2.blEigene.count < 8) { //wenn Zufallszahl >= 1 ist, Bundesland an Spieler 2
+                player2?.blEigene.append(bundesland)
+            }else if(zufallszahl < 1  && player1.blEigene.count >= 8) { //Spieler 1 hat schon 8 Bundesländer, dann Bundesland an Spieler 2
+                player2?.blEigene.append(bundesland)
+            }else if(zufallszahl >= 1  && player2.blEigene.count >= 8) { //Spieler 2 hat schon 8 Bundesländer, dann Bundesland an Spieler 1
+                player1?.blEigene.append(bundesland)
+            }else{
+                
+                print("Fehler beim Zuweisen der Bundesländer an die Spieler, Bundesland wurde keinem Spieler zugewiesen")
+                
+            }
+        }
+    }
+
     
     // Initialisieren des Geld-Labels des Spielers
     func initCoinLabel(){
