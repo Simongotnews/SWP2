@@ -186,6 +186,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if(error == nil ) {
                 // Operation erfolgreich
                 print("ExchangeReply erfolgreich verschickt")
+                //TODO Skeltek: Hier unbedingt Merge einbauen, da es nicht anders geht
+                //if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer()){
+                //    self.mergeCompletedExchangeToSave(exchange: exchange)
+                //}
                 //StartScene.germanMapScene.gameScene.updateStats()
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
