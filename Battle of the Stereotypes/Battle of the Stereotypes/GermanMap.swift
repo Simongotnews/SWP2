@@ -323,7 +323,6 @@ class GermanMap: SKScene {
         // Baden-Württemberg:
         badenWuerttemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuerttemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         badenWuerttemberg?.setPosition()
-        badenWuerttemberg?.anzahlTruppen = 8
         let badenWuerttembergAnzahlTruppen = String(badenWuerttemberg?.anzahlTruppen ?? Int())
         badenWuerttembergAnzahlTruppenLabel = SKLabelNode(text: badenWuerttembergAnzahlTruppen)
         badenWuerttembergAnzahlTruppenLabel.name = badenWuerttemberg?.blNameString
@@ -335,7 +334,6 @@ class GermanMap: SKScene {
         bayern = Bundesland(blName: BundeslandEnum.Bayern, texture: SKTexture(imageNamed: "Bayern_blue"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         bayern?.setPosition()
-        bayern?.anzahlTruppen = 9
         let bayernAnzahlTruppen = String(bayern?.anzahlTruppen ?? Int())
         bayernAnzahlTruppenLabel = SKLabelNode(text: bayernAnzahlTruppen)
         bayernAnzahlTruppenLabel.name = bayern?.blNameString
@@ -347,7 +345,6 @@ class GermanMap: SKScene {
         berlin = Bundesland(blName: BundeslandEnum.Berlin, texture: SKTexture(imageNamed: "Berlin_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         berlin?.setPosition()
-        berlin?.anzahlTruppen = 2
         let berlinAnzahlTruppen = String(berlin?.anzahlTruppen ?? Int())
         berlinAnzahlTruppenLabel = SKLabelNode(text: berlinAnzahlTruppen)
         berlinAnzahlTruppenLabel.name = berlin?.blNameString
@@ -359,7 +356,6 @@ class GermanMap: SKScene {
         brandenburg = Bundesland(blName: BundeslandEnum.Brandenburg, texture: SKTexture(imageNamed: "Brandenburg_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         brandenburg?.setPosition()
-        brandenburg?.anzahlTruppen = 13
         let brandenburgAnzahlTruppen = String(brandenburg?.anzahlTruppen ?? Int())
         brandenburgAnzahlTruppenLabel = SKLabelNode(text: brandenburgAnzahlTruppen)
         brandenburgAnzahlTruppenLabel.name = brandenburg?.blNameString
@@ -371,7 +367,6 @@ class GermanMap: SKScene {
         bremen = Bundesland(blName: BundeslandEnum.Bremen, texture: SKTexture(imageNamed: "Bremen_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         bremen?.setPosition()
-        bremen?.anzahlTruppen = 3
         let bremenAnzahlTruppen = String(bremen?.anzahlTruppen ?? Int())
         bremenAnzahlTruppenLabel = SKLabelNode(text: bremenAnzahlTruppen)
         bremenAnzahlTruppenLabel.name = bremen?.blNameString
@@ -383,7 +378,6 @@ class GermanMap: SKScene {
         hamburg = Bundesland(blName: BundeslandEnum.Hamburg, texture: SKTexture(imageNamed: "Hamburg_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         hamburg?.setPosition()
-        hamburg?.anzahlTruppen = 7
         let hamburgAnzahlTruppen = String(hamburg?.anzahlTruppen ?? Int())
         hamburgAnzahlTruppenLabel = SKLabelNode(text: hamburgAnzahlTruppen)
         hamburgAnzahlTruppenLabel.name = hamburg?.blNameString
@@ -395,7 +389,6 @@ class GermanMap: SKScene {
         hessen = Bundesland(blName: BundeslandEnum.Hessen, texture: SKTexture(imageNamed: "Hessen_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         hessen?.setPosition()
-        hessen?.anzahlTruppen = 32
         let hessenAnzahlTruppen = String(hessen?.anzahlTruppen ?? Int())
         hessenAnzahlTruppenLabel = SKLabelNode(text: hessenAnzahlTruppen)
         hessenAnzahlTruppenLabel.name = hessen?.blNameString
@@ -406,7 +399,6 @@ class GermanMap: SKScene {
         // Mecklenburg-Vorpommern:
         mecklenburgVorpommern = Bundesland(blName: BundeslandEnum.MecklenburgVorpommern, texture: SKTexture(imageNamed: "MecklenburgVorpommern_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         mecklenburgVorpommern?.setPosition()
-        mecklenburgVorpommern?.anzahlTruppen = 40
         let mecklenburgVorpommernAnzahlTruppen = String(mecklenburgVorpommern?.anzahlTruppen ?? Int())
         mecklenburgVorpommernAnzahlTruppenLabel = SKLabelNode(text: mecklenburgVorpommernAnzahlTruppen)
         mecklenburgVorpommernAnzahlTruppenLabel.name = mecklenburgVorpommern?.blNameString
@@ -418,7 +410,6 @@ class GermanMap: SKScene {
         niedersachsen = Bundesland(blName: BundeslandEnum.Niedersachsen, texture: SKTexture(imageNamed: "Niedersachsen_blue"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         niedersachsen?.setPosition()
-        niedersachsen?.anzahlTruppen = 23
         let niedersachsenAnzahlTruppen = String(niedersachsen?.anzahlTruppen ?? Int())
         niedersachsenAnzahlTruppenLabel = SKLabelNode(text: niedersachsenAnzahlTruppen)
         niedersachsenAnzahlTruppenLabel.name = niedersachsen?.blNameString
@@ -430,7 +421,6 @@ class GermanMap: SKScene {
         nordrheinWestfalen = Bundesland(blName: BundeslandEnum.NordrheinWestfalen, texture: SKTexture(imageNamed: "NRW_blue"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         nordrheinWestfalen?.setPosition()
-        nordrheinWestfalen?.anzahlTruppen = 45
         let nordrheinWestfalenAnzahlTruppen = String(nordrheinWestfalen?.anzahlTruppen ?? Int())
         nordrheinWestfalenAnzahlTruppenLabel = SKLabelNode(text: nordrheinWestfalenAnzahlTruppen)
         nordrheinWestfalenAnzahlTruppenLabel.name = nordrheinWestfalen?.blNameString
@@ -442,7 +432,6 @@ class GermanMap: SKScene {
         rheinlandPfalz = Bundesland(blName: BundeslandEnum.RheinlandPfalz, texture: SKTexture(imageNamed: "RheinlandPfalz_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         rheinlandPfalz?.setPosition()
-        rheinlandPfalz?.anzahlTruppen = 21
         let rheinlandPfalzAnzahlTruppen = String(rheinlandPfalz?.anzahlTruppen ?? Int())
         rheinlandPfalzAnzahlTruppenLabel = SKLabelNode(text: rheinlandPfalzAnzahlTruppen)
         rheinlandPfalzAnzahlTruppenLabel.name = rheinlandPfalz?.blNameString
@@ -454,7 +443,6 @@ class GermanMap: SKScene {
         saarland = Bundesland(blName: BundeslandEnum.Saarland, texture: SKTexture(imageNamed: "Saarland_blue"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         saarland?.setPosition()
-        saarland?.anzahlTruppen = 2
         let saarlandAnzahlTruppen = String(saarland?.anzahlTruppen ?? Int())
         saarlandAnzahlTruppenLabel = SKLabelNode(text: saarlandAnzahlTruppen)
         saarlandAnzahlTruppenLabel.name = saarland?.blNameString
@@ -466,7 +454,6 @@ class GermanMap: SKScene {
         sachsen = Bundesland(blName: BundeslandEnum.Sachsen, texture: SKTexture(imageNamed: "Sachsen_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         sachsen?.setPosition()
-        sachsen?.anzahlTruppen = 68
         let sachsenAnzahlTruppen = String(sachsen?.anzahlTruppen ?? Int())
         sachsenAnzahlTruppenLabel = SKLabelNode(text: sachsenAnzahlTruppen)
         sachsenAnzahlTruppenLabel.name = sachsen?.blNameString
@@ -478,7 +465,6 @@ class GermanMap: SKScene {
         sachsenAnhalt = Bundesland(blName: BundeslandEnum.SachsenAnhalt, texture: SKTexture(imageNamed: "SachsenAnhalt_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         sachsenAnhalt?.setPosition()
-        sachsenAnhalt?.anzahlTruppen = 11
         let sachsenAnhaltAnzahlTruppen = String(sachsenAnhalt?.anzahlTruppen ?? Int())
         sachsenAnhaltAnzahlTruppenLabel = SKLabelNode(text: sachsenAnhaltAnzahlTruppen)
         sachsenAnhaltAnzahlTruppenLabel.name = sachsenAnhalt?.blNameString
@@ -489,7 +475,6 @@ class GermanMap: SKScene {
         // Schleswig-Holstein:
         schleswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: "SchleswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         schleswigHolstein?.setPosition()
-        schleswigHolstein?.anzahlTruppen = 18
         let schleswigHolsteinAnzahlTruppen = String(schleswigHolstein?.anzahlTruppen ?? Int())
         schleswigHolsteinAnzahlTruppenLabel = SKLabelNode(text: schleswigHolsteinAnzahlTruppen)
         schleswigHolsteinAnzahlTruppenLabel.name = schleswigHolstein?.blNameString
@@ -501,7 +486,6 @@ class GermanMap: SKScene {
         thueringen = Bundesland(blName: BundeslandEnum.Thueringen, texture: SKTexture(imageNamed: "Thueringen_red"),
             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         thueringen?.setPosition()
-        thueringen?.anzahlTruppen = 15
         let thueringenAnzahlTruppen = String(thueringen?.anzahlTruppen ?? Int())
         thueringenAnzahlTruppenLabel = SKLabelNode(text: thueringenAnzahlTruppen)
         thueringenAnzahlTruppenLabel.name = thueringen?.blNameString
@@ -584,7 +568,6 @@ class GermanMap: SKScene {
             }
         }
     }
-
     
     // Initialisieren des Geld-Labels des Spielers
     func initCoinLabel(){
