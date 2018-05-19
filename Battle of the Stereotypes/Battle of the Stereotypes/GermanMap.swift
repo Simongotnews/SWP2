@@ -61,6 +61,11 @@ class GermanMap: SKScene {
     
     //Label für das Geld des Spielers
     var coinLabel: SKLabelNode!
+    //Label für die Verschiebenansicht
+    var truppenVerschiebenAnsichtLabel: SKLabelNode!
+    //Label für die Angriffsansicht (GemanMap)
+    var angriffAnsichtLabel: SKLabelNode!
+    
     
     var mapSize:(width:CGFloat, height:CGFloat) = (0.0, 0.0)  // globale Groeße welche in allen Funktionen verwendet werden kann.
     
@@ -151,6 +156,12 @@ class GermanMap: SKScene {
             
             //initialisiere Coins-Label
             initCoinLabel()
+            
+            //initialisiere Angriff-Label
+            initAngriffLabel() //neu
+            
+            //initialisiere Truppen-Verschieben-Label
+            initTruppenVerschiebenLabel() //neu
             
             initialized = true
             print("GermanMapScene didMove finished")
@@ -572,7 +583,7 @@ class GermanMap: SKScene {
     // Initialisieren des Geld-Labels des Spielers
     func initCoinLabel(){
         
-        coinLabel  = SKLabelNode(text: "\(player1.getCoins()) Münzen")
+        coinLabel  = SKLabelNode(text: "\(player1.getCoins()) €")
         coinLabel.position = CGPoint(x: -80, y: 255)
         coinLabel.fontName = "AvenirNext-Bold"
         coinLabel.fontColor = UIColor.black
@@ -581,6 +592,35 @@ class GermanMap: SKScene {
         
         statsSide.addChild(coinLabel)
     }
+    
+    // Initialisieren des Truppen-Verschieben-Labels
+    func initTruppenVerschiebenLabel(){
+        
+        truppenVerschiebenAnsichtLabel  = SKLabelNode(text: "Truppen verschieben")
+        truppenVerschiebenAnsichtLabel.position = CGPoint(x: 5, y: 130)
+        truppenVerschiebenAnsichtLabel.fontName = "AvenirNext-Bold"
+        truppenVerschiebenAnsichtLabel.fontColor = UIColor.black
+        truppenVerschiebenAnsichtLabel.fontSize = 25
+        truppenVerschiebenAnsichtLabel.alpha = 10
+        truppenVerschiebenAnsichtLabel.isHidden = true
+        
+        
+        statsSide.addChild(truppenVerschiebenAnsichtLabel)
+    }
+    
+    // Initialisieren des Angriff-Labels
+    func initAngriffLabel(){
+        
+        angriffAnsichtLabel  = SKLabelNode(text: "Angriff")
+        angriffAnsichtLabel.position = CGPoint(x: -80, y: 160)
+        angriffAnsichtLabel.fontName = "AvenirNext-Bold"
+        angriffAnsichtLabel.fontColor = UIColor.black
+        angriffAnsichtLabel.fontSize = 25
+        angriffAnsichtLabel.alpha = 10
+        
+        statsSide.addChild(angriffAnsichtLabel)
+    }
+    
     
     
     func initPlayButton() {

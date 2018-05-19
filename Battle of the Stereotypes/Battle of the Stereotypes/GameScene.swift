@@ -108,7 +108,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.physicsWorld.contactDelegate = self
             
             initBackground()
-            initBackButton()
+            
             initDummys()
             initDummyLabels()
             initStatusLabel()
@@ -484,9 +484,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
         
-        //wenn Back-Button gedrückt wurde, zur Bundesländer-Übersicht wechseln
+        //wenn Rückzug-Button gedrückt wurde, noch ein einziges Mal werfen durch Gegner zulassen, dann zur Bundesländer-Übersicht wechseln
         if backButton != nil {
             if backButton.isPressable == true && backButton.contains(touch.location(in: self)) {
+                
                 transitToGermanMap()
                 return
             }
