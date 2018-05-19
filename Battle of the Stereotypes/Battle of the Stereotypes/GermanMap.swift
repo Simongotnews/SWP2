@@ -158,10 +158,10 @@ class GermanMap: SKScene {
             initCoinLabel()
             
             //initialisiere Angriff-Label
-            initAngriffLabel() //neu
+            initAngriffLabel()
             
             //initialisiere Truppen-Verschieben-Label
-            initTruppenVerschiebenLabel() //neu
+            initTruppenVerschiebenLabel() 
             
             initialized = true
             print("GermanMapScene didMove finished")
@@ -597,7 +597,7 @@ class GermanMap: SKScene {
     func initTruppenVerschiebenLabel(){
         
         truppenVerschiebenAnsichtLabel  = SKLabelNode(text: "Truppen verschieben")
-        truppenVerschiebenAnsichtLabel.position = CGPoint(x: 5, y: 130)
+        truppenVerschiebenAnsichtLabel.position = CGPoint(x: 5, y: 160)
         truppenVerschiebenAnsichtLabel.fontName = "AvenirNext-Bold"
         truppenVerschiebenAnsichtLabel.fontColor = UIColor.black
         truppenVerschiebenAnsichtLabel.fontSize = 25

@@ -488,7 +488,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if backButton != nil {
             if backButton.isPressable == true && backButton.contains(touch.location(in: self)) {
                 
-                transitToGermanMap()
+                transitToGermanMap(transitToAngriffAnsicht: false)
                 return
             }
         }
@@ -634,7 +634,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if(leftDummyHealth == 0 || rightDummyHealth == 0){
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
-                self.transitToGermanMap()
+                self.transitToGermanMap(transitToAngriffAnsicht: true)
             })
         }
     }
@@ -687,7 +687,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         germanMapReference.table.update()
     }
     
-    func transitToGermanMap(){
+    func transitToGermanMap(transitToAngriffAnsicht : Bool){  //German Map Scene laden, Parameter: wenn transitToAngriffAnsicht true ist, wird AngriffAnsicht geladen, sonst Verschiebenansicht
         audioPlayer.stop()
         buttonMusik.removeFromSuperview()
         buttonSound.removeFromSuperview()
@@ -695,6 +695,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // TODO: Switch Turn später duch Turn abgeben im GameCenterHelper ersetzen
         //germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1  //CHECK FOR CRASH
         //germanMapReference.activePlayerID = 0
+        
+        
+        if (transitToAngriffAnsicht == false){ //VerschiebenAnsicht soll geladen werden
+        germanMapReference.truppenVerschiebenAnsichtLabel.isHidden = false
+        germanMapReference.angriffAnsichtLabel.isHidden = true
+           
+            //weiterer Verschiebeansichtcode hier
+            
+        }
+        
+        if (transitToAngriffAnsicht == true){ //Angriffsansicht soll geladen werden
+            germanMapReference.truppenVerschiebenAnsichtLabel.isHidden = true //Truppen-Verschieben-Label ausblenden
+            germanMapReference.angriffAnsichtLabel.isHidden = false //Angriffsansichtlabel einblenden
+        }
+        
         self.view?.presentScene(germanMapReference)
     }
     
