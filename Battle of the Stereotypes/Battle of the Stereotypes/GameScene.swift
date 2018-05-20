@@ -553,7 +553,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //wenn man gerade nicht aktiv ist, darf man nichts machen
+        // wenn man gerade nicht aktiv ist, darf man nichts machen
         if (touchpadLocked) {
             return
         }

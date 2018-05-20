@@ -378,7 +378,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
                     self.mergeCompletedExchangeToSave(exchange: exchange)
                 }
-                //StartScene.germanMapScene.gameScene.updateStats()
+                // StartScene.germanMapScene.gameScene.updateStats()
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
                 print(error as Any)
