@@ -291,6 +291,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     if (self.currentMatch.exchanges != nil) {
                         for activeExchange in self.currentMatch.exchanges!{
                             if ((activeExchange.sender?.player == GKLocalPlayer.localPlayer())&&(activeExchange.status.rawValue != 3)){
+                                print("Canceling Exchange")
                                 self.cancelExchange(exchange: activeExchange)
                             }
                         }
@@ -374,14 +375,19 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         var exchangeReply = GameState.StructGenericExchangeReply()
         exchangeReply.actionCompleted = true
         print(GameState.genericExchangeReplyToString(genericExchangeReply: exchangeReply))
+        print("MessageKey: \(exchange.message)")
+        
         exchange.reply(withLocalizableMessageKey: exchange.message! , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: exchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
                 print("ExchangeReply erfolgreich verschickt")
                 //TODO Skeltek: Hier unbedingt Merge einbauen, da es nicht anders geht
-                //if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer()){
-                //    self.mergeCompletedExchangeToSave(exchange: exchange)
-                //}
+                print("Exchange-Nachricht: \(exchange.message)")
+                print("GameState.Identifier: \(GameState.IdentifierThrowExchange)")
+                if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){//}&& exchange.message == GameState.IdentifierThrowExchange){
+                    self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
+                    self.mergeCompletedExchangeToSave(exchange: exchange)
+                }
                 //StartScene.germanMapScene.gameScene.updateStats()
             } else {
                 print("Fehler beim ExchangeRequest beantworten")
@@ -404,10 +410,12 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             ("Vermutlich timed-out Exchanges gefunden")
             if (exchange.sender?.player==player){
                 //if (GKLocalPlayer.localPlayer() == player){
+                print("Canceling Exchange")
                     cancelExchange(exchange: exchange)
                 //}
                 return
             } else {
+                print("Not my Exchange, aborting")
                 return
             }
         }
