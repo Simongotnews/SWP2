@@ -12,7 +12,7 @@ import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     let sceneID = 2
-    
+    var damageSent : Bool = false
     //Sound
     var audioPlayer = AVAudioPlayer()
     var hintergrundMusik: URL?
@@ -595,10 +595,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact){
         if (!didCollide && ((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) == (weaponCategory|groundCategory))){
             didCollide = true
+            if(!damageSent && GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
+            }
         }
         if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
             didCollide = true
-            projectileDidCollideWithDummy(contact)
+            if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+                projectileDidCollideWithDummy(contact) }
             //Sound bei Treffer
             if(statusSound){
                 ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
@@ -608,10 +612,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func projectileDidCollideWithDummy(_ contact : SKPhysicsContact) {
         //ball.removeFromParent()
+        var damageExchange = GameState.StructDamageExchangeRequest()
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
             updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummyHealth)
             leftDummy.blink()
             leftDummyHealth -= Int(floor(contact.collisionImpulse/32))
+            damageExchange.damage = Int(floor(contact.collisionImpulse/32))
             leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
             if leftDummyHealth < 0 {
                 leftDummyHealth = 0
@@ -622,6 +628,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             updateStatistics(attackerIndex: 1, defenderIndex: 3, health: rightDummyHealth)
             rightDummy.blink()
             rightDummyHealth -= Int(floor(contact.collisionImpulse/32))
+            damageExchange.damage = Int(floor(contact.collisionImpulse/32))
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             if rightDummyHealth < 0 {
                 rightDummyHealth = 0
@@ -635,6 +642,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
                 self.transitToGermanMap()
             })
+        }
+        
+        if(!damageSent && GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+            damageSent = true
+            GameCenterHelper.getInstance().sendExchangeRequest(structToSend: damageExchange, messageKey: GameState.IdentifierDamageExchange)
         }
     }
     
@@ -660,6 +672,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        if(damageSent || GameCenterHelper.getInstance().gameState.turnOwnerActive != GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+            return
+        }
+        if(ball != nil) {
+            if(ball.position.x >= self.frame.width && ball.position.x <= -self.frame.width) {
+                damageSent = true
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
+            }
+        }
     }
     
     func updateStatistics( attackerIndex: Int,  defenderIndex: Int,  health: Int){

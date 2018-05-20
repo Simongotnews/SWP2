@@ -19,8 +19,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** ViewController, der darunterliegt. Sollte nicht mit nil belegt werden, da sonst die Anwendung abstürzt */
     var underlyingViewController : UIViewController!
-    /** wartet auf ExchangeReply */
-    var isWaitingOnReply = false
     /** aktuelles Match */
     var currentMatch : GKTurnBasedMatch!
     /** Variable ob GameCenter aktiv ist */
@@ -188,14 +186,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         currentMatch.endMatchInTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: nil)
     }
     
-    
-    
-    
-    
-    
-    
-    //Alles betreffend Turns + Spielstand:
-    
+    /*
+       Alles betreffend Turns + Spielstand:
+     */
+ 
     /**Index des Spielerstellers */
     func getIndexOfGameOwner() -> Int {
         for participant in currentMatch.participants!{
@@ -338,8 +332,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         })
     }
     
-    // GKLocalPlayerListener Methoden
-    
     /** Methode zum Turnevent abhandeln */
     func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
         print("Turn Event erhalten")
@@ -351,8 +343,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         //self.workExchangesAfterReloadTest()
     }
-    
-    /** */
     
     /** Spieler erhält einen Exchange Request */
     func player(_ player: GKPlayer, receivedExchangeRequest exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
@@ -398,7 +388,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Spieler erhält Information das der Exchange abgebrochen wurde */
     func player(_ player: GKPlayer, receivedExchangeCancellation exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
-        isWaitingOnReply = false
         print("Exchange abgebrochen")
     }
     
@@ -551,7 +540,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeStruct(structToEncode: structToSend), localizableMessageKey: messageKey, arguments: ["X","Y"], timeout: TimeInterval(timeOutDebug), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
-                self.isWaitingOnReply = true
             } else {
                 print("[" + String(describing: self) + "]" + "Fehler beim ExchangeRequest senden")
                 print(error as Any)
@@ -559,7 +547,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         })
     }
 
-    /** TODO: Implementieren */
+    /** Method um ArrowExchange Requests anzuhandeln */
     func handleArrowExchange(arrowExchange : GameState.StructArrowExchangeRequest) {
         //TODO: Skeltek Wenn nicht richtige Ansicht, erstmal nicht ausführen
         print(GameState.arrowExchangeRequestToString(arrowExchangeRequest: arrowExchange))
@@ -571,7 +559,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
     }
     
-    /** TODO: Implementieren */
+    /** Methode um ThrowExchange Requests abzuhandeln */
     func handleThrowExchange(throwExchange : GameState.StructThrowExchangeRequest) {
         print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchange))
         
@@ -583,12 +571,17 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
     }
     
-    /** TODO: Implementieren */
+    /** Methode um DamageExchange Requests anzuhandeln */
     func handleDamageExchange(damageExchange : GameState.StructDamageExchangeRequest) {
+        if(getIndexOfLocalPlayer() == StartScene.germanMapScene.gameScene.leftDummyID) {
+            StartScene.germanMapScene.gameScene.leftDummyHealth -= damageExchange.damage
+        } else {
+            StartScene.germanMapScene.gameScene.rightDummyHealth -= damageExchange.damage
+        }
         print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchange))
     }
     
-    /** TODO: Implementieren */
+    /** Methode um AttackButtonExchange Requests abzuhandeln */
     func handleAttackButtonExchange(attackButtonExchange : GameState.StructAttackButtonExchangeRequest) {
         print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchange))
         // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
