@@ -247,7 +247,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         if (!((exchange.replies?.count != nil)&&(exchange.replies!.count > 0))){    //Wenn keine Antworten -> Vermutlich Timeout Completion
             ("Vermutlich timed-out Exchanges gefunden")
             if (exchange.sender?.player==player){
-                cancelExchange(exchange: exchange)
+                //if (GKLocalPlayer.localPlayer() == player){
+                    cancelExchange(exchange: exchange)
+                //}
                 return
             } else {
                 return
@@ -430,6 +432,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     }
     
     func mergeCompletedExchangeToSave(exchange : GKTurnBasedExchange) -> Void{
+        if(!isLocalPlayersTurn()) {
+            print("CompletedExchangesToSave: Merge fehlgeschlagen weil man nicht am Zug ist")
+            return
+        }
         currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: [exchange], completionHandler: {(error: Error?) -> Void in
             if (error != nil){
                 print("CompletedExchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
