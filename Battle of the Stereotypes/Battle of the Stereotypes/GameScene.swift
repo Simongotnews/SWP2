@@ -14,6 +14,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let sceneID = 2
     var damageSent : Bool = false
     var throwUnderway : Bool = false
+    var passiveThrow : Bool = false
     //Sound
     var audioPlayer = AVAudioPlayer()
     var hintergrundMusik: URL?
@@ -472,10 +473,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
-        //Skeltek: Für Testzwecke
-        //GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructTestExchangeReply(), messageKey: GameState.IdentifierTestExchange)
-        //return
-        
         print("Spieler aktiv: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
         print("Eigene ID: \(germanMapReference.player1.id)")
         print("leftDummyID: \(leftDummyID)")
@@ -603,6 +600,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             didCollide = true
             if(!damageSent && GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+            } else {
+                if(!passiveThrow){
+                    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+                }
+                passiveThrow=false  //Beschreibung eigentlich falsch
             }
         }
         if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
@@ -654,6 +657,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             damageSent = true
             throwUnderway = false   //TODO Skeltek: Vermultich hier überflüssig
             GameCenterHelper.getInstance().sendExchangeRequest(structToSend: damageExchange, messageKey: GameState.IdentifierDamageExchange)
+            //GameCenterHelper.getInstance().mergeCompletedExchangesToSave(exchanges: GameCenterHelper.getInstance().tempExchanges)
+        } else{
+            if (!passiveThrow){
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+            }
+            passiveThrow = false
         }
     }
     
@@ -680,6 +689,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
         if(damageSent || GameCenterHelper.getInstance().gameState.turnOwnerActive != GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+            //TODO Skeltek: Hier eigentlich noch den Merge Request verschicken.
             return
         }
         if(ball != nil) {

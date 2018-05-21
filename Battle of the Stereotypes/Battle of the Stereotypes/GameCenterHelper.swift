@@ -304,7 +304,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     print("Keine Daten gefunden -> Speichere Daten in GameCenter")
                     //Daten neu initialisieren für neues Spiel; um Daten alten geladenen Spiels zu löschen
                     self.gameState.currentScene = 0
-                    self.gameState.turnOwnerActive = 0
+                    self.gameState.turnOwnerActive = 1
                     self.saveGameDataToGameCenter()
                 }
             } else {
@@ -351,21 +351,25 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         case GameState.IdentifierArrowExchange:
             print("ArrowExchange empfangen")
             handleArrowExchange(arrowExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructArrowExchangeRequest()))
+        case GameState.IdentifierAttackButtonExchange:
+            print("AttackExchange empfangen")
+            handleAttackButtonExchange(attackButtonExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructAttackButtonExchangeRequest()))
+
         case GameState.IdentifierThrowExchange:
             print("ThrowExchange empfangen")
             tempExchanges.append(exchange)
             testExchange = exchange
             handleThrowExchange(throwExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructThrowExchangeRequest()), exchange: exchange)
+            return
         case GameState.IdentifierDamageExchange:
             tempExchanges.append(exchange)
             handleDamageExchange(damageExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructDamageExchangeRequest()), exchange: exchange)
-        case GameState.IdentifierAttackButtonExchange:
-            print("AttackExchange empfangen")
-            handleAttackButtonExchange(attackButtonExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructAttackButtonExchangeRequest()))
+            return
         case GameState.IdentifierMergeRequestExchange:
             print("Anfrage zum Mergen erhalten")
             tempExchanges.append(exchange)
             handleMergeRequestExchange(mergeRequestExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructMergeRequestExchange()), exchangeToReplyTo: exchange)
+            return
         case GameState.IdentifierTestExchange:
             print("TestExchange empfangen")
             testExchange = exchange
@@ -431,6 +435,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("TestExchange gemerged")
             }
             return
+        }
+        if (getIndexOfLocalPlayer() != getIndexOfCurrentPlayer() && exchange.message == GameState.IdentifierDamageExchange){
+            print("sending MergeRequest")
+            sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
         }
 
 
@@ -600,6 +608,14 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
     }
     
+    /** Methode um AttackButtonExchange Requests abzuhandeln */
+    func handleAttackButtonExchange(attackButtonExchangeStruct : GameState.StructAttackButtonExchangeRequest) {
+        print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchangeStruct))
+        // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
+        StartScene.germanMapScene.transitToGameScene()
+    }
+    
+    
     /** Methode um ThrowExchange Requests abzuhandeln */
     func handleThrowExchange(throwExchangeStruct : GameState.StructThrowExchangeRequest, exchange : GKTurnBasedExchange?) {
         print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchangeStruct))
@@ -610,6 +626,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         // Hier Schuss simulieren
         StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchangeStruct.xImpulse, yImpulse: throwExchangeStruct.yImpulse)
+        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierThrowExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructMergeRequestExchangeReply()), completionHandler: nil)
     }
     
     /** Methode um DamageExchange Requests anzuhandeln */
@@ -621,13 +638,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         StartScene.germanMapScene.gameScene.throwUnderway = false
         print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchangeStruct))
-    }
-    
-    /** Methode um AttackButtonExchange Requests abzuhandeln */
-    func handleAttackButtonExchange(attackButtonExchangeStruct : GameState.StructAttackButtonExchangeRequest) {
-        print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchangeStruct))
-        // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
-        StartScene.germanMapScene.transitToGameScene()
+        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructDamageExchangeRequest()), completionHandler: nil)
     }
     
     /** Führt Merge der zum letzten Angriff gehörigen Exchanges durch */
@@ -644,6 +655,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
         })
     }
+    
     
     /** Methode um Exchange für Testzwecke zu verschicken */
     let testExchangeReply = GameState.StructTestExchangeReply()
