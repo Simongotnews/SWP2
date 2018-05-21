@@ -13,6 +13,7 @@ import AVFoundation
 class GameScene: SKScene, SKPhysicsContactDelegate {
     let sceneID = 2
     var damageSent : Bool = false
+    var throwUnderway : Bool = false
     //Sound
     var audioPlayer = AVAudioPlayer()
     var hintergrundMusik: URL?
@@ -424,7 +425,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         statusLabel.text = statusText
     }
     
-    func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
+    func throwProjectile(xImpulse : Double, yImpulse : Double, passivelyThrown : Bool? = false) { //Wurf des Projektils, Flugbahn
+        throwUnderway = true
         
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
@@ -470,6 +472,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
+        //Skeltek: Für Testzwecke
+        //GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructTestExchangeReply(), messageKey: GameState.IdentifierTestExchange)
+        //return
+        
         print("Spieler aktiv: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
         print("Eigene ID: \(germanMapReference.player1.id)")
         print("leftDummyID: \(leftDummyID)")
@@ -646,6 +652,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if(!damageSent && GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
             damageSent = true
+            throwUnderway = false   //TODO Skeltek: Vermultich hier überflüssig
             GameCenterHelper.getInstance().sendExchangeRequest(structToSend: damageExchange, messageKey: GameState.IdentifierDamageExchange)
         }
     }

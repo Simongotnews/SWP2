@@ -17,6 +17,8 @@ class GameState {
     static let IdentifierAttackButtonExchange = "Wechseln in die Kampfansicht"
     static let IdentifierThrowExchange = "Gegner hat Schuss abgefeuert"
     static let IdentifierDamageExchange = "Gegner hat Schaden gemacht"
+    static let IdentifierMergeRequestExchange = "Merge von AttackExchange beantragt"
+    static let IdentifierTestExchange = "TextExchange-Ping"
     /** String, um bei der Übertragung einzelne Werte zu trennen */
     static let seperator : String = "|"
     
@@ -76,6 +78,11 @@ class GameState {
         var damage: Int = 0
     }
     
+    /** ExchangeRequest um Merge vorheriger Exchanges anzufirdern */
+    struct StructMergeRequestExchange : Codable {
+        var saveRequested: Bool = true
+    }
+    
     /*
       Structs für ExchangeReply
     */
@@ -84,6 +91,16 @@ class GameState {
     struct StructGenericExchangeReply : Codable {
         /** Nachricht das der Spieler in die Kampfansicht gewechselt hat */
         var actionCompleted : Bool = false
+    }
+    
+    /** Antwort auf MergeRequestExchange. Bestätigung des Anforderungs-Erhaltes */
+    struct StructMergeRequestExchangeReply: Codable {
+        var mergeRequestReceived: Bool = true
+    }
+
+    /** Antwort auf TextExchange. Dient zum Pingen und Debug-Zwecke */
+    struct StructTestExchangeReply : Codable {
+        var pingWasPonged : Bool = true
     }
     
     /*

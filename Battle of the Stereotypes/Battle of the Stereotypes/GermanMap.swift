@@ -12,6 +12,9 @@ import AVFoundation
 
 class GermanMap: SKScene {
     let sceneID = 1
+    //TouchPad-Sperre
+    var touchpadLocked = false
+    var touchEnabled = true
     
     //Sound
     var audioPlayer = AVAudioPlayer()
@@ -210,6 +213,12 @@ class GermanMap: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if (touchpadLocked){
+            touchEnabled = false    //soll touchEnded abschalten, wenn nicht zuvor touch Began stattfand
+            return
+        }
+        touchEnabled = true
+        
         let touch:UITouch = touches.first!
         touchesBeganLocation = touch.location(in: self)
         
@@ -221,8 +230,6 @@ class GermanMap: SKScene {
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
-                //der angreifende Spieler ist aktiv und darf dann zuerst werfen in der Kampfszene
-                //activePlayerID = GameCenterHelper.getInstance().gameState.turnOwnerActive //CHECK FOR CRASH
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
@@ -255,6 +262,9 @@ class GermanMap: SKScene {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if (!touchEnabled){ //verhindert ein touchEnded, wenn nicht zuvor touchBegan stattfand
+            return
+        }
         let touch:UITouch = touches.first!
         touchesEndedLocation = touch.location(in: self)
         
@@ -265,6 +275,10 @@ class GermanMap: SKScene {
             blVerteidiger = getBundesland(bundeslandName!)
         }
         if(isAttackValid()){
+            touchpadLocked = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
+                self.touchpadLocked = false
+            })
             setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
             showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
 
