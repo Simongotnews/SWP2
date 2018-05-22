@@ -688,14 +688,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
-        if(damageSent || GameCenterHelper.getInstance().gameState.turnOwnerActive != GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
-            //TODO Skeltek: Hier eigentlich noch den Merge Request verschicken.
-            return
-        }
-        if(ball != nil) {
+        if(!damageSent && ball != nil) {
             if(ball.position.x >= self.frame.width && ball.position.x <= -self.frame.width) {
                 damageSent = true
-                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
+                if (GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
+                    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
+                } else if(GameCenterHelper.getInstance().getIndexOfCurrentPlayer() != GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
+                    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+                }
             }
         }
     }

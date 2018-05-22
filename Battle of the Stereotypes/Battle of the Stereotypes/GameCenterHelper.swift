@@ -199,6 +199,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         return -1
     }
+    
     /** Gibt Index des Spieler welcher am Zug/Turn ist */
     func getIndexOfCurrentPlayer() -> Int {
         for participant in self.currentMatch.participants!{
@@ -344,9 +345,74 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         //self.workExchangesAfterReloadTest()
     }
     
+    /** Soll später die Exchanges abarbeiten, welche nach dem Start der App empfangen werden */
+    func workExchangesAfterReloadTest(){
+        if (true){
+            if (currentMatch.exchanges?.count != nil){
+                for exchange in currentMatch.exchanges!{
+                    if (!(exchange.sender?.player?.playerID != GKLocalPlayer.localPlayer().playerID)){
+                        if (exchange.status.rawValue != 3){
+                            handleThrowExchange(throwExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructThrowExchangeRequest()), exchange: exchange)
+                            
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    var tempExchanges : [GKTurnBasedExchange] = [GKTurnBasedExchange]()
+
+    /** Listet alle Exchanges auf, welche nicht abgeschlossen sind */
+    func listExchanges(){
+        if (currentMatch.exchanges?.count != nil){
+            print("Aktuelle Liste der Exchanges")
+            for exchange in currentMatch.exchanges!{
+                print("Exchange#\(String(describing: exchange.sendDate)) -Status: \(exchange.status.rawValue)")
+            }
+        }
+    }
+    
+    /** Methode, wenn der lokale Spieler einen Exchange Request schicken will */
+    func sendExchangeRequest<T : Codable>(structToSend : T, messageKey : String)
+    {
+        var nextParticipant : GKTurnBasedParticipant
+        nextParticipant = currentMatch.participants![getIndexOfOtherPlayer()]
+        var timeOutDebug = 2.0  //Variable um Timeouts dynamisch einzustellen
+        if (GameViewController.debugMode) {timeOutDebug = 1.0} else {timeOutDebug = 5.0}
+        // Ausgabe geht hier nicht weil man die Art des übergebenen Structs nicht kennt
+        currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeStruct(structToEncode: structToSend), localizableMessageKey: messageKey, arguments: ["X","Y"], timeout: TimeInterval(timeOutDebug), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
+            if(error == nil ) {
+                // Operation erfolgreich
+            } else {
+                print("[" + String(describing: self) + "]" + "Fehler beim ExchangeRequest senden")
+                print(error as Any)
+            }
+        })
+    }
+    
+    /** Bricht eine aktive oder abgeschlossene Exchange ab, solange nicht gemerged wurde */
+    func cancelExchange(exchange : GKTurnBasedExchange) -> Void{
+        if (exchange.sender?.player == GKLocalPlayer.localPlayer()){
+            exchange.cancel(withLocalizableMessageKey: exchange.message!, arguments: ["X", "XY"], completionHandler: {(error: Error?) -> Void in
+                if (error != nil){
+                    print("Fehler beim Löschen einer Exchange. Probiere sie stattdessen aufzulösen")
+                    self.mergeCompletedExchangeToSave(exchange: exchange)
+                } else {
+                    print("Eine Exchange gelöscht")
+                    if (GameViewController.debugMode){
+                        self.mergeCompletedExchangeToSave(exchange: exchange)
+                        if (GameViewController.currentlyShownSceneNumber == 2){
+                            StartScene.germanMapScene.gameScene.updateStats()
+                        }
+                    }
+                }
+            })
+        }
+    }
+    
     /** Spieler erhält einen Exchange Request */
     func player(_ player: GKPlayer, receivedExchangeRequest exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
-        print("Hier")
         switch exchange.message {
         case GameState.IdentifierArrowExchange:
             print("ArrowExchange empfangen")
@@ -362,6 +428,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             handleThrowExchange(throwExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructThrowExchangeRequest()), exchange: exchange)
             return
         case GameState.IdentifierDamageExchange:
+            print("SchadenExchange empfangen")
             tempExchanges.append(exchange)
             handleDamageExchange(damageExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructDamageExchangeRequest()), exchange: exchange)
             return
@@ -385,7 +452,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         exchangeReply.actionCompleted = true
         print(GameState.genericExchangeReplyToString(genericExchangeReply: exchangeReply))
         print("MessageKey: \(exchange.message)")
-        
         exchange.reply(withLocalizableMessageKey: exchange.message! , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: exchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 // Operation erfolgreich
@@ -409,6 +475,94 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func player(_ player: GKPlayer, receivedExchangeCancellation exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
         print("Exchange abgebrochen")
     }
+    
+    /** Method um ArrowExchange Requests anzuhandeln */
+    func handleArrowExchange(arrowExchangeStruct : GameState.StructArrowExchangeRequest) {
+        //TODO: Skeltek Wenn nicht richtige Ansicht, erstmal nicht ausführen
+        print(GameState.arrowExchangeRequestToString(arrowExchangeRequest: arrowExchangeStruct))
+        if (GameViewController.currentlyShownSceneNumber == 1 ){
+            StartScene.germanMapScene.blVerteidiger = StartScene.germanMapScene.getBundesland(arrowExchangeStruct.endBundesland)
+            StartScene.germanMapScene.blAngreifer = StartScene.germanMapScene.getBundesland(arrowExchangeStruct.startBundesland)
+        } else {
+            print("Something went wrong handling ArrowExchange")
+        }
+    }
+    
+    /** Methode um AttackButtonExchange Requests abzuhandeln */
+    func handleAttackButtonExchange(attackButtonExchangeStruct : GameState.StructAttackButtonExchangeRequest) {
+        print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchangeStruct))
+        // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
+        StartScene.germanMapScene.transitToGameScene()
+    }
+    
+    
+    /** Methode um ThrowExchange Requests abzuhandeln */
+    func handleThrowExchange(throwExchangeStruct : GameState.StructThrowExchangeRequest, exchange : GKTurnBasedExchange?) {
+        print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchangeStruct))
+        
+        if (GameViewController.currentlyShownSceneNumber != 2){
+            print("Exchange Request bekommen aber nicht durchführbar")
+            return
+        }
+        // Hier Schuss simulieren
+        StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchangeStruct.xImpulse, yImpulse: throwExchangeStruct.yImpulse)
+        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierThrowExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructMergeRequestExchangeReply()), completionHandler: nil)
+    }
+    
+    /** Methode um DamageExchange Requests anzuhandeln */
+    func handleDamageExchange(damageExchangeStruct : GameState.StructDamageExchangeRequest, exchange : GKTurnBasedExchange?) {
+        if(getIndexOfLocalPlayer() == StartScene.germanMapScene.gameScene.leftDummyID) {
+            StartScene.germanMapScene.gameScene.leftDummyHealth -= damageExchangeStruct.damage
+        } else {
+            StartScene.germanMapScene.gameScene.rightDummyHealth -= damageExchangeStruct.damage
+        }
+        StartScene.germanMapScene.gameScene.throwUnderway = false
+        print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchangeStruct))
+        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructDamageExchangeRequest()), completionHandler: nil)
+    }
+    
+    /** Führt Merge der zum letzten Angriff gehörigen Exchanges durch */
+    func handleMergeRequestExchange(mergeRequestExchangeStruct: GameState.StructMergeRequestExchange, exchangeToReplyTo: GKTurnBasedExchange){
+        exchangeToReplyTo.reply(withLocalizableMessageKey: GameState.IdentifierMergeRequestExchange, arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: GameState.StructMergeRequestExchangeReply()), completionHandler: { (error: Error?) -> Void in
+            if error == nil {
+                print("MergeRequest bestätigt, merge drei Exchanges")
+                if (self.isLocalPlayersTurn()){
+                    self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
+                    self.mergeCompletedExchangesToSave(exchanges: self.tempExchanges)
+                    self.tempExchanges = [GKTurnBasedExchange]()
+                }
+            } else{
+                print("Fehler beim beauftragen Mergen: \(error as Any)")
+            }
+        })
+    }
+    
+    
+    /** Methode um Exchange für Testzwecke zu verschicken */
+    let testExchangeReply = GameState.StructTestExchangeReply()
+    var testExchange = GKTurnBasedExchange.init()
+    func handleTestExchange(testExchange: GKTurnBasedExchange) {
+        print("Testexchange erhalten")
+        testExchange.reply(withLocalizableMessageKey: GameState.IdentifierTestExchange , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: testExchangeReply), completionHandler: {(error: Error?) -> Void in
+            if(error == nil ) {
+                print("TestExchange-Reply erfolgreich verschickt")
+                if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){//}&& exchange.message == GameState.IdentifierThrowExchange){
+                    self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                        print("Dispatching assynchronous Thread")
+                        self.mergeCompletedExchangeToSave(exchange: testExchange)
+                        //GameCenterHelper.getInstance().delayedMergeTest()
+                    })
+                    //                    self.mergeCompletedExchangeToSave(exchange: testExchange)
+                }
+            } else {
+                print("Fehler beim TestExchange beantworten")
+                print(error as Any)
+            }
+        })
+    }
+    
+
     
     /** Wird aufgerufen, wenn eine Exchange von allen Empfängern beantwortet oder abgebrochen wurde. Empfänger: ExchangeAbsender + Turnowner */
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch){
@@ -474,15 +628,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
 
     }
     
-    /** Listet alle Exchanges auf, welche nicht abgeschlossen sind */
-    func listExchanges(){
-        if (currentMatch.exchanges?.count != nil){
-            print("Aktuelle Liste der Exchanges")
-            for exchange in currentMatch.exchanges!{
-                print("Exchange#\(String(describing: exchange.sendDate)) -Status: \(exchange.status.rawValue)")
-            }
-        }
-    }
+
 
     /** Markiert eine Echange als aufgelöst und speichert den aktuellen gameState */
     func mergeCompletedExchangeToSave(exchange : GKTurnBasedExchange) -> Void{
@@ -518,42 +664,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         })
     }
     
-    /** Bricht eine aktive oder abgeschlossene Exchange ab, solange nicht gemerged wurde */
-    func cancelExchange(exchange : GKTurnBasedExchange) -> Void{
-        if (exchange.sender?.player == GKLocalPlayer.localPlayer()){
-            exchange.cancel(withLocalizableMessageKey: exchange.message!, arguments: ["X", "XY"], completionHandler: {(error: Error?) -> Void in
-                if (error != nil){
-                    print("Fehler beim Löschen einer Exchange. Probiere sie stattdessen aufzulösen")
-                    self.mergeCompletedExchangeToSave(exchange: exchange)
-                } else {
-                    print("Eine Exchange gelöscht")
-                    if (GameViewController.debugMode){
-                        self.mergeCompletedExchangeToSave(exchange: exchange)
-                        if (GameViewController.currentlyShownSceneNumber == 2){
-                            StartScene.germanMapScene.gameScene.updateStats()
-                        }
-                    }
-                }
-            })
-        }
-    }
-    
 
-    /** Soll später die Exchanges abarbeiten, welche nach dem Start der App empfangen werden */
-    func workExchangesAfterReloadTest(){
-        if (true){
-            if (currentMatch.exchanges?.count != nil){
-                for exchange in currentMatch.exchanges!{
-                    if (!(exchange.sender?.player?.playerID != GKLocalPlayer.localPlayer().playerID)){
-                        if (exchange.status.rawValue != 3){
-                            handleThrowExchange(throwExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructThrowExchangeRequest()), exchange: exchange)
-                            
-                        }
-                    }
-                }
-            }
-        }
-    }
+
     
     /** Funktion um den GameState der auf GameCenter gespeichert wird zu updaten. Funktioniert nur wenn man am Zug ist. */
     func updateMatchData(gameStatus : GameState.StructGameState) {
@@ -574,110 +686,5 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print(error as Any)
             })
         }
-    }
-    
-    /** Methode, wenn der lokale Spieler einen Exchange Request schicken will */
-    func sendExchangeRequest<T : Codable>(structToSend : T, messageKey : String)
-    {
-        var nextParticipant : GKTurnBasedParticipant
-        nextParticipant = currentMatch.participants![getIndexOfOtherPlayer()]
-        var timeOutDebug = 2.0  //Variable um Timeouts dynamisch einzustellen
-        if (GameViewController.debugMode) {timeOutDebug = 1.0} else {timeOutDebug = 5.0}
-        // Ausgabe geht hier nicht weil man die Art des übergebenen Structs nicht kennt
-        currentMatch.sendExchange(to: [nextParticipant], data: GameState.encodeStruct(structToEncode: structToSend), localizableMessageKey: messageKey, arguments: ["X","Y"], timeout: TimeInterval(timeOutDebug), completionHandler: {(exchangeReq: GKTurnBasedExchange?,error: Error?) -> Void in
-            if(error == nil ) {
-                // Operation erfolgreich
-            } else {
-                print("[" + String(describing: self) + "]" + "Fehler beim ExchangeRequest senden")
-                print(error as Any)
-            }
-        })
-    }
-    
-    var tempExchanges : [GKTurnBasedExchange] = [GKTurnBasedExchange]()
-
-    /** Method um ArrowExchange Requests anzuhandeln */
-    func handleArrowExchange(arrowExchangeStruct : GameState.StructArrowExchangeRequest) {
-        //TODO: Skeltek Wenn nicht richtige Ansicht, erstmal nicht ausführen
-        print(GameState.arrowExchangeRequestToString(arrowExchangeRequest: arrowExchangeStruct))
-        if (GameViewController.currentlyShownSceneNumber == 1 ){
-            StartScene.germanMapScene.blVerteidiger = StartScene.germanMapScene.getBundesland(arrowExchangeStruct.endBundesland)
-            StartScene.germanMapScene.blAngreifer = StartScene.germanMapScene.getBundesland(arrowExchangeStruct.startBundesland)
-        } else {
-            print("Something went wrong handling ArrowExchange")
-        }
-    }
-    
-    /** Methode um AttackButtonExchange Requests abzuhandeln */
-    func handleAttackButtonExchange(attackButtonExchangeStruct : GameState.StructAttackButtonExchangeRequest) {
-        print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchangeStruct))
-        // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
-        StartScene.germanMapScene.transitToGameScene()
-    }
-    
-    
-    /** Methode um ThrowExchange Requests abzuhandeln */
-    func handleThrowExchange(throwExchangeStruct : GameState.StructThrowExchangeRequest, exchange : GKTurnBasedExchange?) {
-        print(GameState.throwExchangeRequestToString(throwExchangeRequest: throwExchangeStruct))
-        
-        if (GameViewController.currentlyShownSceneNumber != 2){
-            print("Exchange Request bekommen aber nicht durchführbar")
-            return
-        }
-        // Hier Schuss simulieren
-        StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchangeStruct.xImpulse, yImpulse: throwExchangeStruct.yImpulse)
-        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierThrowExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructMergeRequestExchangeReply()), completionHandler: nil)
-    }
-    
-    /** Methode um DamageExchange Requests anzuhandeln */
-    func handleDamageExchange(damageExchangeStruct : GameState.StructDamageExchangeRequest, exchange : GKTurnBasedExchange?) {
-        if(getIndexOfLocalPlayer() == StartScene.germanMapScene.gameScene.leftDummyID) {
-            StartScene.germanMapScene.gameScene.leftDummyHealth -= damageExchangeStruct.damage
-        } else {
-            StartScene.germanMapScene.gameScene.rightDummyHealth -= damageExchangeStruct.damage
-        }
-        StartScene.germanMapScene.gameScene.throwUnderway = false
-        print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchangeStruct))
-        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructDamageExchangeRequest()), completionHandler: nil)
-    }
-    
-    /** Führt Merge der zum letzten Angriff gehörigen Exchanges durch */
-    func handleMergeRequestExchange(mergeRequestExchangeStruct: GameState.StructMergeRequestExchange, exchangeToReplyTo: GKTurnBasedExchange){
-        exchangeToReplyTo.reply(withLocalizableMessageKey: GameState.IdentifierMergeRequestExchange, arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: GameState.StructMergeRequestExchangeReply()), completionHandler: { (error: Error?) -> Void in
-            if error == nil {
-                print("MergeRequest bestätigt, merge drei Exchanges")
-                if (self.isLocalPlayersTurn()){
-                    self.mergeCompletedExchangesToSave(exchanges: self.tempExchanges)
-                    self.tempExchanges = [GKTurnBasedExchange]()
-                }
-            } else{
-                print("Fehler beim beauftragen Mergen: \(error as Any)")
-            }
-        })
-    }
-    
-    
-    /** Methode um Exchange für Testzwecke zu verschicken */
-    let testExchangeReply = GameState.StructTestExchangeReply()
-    var testExchange = GKTurnBasedExchange.init()
-    func handleTestExchange(testExchange: GKTurnBasedExchange) {
-        print("Testexchange erhalten")
-        testExchange.reply(withLocalizableMessageKey: GameState.IdentifierTestExchange , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: testExchangeReply), completionHandler: {(error: Error?) -> Void in
-            if(error == nil ) {
-                print("TestExchange-Reply erfolgreich verschickt")
-                if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){//}&& exchange.message == GameState.IdentifierThrowExchange){
-                    self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                        print("Dispatching assynchronous Thread")
-                        self.mergeCompletedExchangeToSave(exchange: testExchange)
-                        //GameCenterHelper.getInstance().delayedMergeTest()
-                    })
-//                    self.mergeCompletedExchangeToSave(exchange: testExchange)
-                }
-            } else {
-                print("Fehler beim TestExchange beantworten")
-                print(error as Any)
-            }
-        })
     }
 }
