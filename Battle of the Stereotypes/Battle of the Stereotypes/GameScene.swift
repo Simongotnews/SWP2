@@ -98,9 +98,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var angreiferNameLabel: SKLabelNode!
     var verteidigerNameLabel: SKLabelNode!
     
-    var eigeneTruppenStaerke: Int = 0
-    var gegnerischeTruppenStaerke : Int = 0
-    
     var initialized : Bool = false
     override func didMove(to view: SKView) {
         GameViewController.currentlyShownSceneNumber = 2
@@ -642,24 +639,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy(_ contact : SKPhysicsContact) {
         //ball.removeFromParent()
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
-            updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummy.lifePoints)
             leftDummy.blink()
-            leftDummy.lifePoints -= Int(floor(contact.collisionImpulse/32))
-            leftDummyHealthLabel.text = "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)"
-            if leftDummy.lifePoints < 0 {
-                leftDummy.lifePoints = 0
-                leftDummyHealthLabel.text = "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)"
+            leftDummy.damage = Int(floor(contact.collisionImpulse/32))
+            if leftDummy.lifePoints > leftDummy.damage {
+                leftDummy.lifePoints -= leftDummy.damage
+            } else {
+                leftDummy.lifePoints -= leftDummy.lifePoints
+                updateStatistics(attackerIndex: 3, defenderIndex: 1)
             }
+            leftDummyHealthLabel.text = "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)"
+            
         }
         else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
-            updateStatistics(attackerIndex: 1, defenderIndex: 3, health: rightDummy.lifePoints)
             rightDummy.blink()
-            rightDummy.lifePoints -= Int(floor(contact.collisionImpulse/32))
-            rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
-            if rightDummy.lifePoints < 0 {
-                rightDummy.lifePoints = 0
-                rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
+            rightDummy.damage = Int(floor(contact.collisionImpulse/32))
+            if rightDummy.lifePoints > rightDummy.damage {
+                rightDummy.lifePoints -= rightDummy.damage
+            } else {
+                rightDummy.lifePoints -= rightDummy.lifePoints
+                updateStatistics(attackerIndex: 1, defenderIndex: 3)
             }
+            rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
+         
         }
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummy.lifePoints, initialHealthPoints: leftDummyHealthInitial)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummy.lifePoints, initialHealthPoints: rightDummyHealthInitial)
@@ -695,27 +696,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Called before each frame is rendered
     }
     
-    func updateStatistics( attackerIndex: Int,  defenderIndex: Int,  health: Int){
-        var gegnerischeTruppenStaerke = germanMapReference.table.getValue(index: defenderIndex)
-        var anzahlGegnerischeBl = germanMapReference.table.getValue(index: defenderIndex-1)
+    //TODO: nach dem Kampf muss man die "verfügbare Angriffe" auf 2 setzen und damit vermeiden,
+    //dass der Wert in der entsprechenden Zeile negativ wird
+    func updateStatistics( attackerIndex: Int,  defenderIndex: Int ){
         var eigeneTruppenStaerke = germanMapReference.table.getValue(index: attackerIndex)
-        var anzahlEigeneBl = germanMapReference.table.getValue(index: attackerIndex-1)
+        let angreiferDamage = leftDummyHealthInitial - leftDummy.lifePoints
+        var gegnerischeTruppenStaerke = germanMapReference.table.getValue(index: defenderIndex)
+        let gegnerDamage = rightDummyHealthInitial - rightDummy.lifePoints
         
-        if gegnerischeTruppenStaerke > health {
-            gegnerischeTruppenStaerke -= health
-            eigeneTruppenStaerke += health
-            anzahlGegnerischeBl -= 1
-            anzahlEigeneBl += 1
-        }else{
-            gegnerischeTruppenStaerke = 0
-            anzahlGegnerischeBl = 0
-            anzahlEigeneBl += 1
-            eigeneTruppenStaerke += health
+        let anzahlEigeneBl: Int = germanMapReference.table.getValue(index: attackerIndex-1)
+        let anzahlGegnerischeBl : Int = germanMapReference.table.getValue(index: defenderIndex-1)
+        let verfügbareAngriffe : Int = germanMapReference.table.getValue(index: 5)
+        
+        if attackerIndex == 1 { //rightDummy wird besiegt
+            gegnerischeTruppenStaerke -= gegnerDamage
+            eigeneTruppenStaerke -= angreiferDamage
+            germanMapReference.table.setValue(index: defenderIndex, value: gegnerischeTruppenStaerke)
+            germanMapReference.table.setValue(index: attackerIndex, value: eigeneTruppenStaerke)
+            germanMapReference.table.setValue(index: defenderIndex-1, value: anzahlGegnerischeBl - 1)
+            germanMapReference.table.setValue(index: attackerIndex-1, value: anzahlEigeneBl + 1)
+            
+            germanMapReference.table.setValue(index: 5, value: verfügbareAngriffe - 1)
+            
+        } else { //leftDummy wird besiegt
+            gegnerischeTruppenStaerke -= gegnerDamage
+            eigeneTruppenStaerke -= angreiferDamage
+            germanMapReference.table.setValue(index: attackerIndex, value: eigeneTruppenStaerke)
+            germanMapReference.table.setValue(index: defenderIndex, value: gegnerischeTruppenStaerke)
+            germanMapReference.table.setValue(index: 5, value: verfügbareAngriffe-1)
         }
-        germanMapReference.table.setValue(index: defenderIndex, value: gegnerischeTruppenStaerke)
-        germanMapReference.table.setValue(index: defenderIndex-1, value: anzahlGegnerischeBl)
-        germanMapReference.table.setValue(index: attackerIndex, value: eigeneTruppenStaerke)
-        germanMapReference.table.setValue(index: attackerIndex-1, value: anzahlEigeneBl)
         germanMapReference.table.update()
     }
     
