@@ -596,18 +596,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact){
+        // Kollision von Geschoss und Boden
         if (!didCollide && ((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) == (weaponCategory|groundCategory))){
             didCollide = true
-            if(!damageSent && GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+            //wenn aktiver Spieler
+            if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
-                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
-            } else {
-                if(!passiveThrow){
+                if (!GameCenterHelper.getInstance().isLocalPlayersTurn()) {
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
                 }
-                passiveThrow=false  //Beschreibung eigentlich falsch
             }
         }
+        //Kollision von Geschoss und Dummy
         if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
             didCollide = true
             if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
@@ -620,7 +620,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func projectileDidCollideWithDummy(_ contact : SKPhysicsContact) {
-        //ball.removeFromParent()
+        if (!GameCenterHelper.getInstance().isLocaLPlayerActive()){
+            return
+        }
         var damageExchange = GameState.StructDamageExchangeRequest()
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
             updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummyHealth)
@@ -653,11 +655,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             })
         }
         
-        if(!damageSent && GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+        if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
             damageSent = true
-            throwUnderway = false   //TODO Skeltek: Vermultich hier überflüssig
             GameCenterHelper.getInstance().sendExchangeRequest(structToSend: damageExchange, messageKey: GameState.IdentifierDamageExchange)
-            //GameCenterHelper.getInstance().mergeCompletedExchangesToSave(exchanges: GameCenterHelper.getInstance().tempExchanges)
+            if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
+                GameCenterHelper.getInstance().mergeCompletedExchangesToSave(exchanges: GameCenterHelper.getInstance().tempExchanges)
+            }
         } else{
             if (!passiveThrow){
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)

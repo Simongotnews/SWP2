@@ -251,6 +251,14 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
     }
     
+    /** Gibt an ob lokaler Spieler aktiv */
+    func isLocaLPlayerActive() -> Bool {
+        if (self.gameState.turnOwnerActive == self.getIndexOfLocalPlayer()){
+            return true
+        }
+        return false
+    }
+    
     // Spiel speichern und Laden im GameCenter
     /** Speichert Spiel+Daten ohne turn abzugeben */
     func saveGameDataToGameCenter() -> Void {
@@ -513,8 +521,12 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func handleDamageExchange(damageExchangeStruct : GameState.StructDamageExchangeRequest, exchange : GKTurnBasedExchange?) {
         if(getIndexOfLocalPlayer() == StartScene.germanMapScene.gameScene.leftDummyID) {
             StartScene.germanMapScene.gameScene.leftDummyHealth -= damageExchangeStruct.damage
+            StartScene.germanMapScene.gameScene.updateHealthBar(node: StartScene.germanMapScene.gameScene.leftDummyHealthBar, withHealthPoints: StartScene.germanMapScene.gameScene.leftDummyHealth, initialHealthPoints: StartScene.germanMapScene.gameScene.leftDummyHealthInitial)
+            StartScene.germanMapScene.gameScene.leftDummy.blink()
         } else {
             StartScene.germanMapScene.gameScene.rightDummyHealth -= damageExchangeStruct.damage
+            StartScene.germanMapScene.gameScene.updateHealthBar(node: StartScene.germanMapScene.gameScene.rightDummyHealthBar, withHealthPoints: StartScene.germanMapScene.gameScene.rightDummyHealth, initialHealthPoints: StartScene.germanMapScene.gameScene.rightDummyHealthInitial)
+            StartScene.germanMapScene.gameScene.rightDummy.blink()
         }
         StartScene.germanMapScene.gameScene.throwUnderway = false
         print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchangeStruct))
@@ -536,8 +548,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
         })
     }
-    
-    
+
     /** Methode um Exchange für Testzwecke zu verschicken */
     let testExchangeReply = GameState.StructTestExchangeReply()
     var testExchange = GKTurnBasedExchange.init()
@@ -546,14 +557,12 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         testExchange.reply(withLocalizableMessageKey: GameState.IdentifierTestExchange , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: testExchangeReply), completionHandler: {(error: Error?) -> Void in
             if(error == nil ) {
                 print("TestExchange-Reply erfolgreich verschickt")
-                if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){//}&& exchange.message == GameState.IdentifierThrowExchange){
+                if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){
                     self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
                         print("Dispatching assynchronous Thread")
                         self.mergeCompletedExchangeToSave(exchange: testExchange)
-                        //GameCenterHelper.getInstance().delayedMergeTest()
                     })
-                    //                    self.mergeCompletedExchangeToSave(exchange: testExchange)
                 }
             } else {
                 print("Fehler beim TestExchange beantworten")
@@ -662,29 +671,5 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 }
             }
         })
-    }
-    
-
-
-    
-    /** Funktion um den GameState der auf GameCenter gespeichert wird zu updaten. Funktioniert nur wenn man am Zug ist. */
-    func updateMatchData(gameStatus : GameState.StructGameState) {
-        if(isLocalPlayersTurn()) {
-            currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameStatus), withResolvedExchanges: currentMatch.completedExchanges!) { (error: Error?) -> Void in
-                //.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: gameStatus), completionHandler: {(error: Error?) -> Void in
-                print("Fehler: Es ist ein Fehler beim Updaten der MatchData aufgetreten")
-                print(error as Any)
-            }
-        }
-    }
-    
-    /** Funktion um den GameState der auf GameCenter gespeichert wird zu updaten. Funktioniert nur wenn man am Zug ist. Verwendet immer den lokalen GameState */
-    func updateMatchData() {
-        if(isLocalPlayersTurn()) {
-            currentMatch.saveCurrentTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: {(error: Error?) -> Void in
-                print("Fehler: Es ist ein Fehler beim Updaten der MatchData aufgetreten")
-                print(error as Any)
-            })
-        }
     }
 }
