@@ -424,11 +424,12 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         switch exchange.message {
         case GameState.IdentifierArrowExchange:
             print("ArrowExchange empfangen")
-            handleArrowExchange(arrowExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructArrowExchangeRequest()))
+            handleArrowExchange(arrowExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructArrowExchangeRequest()), exchange: exchange)
+            return
         case GameState.IdentifierAttackButtonExchange:
             print("AttackExchange empfangen")
-            handleAttackButtonExchange(attackButtonExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructAttackButtonExchangeRequest()))
-
+            handleAttackButtonExchange(attackButtonExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructAttackButtonExchangeRequest()),exchange: exchange)
+            return
         case GameState.IdentifierThrowExchange:
             print("ThrowExchange empfangen")
             tempExchanges.append(exchange)
@@ -456,6 +457,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         default:
             print("Fehlerhafter MessageKey von ExchangeRequest")
         }
+        //TODO Skeltek: Code ab hier überflüssig geworden.
         var exchangeReply = GameState.StructGenericExchangeReply()
         exchangeReply.actionCompleted = true
         print(GameState.genericExchangeReplyToString(genericExchangeReply: exchangeReply))
@@ -485,7 +487,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     }
     
     /** Method um ArrowExchange Requests anzuhandeln */
-    func handleArrowExchange(arrowExchangeStruct : GameState.StructArrowExchangeRequest) {
+    func handleArrowExchange(arrowExchangeStruct : GameState.StructArrowExchangeRequest, exchange: GKTurnBasedExchange?) {
         //TODO: Skeltek Wenn nicht richtige Ansicht, erstmal nicht ausführen
         print(GameState.arrowExchangeRequestToString(arrowExchangeRequest: arrowExchangeStruct))
         if (GameViewController.currentlyShownSceneNumber == 1 ){
@@ -494,13 +496,15 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         } else {
             print("Something went wrong handling ArrowExchange")
         }
+        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierArrowExchange, arguments: ["X"], data: GameState.encodeStruct(structToEncode: GameState.StructGenericExchangeReply()), completionHandler: nil)
     }
     
     /** Methode um AttackButtonExchange Requests abzuhandeln */
-    func handleAttackButtonExchange(attackButtonExchangeStruct : GameState.StructAttackButtonExchangeRequest) {
+    func handleAttackButtonExchange(attackButtonExchangeStruct : GameState.StructAttackButtonExchangeRequest, exchange: GKTurnBasedExchange?) {
         print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchangeStruct))
         // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
         StartScene.germanMapScene.transitToGameScene()
+        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierAttackButtonExchange, arguments: ["X"], data: GameState.encodeStruct(structToEncode: GameState.StructGenericExchangeReply()), completionHandler: nil)
     }
     
     
@@ -599,8 +603,8 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
             return
         }
-        if (getIndexOfLocalPlayer() != getIndexOfCurrentPlayer() && exchange.message == GameState.IdentifierDamageExchange){
-            print("sending MergeRequest")
+        if (!isLocalPlayersTurn() && exchange.message == GameState.IdentifierDamageExchange){ //@Andre doppelt mit den Methoden aus Wurft-Simulation?
+            print("Damage Exchange-Antwort erhalten, schicke MergeRequest")
             sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
         }
 
@@ -649,7 +653,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if (error != nil){
                 print("CompletedExchange-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
             } else{
-                print("CompletedExchange erfolgreich in Save eingebunden.")
+                print("Ein CompletedExchange erfolgreich in Save eingebunden.")
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
                 }
@@ -665,7 +669,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if (error != nil){
                 print("CompletedExchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")
             } else {
-                print("CompletedExchanges erfolgreich in Save eingebunden.")
+                print("Mehrere CompletedExchanges erfolgreich in Save eingebunden.")
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
                 }

@@ -604,9 +604,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
                 damageSent = true
-                if (!GameCenterHelper.getInstance().isLocalPlayersTurn()) {
-                    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
-                }
+                //if (!GameCenterHelper.getInstance().isLocalPlayersTurn()) {
+                //    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+                //}
             }
         }
         //Kollision von Geschoss und Dummy
@@ -666,7 +666,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         } else{
             if (!passiveThrow){
-                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+                //GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
             }
             passiveThrow = false
         }
@@ -701,7 +701,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if (GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
                 } else if(GameCenterHelper.getInstance().getIndexOfCurrentPlayer() != GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
-                    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+                    //GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
                 }
             }
         }
