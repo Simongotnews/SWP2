@@ -658,6 +658,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else {
                 rightDummy.lifePoints -= rightDummy.lifePoints
                 updateStatistics(attackerIndex: 1, defenderIndex: 3)
+                blIstEingenommen()
             }
             rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
          
@@ -726,6 +727,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.table.setValue(index: 5, value: verfügbareAngriffe-1)
         }
         germanMapReference.table.update()
+    }
+    
+    func blIstEingenommen() {
+        if germanMapReference.player1.blEigene.contains(germanMapReference.blAngreifer) {
+            germanMapReference.blVerteidiger.switchColorToBlue()
+            germanMapReference.player1.blEigene.append(germanMapReference.blVerteidiger)
+            germanMapReference.player2.blEigene.remove(at: germanMapReference.player2.blEigene.index(of: germanMapReference.blVerteidiger)!)
+            
+        } else if germanMapReference.player2.blEigene.contains(germanMapReference.blAngreifer) {
+            germanMapReference.blVerteidiger.switchColorToRed()
+            germanMapReference.player2.blEigene.append(germanMapReference.blVerteidiger)
+            germanMapReference.player1.blEigene.remove(at: germanMapReference.player1.blEigene.index(of: germanMapReference.blVerteidiger)!)
+        }
     }
     
     func transitToGermanMap(transitToAngriffAnsicht : Bool){  //German Map Scene laden, Parameter: wenn transitToAngriffAnsicht true ist, wird AngriffAnsicht geladen, sonst Verschiebenansicht
