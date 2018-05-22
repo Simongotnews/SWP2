@@ -427,7 +427,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func throwProjectile(xImpulse : Double, yImpulse : Double, passivelyThrown : Bool? = false) { //Wurf des Projektils, Flugbahn
-        throwUnderway = true
+        damageSent = false
         
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
@@ -599,9 +599,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Kollision von Geschoss und Boden
         if (!didCollide && ((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) == (weaponCategory|groundCategory))){
             didCollide = true
+            print("Boden getroffen!")
             //wenn aktiver Spieler
             if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
+                damageSent = true
                 if (!GameCenterHelper.getInstance().isLocalPlayersTurn()) {
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
                 }
@@ -610,6 +612,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //Kollision von Geschoss und Dummy
         if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
             didCollide = true
+            print("Dummy getroffen!")
             if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
                 projectileDidCollideWithDummy(contact) }
             //Sound bei Treffer
@@ -693,6 +696,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Called before each frame is rendered
         if(!damageSent && ball != nil) {
             if(ball.position.x >= self.frame.width && ball.position.x <= -self.frame.width) {
+                print("Ball verlässt Bildschirm!")
                 damageSent = true
                 if (GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
