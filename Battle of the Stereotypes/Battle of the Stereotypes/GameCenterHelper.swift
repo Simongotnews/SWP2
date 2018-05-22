@@ -455,7 +455,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             //handleTestExchange(testExchange: exchange)
             return
         default:
-            print("Fehlerhafter MessageKey von ExchangeRequest")
+            print("\n\n !!!Fehlerhafter MessageKey von ExchangeRequest!!! \n\n")
         }
         //TODO Skeltek: Code ab hier überflüssig geworden.
         var exchangeReply = GameState.StructGenericExchangeReply()
@@ -616,7 +616,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             print("Resolving Exchange(you merge)")
             print("exchange.message: \(exchange.message)")
             //WurfExchange-Antwort kommt zurück
-            if (exchange.message == GameState.IdentifierThrowExchange){
+            if (exchange.message == GameState.IdentifierDamageExchange){
                 print("Vergleiche player und localPlayer:")
                 print("exchange.sender?.player: \(exchange.sender?.player)")
                 print("GKLocalPlayer.localPlayer(): \(GKLocalPlayer.localPlayer())")
@@ -635,10 +635,13 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
                 }
             }
+            
+        
+        if(!(exchange.message == GameState.IdentifierThrowExchange)){
             //Exchanges isn gameState mergen, danach Laufvariablen aktualisieren und Display Updates
-                self.mergeCompletedExchangeToSave(exchange: exchange)
+            self.mergeCompletedExchangeToSave(exchange: exchange)
+            }
         }
-
     }
     
 
