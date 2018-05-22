@@ -795,8 +795,6 @@ class GermanMap: SKScene {
         let transition = SKTransition.crossFade(withDuration: 2)
         
         gameScene.scaleMode = .aspectFill
-        gameScene.setAngreifer(angreifer: blAngreifer!)
-        gameScene.setVerteidiger(verteidiger: blVerteidiger!)
         
         //halte eine Referenz auf diese Szene in der Kampfscene
         gameScene.germanMapReference = self

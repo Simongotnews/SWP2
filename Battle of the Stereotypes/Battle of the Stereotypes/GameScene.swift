@@ -82,9 +82,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var rightDummyHealthLabel:SKLabelNode!
     
     var leftDummyHealthInitial: Int = 0
-    var leftDummyHealth: Int = 0
     var rightDummyHealthInitial: Int = 0
-    var rightDummyHealth: Int = 0
     
     let leftDummyCategory:UInt32 = 0x1 << 2
     let rightDummyCategory:UInt32 = 0x1 << 1
@@ -99,6 +97,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var angreiferNameLabel: SKLabelNode!
     var verteidigerNameLabel: SKLabelNode!
+    
+    var eigeneTruppenStaerke: Int = 0
+    var gegnerischeTruppenStaerke : Int = 0
     
     var initialized : Bool = false
     override func didMove(to view: SKView) {
@@ -244,6 +245,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func initDummys(){
         let leftDummyTexture = SKTexture(imageNamed: "dummy")
+        leftDummyHealthInitial = germanMapReference.blAngreifer.anzahlTruppen-1
         leftDummy = Fighter(lifePoints: leftDummyHealthInitial, damage: 0, texture: leftDummyTexture, size: CGSize(width: leftDummyTexture.size().width, height: leftDummyTexture.size().height))
         leftDummy.name = "leftdummy"
         leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
@@ -261,6 +263,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(leftDummy)
         
         let rightDummyTexture = SKTexture(imageNamed: "dummy")
+        rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
         rightDummy = Fighter(lifePoints: rightDummyHealthInitial, damage: 0, texture: rightDummyTexture, size: CGSize(width: rightDummyTexture.size().width, height: rightDummyTexture.size().height))
         rightDummy.name = "rightdummy"
         rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 280)
@@ -278,6 +281,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(rightDummy)
     }
     
+    func initBundeslandNameLabel(_ bundesLandNameLabel: SKLabelNode){
+        bundesLandNameLabel.fontName = "AvenirNext-Bold"
+        bundesLandNameLabel.fontSize = 26
+        bundesLandNameLabel.zPosition=3
+        addChild(bundesLandNameLabel)
+    }
+    
     /** Initialisierung für die Statusanzeige */
     func initStatusLabel()
     {
@@ -292,6 +302,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func initDummyLabels(){
+        leftDummyHealthLabel = SKLabelNode(text: "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)")
         leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 + 50)
         leftDummyHealthLabel.fontName = "AvenirNext-Bold"
         leftDummyHealthLabel.fontSize = 26
@@ -300,6 +311,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(leftDummyHealthLabel)
         
+        angreiferNameLabel = SKLabelNode(text: germanMapReference.blAngreifer.blNameString)
+        if germanMapReference.player1.blEigene.contains(germanMapReference.blAngreifer) {
+            angreiferNameLabel.fontColor = SKColor.blue
+        } else {
+            angreiferNameLabel.fontColor = SKColor.red
+        }
+        angreiferNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: self.frame.size.height / 2 - 480)
+        
+        initBundeslandNameLabel(angreiferNameLabel)
+        
+        
+        rightDummyHealthLabel = SKLabelNode(text: "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)")
         rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 135, y: rightDummy.size.height / 2 + 50)
         rightDummyHealthLabel.fontName = "AvenirNext-Bold"
         rightDummyHealthLabel.fontSize = 26
@@ -307,6 +330,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummyHealthLabel.zPosition=3
         
         self.addChild(rightDummyHealthLabel)
+        
+        verteidigerNameLabel = SKLabelNode(text: germanMapReference.blVerteidiger.blNameString)
+        if germanMapReference.player2.blEigene.contains(germanMapReference.blVerteidiger) {
+            verteidigerNameLabel.fontColor = SKColor.red
+        } else {
+            verteidigerNameLabel.fontColor = SKColor.blue
+        }
+        verteidigerNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 150, y: self.frame.size.height / 2 - 480)
+        initBundeslandNameLabel(verteidigerNameLabel)
     }
     
     func initBall(for player: Int){ //initialisiere das Wurfgeschoss für jeweiligen Spieler mit der PlayerID
@@ -610,29 +642,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func projectileDidCollideWithDummy(_ contact : SKPhysicsContact) {
         //ball.removeFromParent()
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
-            updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummyHealth)
+            updateStatistics(attackerIndex: 3, defenderIndex: 1, health: leftDummy.lifePoints)
             leftDummy.blink()
-            leftDummyHealth -= Int(floor(contact.collisionImpulse/32))
-            leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
-            if leftDummyHealth < 0 {
-                leftDummyHealth = 0
-                leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
+            leftDummy.lifePoints -= Int(floor(contact.collisionImpulse/32))
+            leftDummyHealthLabel.text = "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)"
+            if leftDummy.lifePoints < 0 {
+                leftDummy.lifePoints = 0
+                leftDummyHealthLabel.text = "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)"
             }
         }
         else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
-            updateStatistics(attackerIndex: 1, defenderIndex: 3, health: rightDummyHealth)
+            updateStatistics(attackerIndex: 1, defenderIndex: 3, health: rightDummy.lifePoints)
             rightDummy.blink()
-            rightDummyHealth -= Int(floor(contact.collisionImpulse/32))
-            rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
-            if rightDummyHealth < 0 {
-                rightDummyHealth = 0
-                rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
+            rightDummy.lifePoints -= Int(floor(contact.collisionImpulse/32))
+            rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
+            if rightDummy.lifePoints < 0 {
+                rightDummy.lifePoints = 0
+                rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
             }
         }
-        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth, initialHealthPoints: leftDummyHealthInitial)
-        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealth, initialHealthPoints: rightDummyHealthInitial)
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummy.lifePoints, initialHealthPoints: leftDummyHealthInitial)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummy.lifePoints, initialHealthPoints: rightDummyHealthInitial)
         
-        if(leftDummyHealth == 0 || rightDummyHealth == 0){
+        if(leftDummy.lifePoints == 0 || rightDummy.lifePoints == 0){
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
                 self.transitToGermanMap(transitToAngriffAnsicht: true)
             })
@@ -712,30 +744,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.view?.presentScene(germanMapReference)
     }
-    
-    func setAngreifer(angreifer: Bundesland){
-        leftDummyHealthInitial = angreifer.anzahlTruppen
-        leftDummyHealth = angreifer.anzahlTruppen
-        leftDummyHealthLabel = SKLabelNode(text: "Health: \(leftDummyHealth)/\(leftDummyHealth)")
-        angreiferNameLabel = SKLabelNode(text: angreifer.blNameString)
-        angreiferNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: self.frame.size.height / 2 - 480)
-        setBundeslandNameLabel(angreiferNameLabel)
-    }
-    
-    func setVerteidiger(verteidiger: Bundesland){
-        rightDummyHealthInitial = verteidiger.anzahlTruppen
-        rightDummyHealth = verteidiger.anzahlTruppen
-        rightDummyHealthLabel = SKLabelNode(text: "Health: \(rightDummyHealth)/\(rightDummyHealth)")
-        verteidigerNameLabel = SKLabelNode(text: verteidiger.blNameString)
-        verteidigerNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 150, y: self.frame.size.height / 2 - 480)
-        setBundeslandNameLabel(verteidigerNameLabel)
-    }
-    
-    func setBundeslandNameLabel(_ bundesLandNameLabel: SKLabelNode){
-        bundesLandNameLabel.fontName = "AvenirNext-Bold"
-        bundesLandNameLabel.fontSize = 26
-        bundesLandNameLabel.fontColor = UIColor.white
-        bundesLandNameLabel.zPosition=3
-        addChild(bundesLandNameLabel)
-    }
+
 }

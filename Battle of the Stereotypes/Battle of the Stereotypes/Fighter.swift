@@ -12,8 +12,8 @@ import GameplayKit
 
 class Fighter: SKSpriteNode {
     
-    var lifePoints: Int!
-    var damage: Int!
+    var lifePoints: Int = 0
+    var damage: Int = 0
     
     init(lifePoints: Int, damage: Int, texture: SKTexture, size: CGSize) {
         //lade die richtige Textur, je nach Bundesland des Spielers
