@@ -277,6 +277,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 self.spielGeladen = true    //Wer speichert hat ohnehin aktuellen Spielstand
             }
         }
+        print("\n\n")
     }
     var spielGeladen = false
     /** Lädt Spiel+Daten */
@@ -313,13 +314,14 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     print("Keine Daten gefunden -> Speichere Daten in GameCenter")
                     //Daten neu initialisieren für neues Spiel; um Daten alten geladenen Spiels zu löschen
                     self.gameState.currentScene = 0
-                    self.gameState.turnOwnerActive = 1
+                    self.gameState.turnOwnerActive = 0
                     self.saveGameDataToGameCenter()
                 }
             } else {
                 print("Fehler beim Laden des Spiels und der Spieldaten: " + error.debugDescription)
             }
         }
+        print("\n\n")
     }
     
     /** Methode wenn der lokale Spieler seinen Zug beendet hat */
@@ -524,15 +526,15 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** Methode um DamageExchange Requests anzuhandeln */
     func handleDamageExchange(damageExchangeStruct : GameState.StructDamageExchangeRequest, exchange : GKTurnBasedExchange?) {
         if(getIndexOfLocalPlayer() == StartScene.germanMapScene.gameScene.leftDummyID) {
+            self.gameState.health[getIndexOfGameOwner() == getIndexOfCurrentPlayer() ? 0 : 1] -= damageExchangeStruct.damage    //Soll später untere Zeile ersetzen
             StartScene.germanMapScene.gameScene.leftDummyHealth -= damageExchangeStruct.damage
-            StartScene.germanMapScene.gameScene.updateHealthBar(node: StartScene.germanMapScene.gameScene.leftDummyHealthBar, withHealthPoints: StartScene.germanMapScene.gameScene.leftDummyHealth, initialHealthPoints: StartScene.germanMapScene.gameScene.leftDummyHealthInitial)
-            StartScene.germanMapScene.gameScene.leftDummy.blink()
+            damageExchangeStruct.damage > 0 ? StartScene.germanMapScene.gameScene.leftDummy.blink(): nil    //Abfrage ob Schaden > 0
         } else {
+            self.gameState.health[getIndexOfGameOwner() == getIndexOfCurrentPlayer() ? 1 : 0] -= damageExchangeStruct.damage
             StartScene.germanMapScene.gameScene.rightDummyHealth -= damageExchangeStruct.damage
-            StartScene.germanMapScene.gameScene.updateHealthBar(node: StartScene.germanMapScene.gameScene.rightDummyHealthBar, withHealthPoints: StartScene.germanMapScene.gameScene.rightDummyHealth, initialHealthPoints: StartScene.germanMapScene.gameScene.rightDummyHealthInitial)
-            StartScene.germanMapScene.gameScene.rightDummy.blink()
+            damageExchangeStruct.damage > 0 ? StartScene.germanMapScene.gameScene.rightDummy.blink() : nil
         }
-        StartScene.germanMapScene.gameScene.throwUnderway = false
+        StartScene.germanMapScene.gameScene.updateStats()
         print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchangeStruct))
         exchange?.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructDamageExchangeRequest()), completionHandler: nil)
     }
@@ -581,6 +583,25 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch){
         print("Exchange completed")
         
+        if (self.isLocalPlayersTurn()){ // && isLocalPlayerActive überflüssig
+            if (exchange.message == GameState.IdentifierArrowExchange){
+                tempExchanges.append(exchange)
+            }
+            if (exchange.message == GameState.IdentifierAttackButtonExchange){
+                tempExchanges.append(exchange)
+                mergeCompletedExchangesToSave(exchanges: tempExchanges)
+                }
+            if (exchange.message == GameState.IdentifierThrowExchange){
+                
+                tempExchanges.append(exchange)
+            }
+            if (exchange.message == GameState.IdentifierDamageExchange){
+                tempExchanges.append(exchange)
+                gameState.turnOwnerActive = getIndexOfOtherPlayer()
+                mergeCompletedExchangesToSave(exchanges: tempExchanges)
+            }
+        }
+        
         //TODO Skeltek: Durch Timeout completed Exchanges abbrechen, provisorischer Komrpomissionsschutz
         if (!((exchange.replies?.count != nil)&&(exchange.replies!.count > 0))){    //Wenn keine Antworten -> Vermutlich Timeout Completion
             ("Vermutlich timed-out Exchanges gefunden")
@@ -603,7 +624,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
             return
         }
-        if (!isLocalPlayersTurn() && exchange.message == GameState.IdentifierDamageExchange){ //@Andre doppelt mit den Methoden aus Wurft-Simulation?
+        if (!isLocalPlayersTurn() && exchange.message == GameState.IdentifierDamageExchange){
             print("Damage Exchange-Antwort erhalten, schicke MergeRequest")
             sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
         }
@@ -614,12 +635,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         //Andere Spieler bekommen automatisch Turn Event und laden (veränderte) Spieldaten neu.
         if (isLocalPlayersTurn()){
             print("Resolving Exchange(you merge)")
-            print("exchange.message: \(exchange.message)")
+            print("CompletedExchange.message: \(exchange.message)")
             //WurfExchange-Antwort kommt zurück
             if (exchange.message == GameState.IdentifierDamageExchange){
-                print("Vergleiche player und localPlayer:")
-                print("exchange.sender?.player: \(exchange.sender?.player)")
-                print("GKLocalPlayer.localPlayer(): \(GKLocalPlayer.localPlayer())")
                 if (exchange.sender?.player! == GKLocalPlayer.localPlayer()){
                     print("Setze aktiven Spieler auf (nextPlayer): \(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
                     if (GameViewController.debugMode){
@@ -639,7 +657,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         
         if(!(exchange.message == GameState.IdentifierThrowExchange)){
             //Exchanges isn gameState mergen, danach Laufvariablen aktualisieren und Display Updates
-            self.mergeCompletedExchangeToSave(exchange: exchange)
+                //self.mergeCompletedExchangeToSave(exchange: exchange)
             }
         }
     }
@@ -678,5 +696,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 }
             }
         })
+        print("\n\n")
     }
 }

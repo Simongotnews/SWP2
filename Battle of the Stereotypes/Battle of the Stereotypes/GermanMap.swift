@@ -765,7 +765,9 @@ class GermanMap: SKScene {
         gameScene.scaleMode = .aspectFill
         gameScene.setAngreifer(angreifer: blAngreifer!)
         gameScene.setVerteidiger(verteidiger: blVerteidiger!)
-        
+        //Setzt das Leben der einzelnen Spieler im gameState (Spieler 0 = Spielbesitzer)
+        GameCenterHelper.getInstance().gameState.health[GameCenterHelper.getInstance().getIndexOfGameOwner()] = GameCenterHelper.getInstance().getIndexOfGameOwner() == GameCenterHelper.getInstance().getIndexOfCurrentPlayer() ? gameScene.leftDummyHealth : gameScene.rightDummyHealth
+        GameCenterHelper.getInstance().gameState.health[GameCenterHelper.getInstance().getIndexOfNextPlayer()] = GameCenterHelper.getInstance().getIndexOfGameOwner() == GameCenterHelper.getInstance().getIndexOfCurrentPlayer() ? gameScene.rightDummyHealth : gameScene.leftDummyHealth
         //halte eine Referenz auf diese Szene in der Kampfscene
         gameScene.germanMapReference = self
         

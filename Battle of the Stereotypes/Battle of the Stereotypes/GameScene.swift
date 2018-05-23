@@ -13,7 +13,6 @@ import AVFoundation
 class GameScene: SKScene, SKPhysicsContactDelegate {
     let sceneID = 2
     var damageSent : Bool = false
-    var throwUnderway : Bool = false
     var passiveThrow : Bool = false
     //Sound
     var audioPlayer = AVAudioPlayer()
@@ -203,13 +202,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("---Touchpad locked---")
             touchpadLocked = true
         }
-        if initialized{ //TODO Skeltek: Check For Crashes
-            //germanMapReference.player1.id? = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-            //germanMapReference.player2.id? = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
-            //updateStatusLabel()
+        if initialized{
+            
         }
         updateStatusLabel()
         if (GameViewController.currentlyShownSceneNumber == 2){
+            
+            updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealth, initialHealthPoints: leftDummyHealthInitial)
+            leftDummyHealth = leftDummyHealth < 0 ? 0 : leftDummyHealth //Health mindestens auf 0 setzen
+            leftDummyHealthLabel.text = "Health: \(leftDummyHealth)/\(leftDummyHealthInitial)"
+            
+            updateHealthBar(node: StartScene.germanMapScene.gameScene.rightDummyHealthBar, withHealthPoints: StartScene.germanMapScene.gameScene.rightDummyHealth, initialHealthPoints: StartScene.germanMapScene.gameScene.rightDummyHealthInitial)
+            rightDummyHealth = rightDummyHealth < 0 ? 0 : rightDummyHealth
+            rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
+            
             initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
         } else {
             
@@ -692,10 +698,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.size = barSize
     }
     
+
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
         if(!damageSent && ball != nil) {
-            if(ball.position.x >= self.frame.width && ball.position.x <= -self.frame.width) {
+            if(ball.position.x >= (self.frame.width) || ball.position.x <= (-self.frame.width)) {
                 print("Ball verlässt Bildschirm!")
                 damageSent = true
                 if (GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
