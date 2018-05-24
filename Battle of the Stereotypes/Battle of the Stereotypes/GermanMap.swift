@@ -10,6 +10,10 @@ import SpriteKit
 import GameplayKit
 import AVFoundation
 
+enum PhaseEnum {
+    case Angriff, Verschieben
+}
+
 class GermanMap: SKScene {
     let sceneID = 1
     
@@ -61,10 +65,9 @@ class GermanMap: SKScene {
     
     //Label für das Geld des Spielers
     var coinLabel: SKLabelNode!
-    //Label für die Verschiebenansicht
-    var truppenVerschiebenAnsichtLabel: SKLabelNode!
-    //Label für die Angriffsansicht (GemanMap)
-    var angriffAnsichtLabel: SKLabelNode!
+    
+    //Label zum Anzeigen der Phase
+    var phaseLabel: SKLabelNode!
     
     
     var mapSize:(width:CGFloat, height:CGFloat) = (0.0, 0.0)  // globale Groeße welche in allen Funktionen verwendet werden kann.
@@ -157,41 +160,44 @@ class GermanMap: SKScene {
             //initialisiere Coins-Label
             initCoinLabel()
             
-            //initialisiere Angriff-Label
-            initAngriffLabel()
+            //initialisiere Phase Label
+            setPhase(true, PhaseEnum.Angriff)
             
-            //initialisiere Truppen-Verschieben-Label
-            initTruppenVerschiebenLabel() 
+            //Sound
+            //...
+            hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+            
+            do{
+                audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+            }catch{
+                print("Datei nicht gefunden")
+            }
+            //Wie oft abgespielt werden soll (-1 unendlich oft)
+            audioPlayer.numberOfLoops = -1
+            //Performance verbessern von Audioplayer
+            audioPlayer.prepareToPlay()
+            
+            audioPlayer.play()
+            
+            buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
+            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+            buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+            
+            self.view?.addSubview(buttonMusik)
             
             initialized = true
             print("GermanMapScene didMove finished")
         } else {
             refreshScene()
         }
-        
-        //Sound
-        //...
-        hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
-        
-        do{
-            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
-        }catch{
-            print("Datei nicht gefunden")
-        }
-        //Wie oft abgespielt werden soll (-1 unendlich oft)
-        audioPlayer.numberOfLoops = -1
-        //Performance verbessern von Audioplayer
-        audioPlayer.prepareToPlay()
-        
-        audioPlayer.play()
-        
-        buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
-        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
-        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
-        
-        self.view?.addSubview(buttonMusik)
 
     }
+    
+    
+    
+    
+    
+    
     @IBAction func buttonMusikAction(sender: UIButton!){
         
         if (statusMusik){
@@ -593,35 +599,30 @@ class GermanMap: SKScene {
         statsSide.addChild(coinLabel)
     }
     
-    // Initialisieren des Truppen-Verschieben-Labels
-    func initTruppenVerschiebenLabel(){
+    func setPhase(_ isMyTurn:Bool, _ phase:PhaseEnum) {
+        //wenn schon existiert -> Löschen
+        phaseLabel?.removeFromParent()
         
-        truppenVerschiebenAnsichtLabel  = SKLabelNode(text: "Truppen verschieben")
-        truppenVerschiebenAnsichtLabel.position = CGPoint(x: 5, y: 160)
-        truppenVerschiebenAnsichtLabel.fontName = "AvenirNext-Bold"
-        truppenVerschiebenAnsichtLabel.fontColor = UIColor.black
-        truppenVerschiebenAnsichtLabel.fontSize = 25
-        truppenVerschiebenAnsichtLabel.alpha = 10
-        truppenVerschiebenAnsichtLabel.isHidden = true
+        phaseLabel = SKLabelNode()
+        phaseLabel.position = CGPoint(x: 5, y: 160)
+        phaseLabel.fontName = "AvenirNext-Bold"
+        phaseLabel.fontColor = UIColor.black
+        phaseLabel.fontSize = 20
+        phaseLabel.alpha = 5
         
+        statsSide.addChild(phaseLabel)
         
-        statsSide.addChild(truppenVerschiebenAnsichtLabel)
+        if isMyTurn && phase==PhaseEnum.Angriff {
+            phaseLabel.text = "Du bist am Zug: Angriff"
+        } else if isMyTurn && phase==PhaseEnum.Verschieben {
+            phaseLabel.text = "Du bist am Zug: Verschieben"
+        } else if !isMyTurn && phase==PhaseEnum.Angriff {
+            phaseLabel.text = "Gegner ist am Zug: Angriff"
+        } else {
+            phaseLabel.text = "Gegner ist am Zug: Verschieben"
+        }
+        
     }
-    
-    // Initialisieren des Angriff-Labels
-    func initAngriffLabel(){
-        
-        angriffAnsichtLabel  = SKLabelNode(text: "Angriff")
-        angriffAnsichtLabel.position = CGPoint(x: -80, y: 160)
-        angriffAnsichtLabel.fontName = "AvenirNext-Bold"
-        angriffAnsichtLabel.fontColor = UIColor.black
-        angriffAnsichtLabel.fontSize = 25
-        angriffAnsichtLabel.alpha = 10
-        
-        statsSide.addChild(angriffAnsichtLabel)
-    }
-    
-    
     
     func initPlayButton() {
         playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)

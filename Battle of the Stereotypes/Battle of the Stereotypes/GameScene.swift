@@ -753,16 +753,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         if (transitToAngriffAnsicht == false){ //VerschiebenAnsicht soll geladen werden
-        germanMapReference.truppenVerschiebenAnsichtLabel.isHidden = false
-        germanMapReference.angriffAnsichtLabel.isHidden = true
-           
-            //weiterer Verschiebeansichtcode hier
             
-        }
-        
-        if (transitToAngriffAnsicht == true){ //Angriffsansicht soll geladen werden
-            germanMapReference.truppenVerschiebenAnsichtLabel.isHidden = true //Truppen-Verschieben-Label ausblenden
-            germanMapReference.angriffAnsichtLabel.isHidden = false //Angriffsansichtlabel einblenden
+            
+        } else {
+            
         }
         
         self.view?.presentScene(germanMapReference)
