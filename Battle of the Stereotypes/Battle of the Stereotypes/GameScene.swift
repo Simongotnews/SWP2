@@ -216,6 +216,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             rightDummyHealth = rightDummyHealth < 0 ? 0 : rightDummyHealth
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             
+            leftDummyHealth * rightDummyHealth == 0 ? transitToGermanMap() : nil
             initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
         } else {
             

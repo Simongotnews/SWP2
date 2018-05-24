@@ -126,7 +126,6 @@ class GermanMap: SKScene {
     var initialized: Bool = false
 
     override func didMove(to view: SKView) {
-        print("GermanMapScene didMove is executing")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
         GameViewController.currentlyShownSceneNumber = 1
         if initialized == false {
@@ -156,7 +155,6 @@ class GermanMap: SKScene {
             initCoinLabel()
             
             initialized = true
-            print("GermanMapScene didMove finished")
         } else {
             refreshScene()
         }

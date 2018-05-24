@@ -457,7 +457,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             //handleTestExchange(testExchange: exchange)
             return
         default:
-            print("\n\n !!!Fehlerhafter MessageKey von ExchangeRequest!!! \n\n")
+            print("!!!Fehlerhafter MessageKey von ExchangeRequest!!! \n\n")
         }
         //TODO Skeltek: Code ab hier überflüssig geworden.
         var exchangeReply = GameState.StructGenericExchangeReply()
@@ -629,8 +629,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
         }
 
-
-        print("TurnOwner soll nun Exchanges auflösen")
         // CurrentParticipant soll abgeschlossene Exchanges mergen (nach Änderung relevanter Spieldaten.
         //Andere Spieler bekommen automatisch Turn Event und laden (veränderte) Spieldaten neu.
         if (isLocalPlayersTurn()){
@@ -696,6 +694,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 }
             }
         })
-        print("\n\n")
+        print("\n")
     }
 }
