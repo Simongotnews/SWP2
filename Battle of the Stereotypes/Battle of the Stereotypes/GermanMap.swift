@@ -11,7 +11,8 @@ import GameplayKit
 import AVFoundation
 
 enum PhaseEnum {
-    case Angriff, Verschieben
+    //Warten heißt, dass man nicht am Zug ist
+    case Angriff, Verschieben, Warten
 }
 
 class GermanMap: SKScene {
@@ -68,6 +69,13 @@ class GermanMap: SKScene {
     
     //Label zum Anzeigen der Phase
     var phaseLabel: SKLabelNode!
+    var phase: PhaseEnum!
+    //Elemente in der Verschiebeansicht
+    var verschiebeLabel: SKLabelNode!
+    var verschiebeZahl = 0
+    var verschiebePlusButton: SKSpriteNode!
+    var verschiebeMinusButton: SKSpriteNode!
+    var verschiebeOkButton: SKSpriteNode!
     
     
     var mapSize:(width:CGFloat, height:CGFloat) = (0.0, 0.0)  // globale Groeße welche in allen Funktionen verwendet werden kann.
@@ -160,8 +168,8 @@ class GermanMap: SKScene {
             //initialisiere Coins-Label
             initCoinLabel()
             
-            //initialisiere Phase Label
-            setPhase(true, PhaseEnum.Angriff)
+            ////initialisiere Phase Label
+            //setPhase(PhaseEnum.Verschieben)
             
             //Sound
             //...
@@ -193,7 +201,68 @@ class GermanMap: SKScene {
 
     }
     
+    func setPhase(_ phase:PhaseEnum) {
+        self.phase = phase
+        
+        //wenn schon existiert -> Löschen
+        phaseLabel?.removeFromParent()
+        verschiebeLabel?.removeFromParent()
+        
+        //Label erstellen und richtigen Text anzeigen
+        phaseLabel = SKLabelNode()
+        phaseLabel.position = CGPoint(x: 5, y: 160)
+        phaseLabel.fontName = "AvenirNext-Bold"
+        phaseLabel.fontColor = UIColor.black
+        phaseLabel.fontSize = 20
+        phaseLabel.alpha = 5
+        
+        statsSide.addChild(phaseLabel)
+        
+        if phase==PhaseEnum.Angriff {
+            phaseLabel.text = "Du bist am Zug: Angriff"
+        } else if phase==PhaseEnum.Verschieben {
+            phaseLabel.text = "Du bist am Zug: Verschieben"
+            
+            //Erstellen der gesamten Verschiebeansicht
+            verschiebeLabel = SKLabelNode()
+            verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+            verschiebeLabel.position = CGPoint(x: -10, y: -150)
+            verschiebeLabel.fontName = "AvenirNext-Bold"
+            verschiebeLabel.fontColor = UIColor.black
+            verschiebeLabel.fontSize = 20
+            verschiebeLabel.alpha = 5
+            
+            statsSide.addChild(verschiebeLabel)
+            
+            verschiebePlusButton = Button(texture: SKTexture(imageNamed: "plus"), size: CGSize(width: 50, height: 50), isPressable: true)
+            verschiebePlusButton.position = CGPoint(x: 0, y: -30)
+            verschiebePlusButton.alpha = 5
+            verschiebeLabel.addChild(verschiebePlusButton)
+            
+            verschiebeMinusButton = Button(texture: SKTexture(imageNamed: "minus"), size: CGSize(width: 50, height: 50), isPressable: true)
+            verschiebeMinusButton.position = CGPoint(x: 50, y: -30)
+            verschiebeMinusButton.alpha = 5
+            verschiebeLabel.addChild(verschiebeMinusButton)
+            
+            verschiebeOkButton = Button(texture: SKTexture(imageNamed: "Haken"), size: CGSize(width: 50, height: 50), isPressable: true)
+            verschiebeOkButton.position = CGPoint(x: 100, y: -30)
+            verschiebeOkButton.alpha = 5
+            verschiebeLabel.addChild(verschiebeOkButton)
+            
+            
+            
+        } else {
+            phaseLabel.text = "Gegner ist am Zug"
+        }
+        
+    }
     
+    func initPlayButton() {
+        playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
+        playButton.setScale(1.1)
+        playButton.position = CGPoint(x: 0, y: -250)
+        statsSideRootNode.addChild(playButton)
+    }
     
     
     
@@ -249,6 +318,19 @@ class GermanMap: SKScene {
                 // Exchange, um anderen Spieler in die GameScene zu schicken
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
                 return
+            }
+        }
+        
+        //Klicken der Verschiebeansicht
+        if phase==PhaseEnum.Verschieben {
+            if verschiebePlusButton.contains(touch.location(in: verschiebeLabel)) {
+                verschiebeZahl += 1
+                verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+            }
+            
+            if verschiebeMinusButton.contains(touch.location(in: verschiebeLabel)) {
+                verschiebeZahl -= 1
+                verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
             }
         }
     
@@ -599,37 +681,6 @@ class GermanMap: SKScene {
         statsSide.addChild(coinLabel)
     }
     
-    func setPhase(_ isMyTurn:Bool, _ phase:PhaseEnum) {
-        //wenn schon existiert -> Löschen
-        phaseLabel?.removeFromParent()
-        
-        phaseLabel = SKLabelNode()
-        phaseLabel.position = CGPoint(x: 5, y: 160)
-        phaseLabel.fontName = "AvenirNext-Bold"
-        phaseLabel.fontColor = UIColor.black
-        phaseLabel.fontSize = 20
-        phaseLabel.alpha = 5
-        
-        statsSide.addChild(phaseLabel)
-        
-        if isMyTurn && phase==PhaseEnum.Angriff {
-            phaseLabel.text = "Du bist am Zug: Angriff"
-        } else if isMyTurn && phase==PhaseEnum.Verschieben {
-            phaseLabel.text = "Du bist am Zug: Verschieben"
-        } else if !isMyTurn && phase==PhaseEnum.Angriff {
-            phaseLabel.text = "Gegner ist am Zug: Angriff"
-        } else {
-            phaseLabel.text = "Gegner ist am Zug: Verschieben"
-        }
-        
-    }
-    
-    func initPlayButton() {
-        playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
-        playButton.setScale(1.1)
-        playButton.position = CGPoint(x: 0, y: -250)
-        statsSideRootNode.addChild(playButton)
-    }
     
     func initStatistics() {
         let anzahlEigeneBl: Int = (player1?.blEigene.count)!
