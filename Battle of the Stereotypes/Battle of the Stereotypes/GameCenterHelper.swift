@@ -215,7 +215,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             return
         }
         // Hier Schuss simulieren
-        StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse)
+        StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchange.xImpulse, yImpulse: throwExchange.yImpulse, for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
     }
     
     /** TODO: Implementieren */

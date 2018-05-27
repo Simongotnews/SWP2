@@ -52,7 +52,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Wurfgeschoss
     var ball: SKSpriteNode!
-    
+    var throwingMove: Bool! = false
+    var tickCounter: Int! = 0
+    var throwingDuration: Int! = 3
+    var handStartPoint: CGPoint!
     //Fire Button zum Einstellen der Kraft beim Wurf
     var fireButton: SKSpriteNode!
     
@@ -77,6 +80,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //ID für rechten Dummy
     var rightDummy: Fighter!
     var rightDummyID: Int!
+    
+    var leftDummyOberarm: SKNode!
+    var leftDummyUnterarm: SKNode!
+    var leftDummyHand: SKNode!
+    // Referenzen für Scenebilder:
+    var leftDummySpriteNode :SKSpriteNode!
+    var leftDummyOberarmSpriteNode: SKSpriteNode!
+    var leftDummyUnterarmSpriteNode: SKSpriteNode!
+    var leftDummyHandSpriteNode: SKSpriteNode!
+    
+    var rightDummyOberarm: SKNode!
+    var rightDummyUnterarm: SKNode!
+    var rightDummyHand: SKNode!
+    // Referenzen für Scenebilder:
+    var rightDummySpriteNode :SKSpriteNode!
+    var rightDummyOberarmSpriteNode: SKSpriteNode!
+    var rightDummyUnterarmSpriteNode: SKSpriteNode!
+    var rightDummyHandSpriteNode: SKSpriteNode!
     
     var leftDummyHealthLabel:SKLabelNode!
     var rightDummyHealthLabel:SKLabelNode!
@@ -106,7 +127,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.physicsWorld.contactDelegate = self
             
             initBackground()
-            
+            initDummySceneReferences()
             initDummys()
             initDummyLabels()
             initStatusLabel()
@@ -241,9 +262,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func initDummys(){
-        let leftDummyTexture = SKTexture(imageNamed: "dummy")
+        let leftDummyTexture = SKTexture(imageNamed: "Bayer_links")
         leftDummyHealthInitial = germanMapReference.blAngreifer.anzahlTruppen-1
-        leftDummy = Fighter(lifePoints: leftDummyHealthInitial, damage: 0, texture: leftDummyTexture, size: CGSize(width: leftDummyTexture.size().width, height: leftDummyTexture.size().height))
+        leftDummy = childNode(withName: "leftDummy_Koerper") as! Fighter
+        leftDummy.initFighter(lifePoints: leftDummyHealthInitial, damage: 0, texture: leftDummyTexture, size: CGSize(width: leftDummyTexture.size().width, height: leftDummyTexture.size().height))
         leftDummy.name = "leftdummy"
         leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
         
@@ -257,11 +279,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //lege Spieler ID des linken Dummies fest
         leftDummyID = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
         
-        self.addChild(leftDummy)
+        let leftDummyOberarmTexture = SKTexture(imageNamed: "Bayer_Oberarm_links")
+        leftDummyOberarmSpriteNode.texture = leftDummyOberarmTexture
         
-        let rightDummyTexture = SKTexture(imageNamed: "dummy")
+        let leftDummyUnterarmTexture = SKTexture(imageNamed: "Bayer_Unterarm_links")
+        leftDummyUnterarmSpriteNode.texture = leftDummyUnterarmTexture
+        
+        referenceLeftArm()
+        
+       let rightDummyTexture = SKTexture(imageNamed: "Bayer_links")
         rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
-        rightDummy = Fighter(lifePoints: rightDummyHealthInitial, damage: 0, texture: rightDummyTexture, size: CGSize(width: rightDummyTexture.size().width, height: rightDummyTexture.size().height))
+        rightDummy = childNode(withName: "rightDummy_Koerper") as! Fighter
+        rightDummy.initFighter(lifePoints: rightDummyHealthInitial, damage: 0, texture: rightDummyTexture, size: CGSize(width: rightDummyTexture.size().width, height: rightDummyTexture.size().height))
         rightDummy.name = "rightdummy"
         rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 280)
         
@@ -275,7 +304,62 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //lege Spieler ID des rechten Dummies fest
         rightDummyID = GameCenterHelper.getInstance().getIndexOfNextPlayer()
         
-        self.addChild(rightDummy)
+        let rightDummyOberarmTexture = SKTexture(imageNamed: "Bayer_Oberarm_links")
+        rightDummyOberarmSpriteNode.texture = rightDummyOberarmTexture
+        
+        let rightDummyUnterarmTexture = SKTexture(imageNamed: "Bayer_Unterarm_links")
+        rightDummyUnterarmSpriteNode.texture = rightDummyUnterarmTexture
+        
+        
+        referenceRightArm()
+        //self.addChild(rightDummy)
+    }
+    func referenceLeftArm(){
+        // dem Dummy wird der Oberarm zugewiesen. Zuweisung der Grafik analog zum leftDummy siehe oben.
+        leftDummyOberarm = leftDummy.childNode(withName: "leftDummy_Oberarm")
+        // dem Oberarm wird der Unterarm zugewiesen. Zuweisung der Grafik analog zum leftDummy siehe oben.
+        leftDummyUnterarm = leftDummyOberarm.childNode(withName: "leftDummy_Unterarm")
+        // dem Unter wird die Hand zugewiesen. Zuweisung der Grafik analog zum leftDummy siehe oben.
+        leftDummyHand = leftDummyUnterarm.childNode(withName: "leftDummy_Hand")
+        // Hand dient für die Inverse Kinematik als Endeffektor.
+        
+        // Constraint für Ellenbogengelenk:
+        let ellenbogenContstraint = SKReachConstraints(lowerAngleLimit: CGFloat(0), upperAngleLimit: CGFloat(160))
+        leftDummyUnterarm.reachConstraints = ellenbogenContstraint
+        
+        // Hand verfolgt Krug:
+        //leftDummyHand.position = ball.position
+    }
+    
+    func referenceRightArm(){
+        // dem Dummy wird der Oberarm zugewiesen. Zuweisung der Grafik analog zum leftDummy siehe oben.
+        rightDummyOberarm = rightDummy.childNode(withName: "rightDummy_Oberarm")
+        // dem Oberarm wird der Unterarm zugewiesen. Zuweisung der Grafik analog zum leftDummy siehe oben.
+        rightDummyUnterarm = rightDummyOberarm.childNode(withName: "rightDummy_Unterarm")
+        // dem Unter wird die Hand zugewiesen. Zuweisung der Grafik analog zum leftDummy siehe oben.
+        rightDummyHand = rightDummyUnterarm.childNode(withName: "rightDummy_Hand")
+        // Hand dient für die Inverse Kinematik als Endeffektor.
+        
+        // Constraint für Ellenbogengelenk:
+        let ellenbogenContstraint = SKReachConstraints(lowerAngleLimit: CGFloat(0), upperAngleLimit: CGFloat(160))
+        rightDummyUnterarm.reachConstraints = ellenbogenContstraint
+        
+        // Hand verfolgt Krug:
+        //leftDummyHand.position = ball.position
+    }
+    func initDummySceneReferences(){
+        // Referenzierungen der Scene-Bilder auf die Swift-Objekte
+        // linke Seite
+        leftDummySpriteNode = self.childNode(withName: "leftDummy_Koerper") as! SKSpriteNode
+        leftDummyOberarmSpriteNode = leftDummySpriteNode.childNode(withName: "leftDummy_Oberarm") as! SKSpriteNode
+        leftDummyUnterarmSpriteNode = leftDummyOberarmSpriteNode.childNode(withName: "leftDummy_Unterarm") as! SKSpriteNode
+        leftDummyHandSpriteNode = leftDummyUnterarmSpriteNode.childNode(withName: "leftDummy_Hand") as! SKSpriteNode
+        
+        // rechte Seite
+        rightDummySpriteNode = self.childNode(withName: "rightDummy_Koerper") as! SKSpriteNode
+        rightDummyOberarmSpriteNode = rightDummySpriteNode.childNode(withName: "rightDummy_Oberarm") as! SKSpriteNode
+        rightDummyUnterarmSpriteNode = rightDummyOberarmSpriteNode.childNode(withName: "rightDummy_Unterarm") as! SKSpriteNode
+        rightDummyHandSpriteNode = rightDummyUnterarmSpriteNode.childNode(withName: "rightDummy_Hand") as! SKSpriteNode
     }
     
     func initBundeslandNameLabel(_ bundesLandNameLabel: SKLabelNode){
@@ -353,11 +437,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball = SKSpriteNode(texture: ballTexture)
         ball.size = CGSize(width: 30, height: 30)
         if player==leftDummyID {
-            ball.position = leftDummy.position
-            ball.position.x += 30
+            leftDummyHand.addChild(ball)
         } else {
-            ball.position = rightDummy.position
-            ball.position.x -= 30
+            rightDummyHand.addChild(ball)
         }
         ball.zPosition=3
         
@@ -381,7 +463,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ball.physicsBody?.collisionBitMask = groundCategory | leftDummyCategory
         }
         
-        self.addChild(ball)
     }
     
     func initBackButton() { //initialisiere den Zurück-zur-Bundesländerübersicht-Button
@@ -453,8 +534,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         statusLabel.text = statusText
     }
     
-    func throwProjectile(xImpulse : Double, yImpulse : Double) { //Wurf des Projektils, Flugbahn
-        
+    func throwProjectile(xImpulse : Double, yImpulse : Double,for player: Int) { //Wurf des Projektils, Flugbahn
+        if player==leftDummyID {
+            leftDummyHand.removeAllChildren()
+        } else {
+            rightDummyHand.removeAllChildren()
+        }
+        self.addChild(ball)
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
@@ -541,7 +627,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
     }
+    func moveArmAfterProjectile(startPoint: SKSpriteNode, endPoint: SKSpriteNode){
+        let square = UIBezierPath(rect: CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 100, height: 100)))
+        let followSquare = SKAction.follow(square.cgPath, asOffset: true, orientToPath: false, duration: 5.0)
+        leftDummyHand.run(followSquare)
+    }
+    func slowMoveTo(_ location: CGPoint,for player: Int){
+        if(player == leftDummyID){
+            let move = SKAction.reach(to: location, rootNode: leftDummyOberarm, duration: 0.2)
+            leftDummyHand.run(move)
+        } else {
+            let move = SKAction.reach(to: location, rootNode: rightDummyOberarm, duration: 0.2)
+            rightDummyHand.run(move)
+        }
+    }
     
+    func moveArmBackToOrigin(for player: Int){
+        if(player == leftDummyID){
+            slowMoveTo(CGPoint(x: leftDummy.position.x + 10 , y: leftDummy.position.y - 40), for: player)
+        } else {
+            slowMoveTo(CGPoint(x: rightDummy.position.x - 10 , y: rightDummy.position.y - 35), for: player)
+        }
+    }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         //wenn man gerade nicht aktiv ist, darf man nichts machen
@@ -557,7 +664,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             touchpadLocked = true
             fireMode = false
             self.removeAction(forKey: "powerBarAction")
-            
+            self.throwingMove = true
             //Berechnung des Winkels
             let winkel = Double(angleForArrow2)
             //Berechnung des Impulsvektors (nur Richtung)
@@ -571,7 +678,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let finalXImpulse = xImpulse * force
             let finalYImpulse = yImpulse * force
             if childNode(withName: "arrow") != nil {
-                throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse)
+                throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse, for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
                 var throwExchange = GameState.StructThrowExchangeRequest()
                 throwExchange.xImpulse = finalXImpulse
                 throwExchange.yImpulse = finalYImpulse
@@ -596,15 +703,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let touchedNode = self.atPoint(pos)
                 let deltaX = self.arrow.position.x - pos.x
                 let deltaY = self.arrow.position.y - pos.y
-                angleForArrow = atan2(deltaY, deltaX)
-                if (angleForArrow <= -0.5 * CGFloat.pi){
-                    angleForArrow = CGFloat.pi
+                if(touchedNode.name == "leftdummy"){
+                    angleForArrow = atan2(deltaY, deltaX)
+                    if(0.0 <= angleForArrow && angleForArrow <= CGFloat(Double.pi)){
+                        sprite.zRotation = angleForArrow
+                        angleForArrow2 = angleForArrow
+                    }
                 }
-                if (angleForArrow <= 0){
-                    angleForArrow = 0
+                else if(touchedNode.name == "rightdummy"){
+                    angleForArrow = atan2(deltaY, deltaX)
+                    if(0 <= angleForArrow && CGFloat(Double.pi) >= angleForArrow){
+                        sprite.zRotation = angleForArrow
+                        angleForArrow2 = angleForArrow
+                    }
                 }
-                sprite.zRotation = angleForArrow
-                angleForArrow2 = angleForArrow
             }
         }
     }
@@ -692,9 +804,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.texture = SKTexture(image: spriteImage!)
         node.size = barSize
     }
-    
+    func moveAt(_ location: CGPoint,for player: Int) {
+        if(player == leftDummyID){
+            let move = SKAction.reach(to: location, rootNode: leftDummyOberarm, duration: 0.01)
+            leftDummyHand.run(move)
+        } else {
+            let move = SKAction.reach(to: location, rootNode: rightDummyOberarm, duration: 0.01)
+            rightDummyHand.run(move)
+        }
+    }
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        if (self.throwingMove == true){
+            if (self.tickCounter < self.throwingDuration) {
+                self.tickCounter = self.tickCounter + 1
+                self.moveAt(self.ball.position, for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+            } else {
+                self.tickCounter = 0
+                self.throwingMove = false
+                moveArmBackToOrigin(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+            }
+        }
     }
     
     //TODO: nach dem Kampf muss man die "verfügbare Angriffe" auf 2 setzen und damit vermeiden,

@@ -15,9 +15,11 @@ class Fighter: SKSpriteNode {
     var lifePoints: Int = 0
     var damage: Int = 0
     
-    init(lifePoints: Int, damage: Int, texture: SKTexture, size: CGSize) {
+    func initFighter(lifePoints: Int, damage: Int, texture: SKTexture, size: CGSize) {
         //lade die richtige Textur, je nach Bundesland des Spielers
-        super.init(texture: texture, color: UIColor.blue, size: size)
+        self.texture = texture
+        self.color = UIColor.blue
+        self.size = size
         self.lifePoints = lifePoints
         self.damage = damage
         
@@ -27,7 +29,7 @@ class Fighter: SKSpriteNode {
     }
     
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: aDecoder)
     }
     
 }
