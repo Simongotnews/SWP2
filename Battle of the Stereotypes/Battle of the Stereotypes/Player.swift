@@ -33,7 +33,7 @@ class Player {
     init(id: Int) {
         //muss später vom GameCenter entschieden werden
         self.id = id
-        self.coins = 2000; //2000 Münzen Startguthaben
+        self.coins = 80;
         self.damage = 20
     }
     
@@ -68,7 +68,7 @@ class Player {
     func calculateTruppenStaerke() -> Int!{
         anzahlBl = 0
         for bundesland in blEigene{
-             anzahlBl = anzahlBl + bundesland.anzahlTruppen
+            anzahlBl = anzahlBl + bundesland.anzahlTruppen
         }
         return anzahlBl
     }

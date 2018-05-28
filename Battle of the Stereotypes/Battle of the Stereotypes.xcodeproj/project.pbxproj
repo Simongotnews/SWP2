@@ -36,6 +36,9 @@
 		3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FA47FFC20850BEC00ADE0A8 /* LaunchScreen.storyboard */; };
 		3FA4800920850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4800820850BEC00ADE0A8 /* Battle_of_the_StereotypesTests.swift */; };
 		3FA4801420850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */; };
+		3FCF930F20BC76A500ABEE9F /* ShopScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FCF930E20BC76A500ABEE9F /* ShopScene.sks */; };
+		3FCF931120BC76C300ABEE9F /* ShopScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCF931020BC76C300ABEE9F /* ShopScene.swift */; };
+		3FCF931320BC76D800ABEE9F /* Shop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCF931220BC76D800ABEE9F /* Shop.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +94,9 @@
 		3FA4800F20850BEC00ADE0A8 /* Battle of the StereotypesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Battle of the StereotypesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA4801320850BEC00ADE0A8 /* Battle_of_the_StereotypesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Battle_of_the_StereotypesUITests.swift; sourceTree = "<group>"; };
 		3FA4801520850BEC00ADE0A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3FCF930E20BC76A500ABEE9F /* ShopScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = ShopScene.sks; sourceTree = "<group>"; };
+		3FCF931020BC76C300ABEE9F /* ShopScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopScene.swift; sourceTree = "<group>"; };
+		3FCF931220BC76D800ABEE9F /* Shop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shop.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +155,8 @@
 				3FA47FF320850BE900ADE0A8 /* GameScene.swift */,
 				3F2DF3002093B6B600FC7469 /* GermanMap.sks */,
 				3F2DF3022093B6F700FC7469 /* GermanMap.swift */,
+				3FCF930E20BC76A500ABEE9F /* ShopScene.sks */,
+				3FCF931020BC76C300ABEE9F /* ShopScene.swift */,
 				3F555E6520A327AA00F4F3E4 /* StartScene.swift */,
 				3F555E6720A3320F00F4F3E4 /* StartScene.sks */,
 				3FA47FF120850BE900ADE0A8 /* Actions.sks */,
@@ -162,6 +170,7 @@
 				3F1FEF0F209756190049F94F /* GameState.swift */,
 				3F1FEF112097563D0049F94F /* GameCenterHelper.swift */,
 				3F2B5A4B209AFEE2005B29C7 /* Button.swift */,
+				3FCF931220BC76D800ABEE9F /* Shop.swift */,
 				3F2B5A4E209B4FAF005B29C7 /* Table.swift */,
 				3F482079209DE643001A4EC5 /* Pfeil.swift */,
 			);
@@ -311,6 +320,7 @@
 				3FA47FF020850BE900ADE0A8 /* GameScene.sks in Resources */,
 				3F9082B020AD06070000842A /* StartScene.mp3 in Resources */,
 				3FA47FFB20850BEC00ADE0A8 /* Assets.xcassets in Resources */,
+				3FCF930F20BC76A500ABEE9F /* ShopScene.sks in Resources */,
 				3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */,
 				3F2DF3012093B6B600FC7469 /* GermanMap.sks in Resources */,
 				3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */,
@@ -342,8 +352,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FCF931120BC76C300ABEE9F /* ShopScene.swift in Sources */,
 				3FA47FF420850BE900ADE0A8 /* GameScene.swift in Sources */,
 				3FA47FF620850BE900ADE0A8 /* GameViewController.swift in Sources */,
+				3FCF931320BC76D800ABEE9F /* Shop.swift in Sources */,
 				3F48207A209DE643001A4EC5 /* Pfeil.swift in Sources */,
 				3F2DF318209490A100FC7469 /* Fighter.swift in Sources */,
 				3F1FEF122097563D0049F94F /* GameCenterHelper.swift in Sources */,

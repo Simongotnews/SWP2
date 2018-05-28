@@ -24,10 +24,14 @@ class GermanMap: SKScene {
     
     var statusMusik = false
     var buttonMusik: UIButton!
-
+    
     
     //Referenz auf gameScene
     var gameScene : GameScene = GameScene(fileNamed: "GameScene")!
+    
+    //Referenz auf shopScene
+    var shopScene : ShopScene = ShopScene(fileNamed: "ShopScene")!
+    
     //TODO Skeltek: Folgende Variablen werden nirgends verwendet und sind vermultich redundant
     //Id des Spielers, der am Zug ist
     //var turnPlayerID: Int = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
@@ -47,6 +51,9 @@ class GermanMap: SKScene {
     
     //playButton
     var playButton: Button!
+    
+    //playButton
+    var shopButton: Button!
     
     //Tabelle für Methode initStatistics
     var table: Table!
@@ -122,7 +129,7 @@ class GermanMap: SKScene {
     // Deklaration des angreifenden und des verteidigenden Bundesland:
     var blAngreifer: Bundesland!
     var blVerteidiger: Bundesland!
-
+    
     //eigener Spieler
     var player1: Player!
     //anderer Spieler
@@ -137,7 +144,7 @@ class GermanMap: SKScene {
     var touchesEndedLocation: CGPoint!
     
     var initialized: Bool = false
-
+    
     override func didMove(to view: SKView) {
         print("GermanMapScene didMove is executing")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
@@ -151,6 +158,7 @@ class GermanMap: SKScene {
             
             setBGMap()
             initBundeslaender()
+            initBlAnzahlTruppen()
             initBlNachbarn()
             
             //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
@@ -168,6 +176,7 @@ class GermanMap: SKScene {
             //initialisiere Coins-Label
             initCoinLabel()
             
+            initShopButton()
             ////initialisiere Phase Label
             //setPhase(PhaseEnum.Verschieben)
             
@@ -198,7 +207,7 @@ class GermanMap: SKScene {
         } else {
             refreshScene()
         }
-
+        
     }
     
     func setPhase(_ phase:PhaseEnum) {
@@ -257,16 +266,6 @@ class GermanMap: SKScene {
         
     }
     
-    func initPlayButton() {
-        playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
-        playButton.setScale(1.1)
-        playButton.position = CGPoint(x: 0, y: -250)
-        statsSideRootNode.addChild(playButton)
-    }
-    
-    
-    
-    
     @IBAction func buttonMusikAction(sender: UIButton!){
         
         if (statusMusik){
@@ -287,11 +286,15 @@ class GermanMap: SKScene {
         }
         
     }
-
-        
+    
+    
     
     
     func refreshScene(){
+        coinLabel.text = "\(player1.getCoins()) €"
+        initStatistics()
+        
+        initBlAnzahlTruppen()
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
     
@@ -321,6 +324,13 @@ class GermanMap: SKScene {
             }
         }
         
+        if shopButton != nil {
+            if shopButton.isPressable == true && shopButton.contains(touch.location(in: statsSide)) {
+                transitToShopScene()
+            }
+            
+        }
+        
         //Klicken der Verschiebeansicht
         if phase==PhaseEnum.Verschieben {
             if verschiebePlusButton.contains(touch.location(in: verschiebeLabel)) {
@@ -333,7 +343,7 @@ class GermanMap: SKScene {
                 verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
             }
         }
-    
+        
         blAngreifer = nil
         let bundeslandName = atPoint(touch.location(in: self)).name
         if(bundeslandName != nil){
@@ -366,7 +376,7 @@ class GermanMap: SKScene {
         if(isAttackValid()){
             setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
             showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
-
+            
             // Schicke die Infos an den Gegner, damit dieser bei einem Angriff Bescheid weiß welche Bundesländer in der Scene beteiligt sind
             var arrowExchange = GameState.StructArrowExchangeRequest()
             arrowExchange.startBundesland = blAngreifer.blNameString
@@ -374,7 +384,7 @@ class GermanMap: SKScene {
             GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
         }
     }
-
+    
     func splitScene() {
         //Erstelle die linke Hälfte
         leftScene = SKNode()
@@ -409,84 +419,53 @@ class GermanMap: SKScene {
         backgroundMap.position = CGPoint(x: 0, y: 0)    // Anker am Viewrand
         backgroundMap.zPosition = 1
         mapSide.addChild(backgroundMap)
-
+        
         // die Size als globales Tupel speichern fuer BL
         mapSize = (backgroundMap.size.width, backgroundMap.size.height)
     }
     
     func initBundeslaender(){
         // Hinzufügen der einzelnen BL an der korrekten Stelle als Klasse Bundesland:
-        // Hinzufügen der Truppenstärke sowie der Labels zur Anzeige der Truppenstärke eines Bundeslandes
         // HINWEIS: die Größe der einzelnen Kartenelemente richtet sich nach der Size der Hintergrundmap!
-
+        
         // Baden-Württemberg:
         badenWuerttemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuerttemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         badenWuerttemberg?.setPosition()
-        let badenWuerttembergAnzahlTruppen = String(badenWuerttemberg?.anzahlTruppen ?? Int())
-        badenWuerttembergAnzahlTruppenLabel = SKLabelNode(text: badenWuerttembergAnzahlTruppen)
-        badenWuerttembergAnzahlTruppenLabel.name = badenWuerttemberg?.blNameString
-        badenWuerttembergAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 435 + rightScene.position.x, y: self.size.height/3 + 40)
-        setTruppenAnzahlLabel(badenWuerttembergAnzahlTruppenLabel)
         mapSide.addChild(badenWuerttemberg!)
         
         // Bayern:
         bayern = Bundesland(blName: BundeslandEnum.Bayern, texture: SKTexture(imageNamed: "Bayern_blue"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         bayern?.setPosition()
-        let bayernAnzahlTruppen = String(bayern?.anzahlTruppen ?? Int())
-        bayernAnzahlTruppenLabel = SKLabelNode(text: bayernAnzahlTruppen)
-        bayernAnzahlTruppenLabel.name = bayern?.blNameString
-        bayernAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 330 + rightScene.position.x, y: self.size.height/3 + 55)
-        setTruppenAnzahlLabel(bayernAnzahlTruppenLabel)
         mapSide.addChild(bayern!)
         
         // Berlin:
         berlin = Bundesland(blName: BundeslandEnum.Berlin, texture: SKTexture(imageNamed: "Berlin_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         berlin?.setPosition()
-        let berlinAnzahlTruppen = String(berlin?.anzahlTruppen ?? Int())
-        berlinAnzahlTruppenLabel = SKLabelNode(text: berlinAnzahlTruppen)
-        berlinAnzahlTruppenLabel.name = berlin?.blNameString
-        berlinAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 270 + rightScene.position.x, y: self.size.height/3 + 305)
-        setTruppenAnzahlLabel(berlinAnzahlTruppenLabel)
         mapSide.addChild(berlin!)
         
         // Brandenburg:
         brandenburg = Bundesland(blName: BundeslandEnum.Brandenburg, texture: SKTexture(imageNamed: "Brandenburg_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                                 size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         brandenburg?.setPosition()
-        let brandenburgAnzahlTruppen = String(brandenburg?.anzahlTruppen ?? Int())
-        brandenburgAnzahlTruppenLabel = SKLabelNode(text: brandenburgAnzahlTruppen)
-        brandenburgAnzahlTruppenLabel.name = brandenburg?.blNameString
-        brandenburgAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 245 + rightScene.position.x, y: self.size.height/3 + 275)
-        setTruppenAnzahlLabel(brandenburgAnzahlTruppenLabel)
         mapSide.addChild(brandenburg!)
         
         // Bremen:
         bremen = Bundesland(blName: BundeslandEnum.Bremen, texture: SKTexture(imageNamed: "Bremen_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         bremen?.setPosition()
-        let bremenAnzahlTruppen = String(bremen?.anzahlTruppen ?? Int())
-        bremenAnzahlTruppenLabel = SKLabelNode(text: bremenAnzahlTruppen)
-        bremenAnzahlTruppenLabel.name = bremen?.blNameString
-        bremenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 440 + rightScene.position.x, y: self.size.height/3 + 345)
-        setTruppenAnzahlLabel(bremenAnzahlTruppenLabel)
         mapSide.addChild(bremen!)
         
         // Hamburg:
         hamburg = Bundesland(blName: BundeslandEnum.Hamburg, texture: SKTexture(imageNamed: "Hamburg_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         hamburg?.setPosition()
-        let hamburgAnzahlTruppen = String(hamburg?.anzahlTruppen ?? Int())
-        hamburgAnzahlTruppenLabel = SKLabelNode(text: hamburgAnzahlTruppen)
-        hamburgAnzahlTruppenLabel.name = hamburg?.blNameString
-        hamburgAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 390 + rightScene.position.x, y: self.size.height/3 + 370)
-        setTruppenAnzahlLabel(hamburgAnzahlTruppenLabel)
         mapSide.addChild(hamburg!)
         
         // Hessen:
         hessen = Bundesland(blName: BundeslandEnum.Hessen, texture: SKTexture(imageNamed: "Hessen_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         hessen?.setPosition()
         let hessenAnzahlTruppen = String(hessen?.anzahlTruppen ?? Int())
         hessenAnzahlTruppenLabel = SKLabelNode(text: hessenAnzahlTruppen)
@@ -498,101 +477,211 @@ class GermanMap: SKScene {
         // Mecklenburg-Vorpommern:
         mecklenburgVorpommern = Bundesland(blName: BundeslandEnum.MecklenburgVorpommern, texture: SKTexture(imageNamed: "MecklenburgVorpommern_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         mecklenburgVorpommern?.setPosition()
-        let mecklenburgVorpommernAnzahlTruppen = String(mecklenburgVorpommern?.anzahlTruppen ?? Int())
-        mecklenburgVorpommernAnzahlTruppenLabel = SKLabelNode(text: mecklenburgVorpommernAnzahlTruppen)
-        mecklenburgVorpommernAnzahlTruppenLabel.name = mecklenburgVorpommern?.blNameString
-        mecklenburgVorpommernAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 305 + rightScene.position.x, y: self.size.height/3 + 385)
-        setTruppenAnzahlLabel(mecklenburgVorpommernAnzahlTruppenLabel)
         mapSide.addChild(mecklenburgVorpommern!)
         
         // Niedersachsen:
         niedersachsen = Bundesland(blName: BundeslandEnum.Niedersachsen, texture: SKTexture(imageNamed: "Niedersachsen_blue"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                                   size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         niedersachsen?.setPosition()
-        let niedersachsenAnzahlTruppen = String(niedersachsen?.anzahlTruppen ?? Int())
-        niedersachsenAnzahlTruppenLabel = SKLabelNode(text: niedersachsenAnzahlTruppen)
-        niedersachsenAnzahlTruppenLabel.name = niedersachsen?.blNameString
-        niedersachsenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 400 + rightScene.position.x, y: self.size.height/3 + 290)
-        setTruppenAnzahlLabel(niedersachsenAnzahlTruppenLabel)
         mapSide.addChild(niedersachsen!)
         
         // Nordrhein-Westfalen:
         nordrheinWestfalen = Bundesland(blName: BundeslandEnum.NordrheinWestfalen, texture: SKTexture(imageNamed: "NRW_blue"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                                        size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         nordrheinWestfalen?.setPosition()
-        let nordrheinWestfalenAnzahlTruppen = String(nordrheinWestfalen?.anzahlTruppen ?? Int())
-        nordrheinWestfalenAnzahlTruppenLabel = SKLabelNode(text: nordrheinWestfalenAnzahlTruppen)
-        nordrheinWestfalenAnzahlTruppenLabel.name = nordrheinWestfalen?.blNameString
-        nordrheinWestfalenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 495 + rightScene.position.x, y: self.size.height/3 + 230)
-        setTruppenAnzahlLabel(nordrheinWestfalenAnzahlTruppenLabel)
         mapSide.addChild(nordrheinWestfalen!)
         
         // Rheinland-Pfalz:
         rheinlandPfalz = Bundesland(blName: BundeslandEnum.RheinlandPfalz, texture: SKTexture(imageNamed: "RheinlandPfalz_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                                    size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         rheinlandPfalz?.setPosition()
-        let rheinlandPfalzAnzahlTruppen = String(rheinlandPfalz?.anzahlTruppen ?? Int())
-        rheinlandPfalzAnzahlTruppenLabel = SKLabelNode(text: rheinlandPfalzAnzahlTruppen)
-        rheinlandPfalzAnzahlTruppenLabel.name = rheinlandPfalz?.blNameString
-        rheinlandPfalzAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 510 + rightScene.position.x, y: self.size.height/3 + 140)
-        setTruppenAnzahlLabel(rheinlandPfalzAnzahlTruppenLabel)
         mapSide.addChild(rheinlandPfalz!)
         
         // Saarland:
         saarland = Bundesland(blName: BundeslandEnum.Saarland, texture: SKTexture(imageNamed: "Saarland_blue"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                              size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         saarland?.setPosition()
-        let saarlandAnzahlTruppen = String(saarland?.anzahlTruppen ?? Int())
-        saarlandAnzahlTruppenLabel = SKLabelNode(text: saarlandAnzahlTruppen)
-        saarlandAnzahlTruppenLabel.name = saarland?.blNameString
-        saarlandAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 518 + rightScene.position.x, y: self.size.height/3 + 90)
-        setTruppenAnzahlLabel(saarlandAnzahlTruppenLabel)
+        
         mapSide.addChild(saarland!)
         
         // Sachsen:
         sachsen = Bundesland(blName: BundeslandEnum.Sachsen, texture: SKTexture(imageNamed: "Sachsen_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         sachsen?.setPosition()
-        let sachsenAnzahlTruppen = String(sachsen?.anzahlTruppen ?? Int())
-        sachsenAnzahlTruppenLabel = SKLabelNode(text: sachsenAnzahlTruppen)
-        sachsenAnzahlTruppenLabel.name = sachsen?.blNameString
-        sachsenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 265 + rightScene.position.x, y: self.size.height/3 + 205)
-        setTruppenAnzahlLabel(sachsenAnzahlTruppenLabel)
         mapSide.addChild(sachsen!)
         
         // Sachsen-Anhalt:
         sachsenAnhalt = Bundesland(blName: BundeslandEnum.SachsenAnhalt, texture: SKTexture(imageNamed: "SachsenAnhalt_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+                                   size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         sachsenAnhalt?.setPosition()
-        let sachsenAnhaltAnzahlTruppen = String(sachsenAnhalt?.anzahlTruppen ?? Int())
-        sachsenAnhaltAnzahlTruppenLabel = SKLabelNode(text: sachsenAnhaltAnzahlTruppen)
-        sachsenAnhaltAnzahlTruppenLabel.name = sachsenAnhalt?.blNameString
-        sachsenAnhaltAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 335 + rightScene.position.x, y: self.size.height/3 + 265)
-        setTruppenAnzahlLabel(sachsenAnhaltAnzahlTruppenLabel)
         mapSide.addChild(sachsenAnhalt!)
         
         // Schleswig-Holstein:
         schleswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: "SchleswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         schleswigHolstein?.setPosition()
+        mapSide.addChild(schleswigHolstein!)
+        
+        // Thüringen:
+        thueringen = Bundesland(blName: BundeslandEnum.Thueringen, texture: SKTexture(imageNamed: "Thueringen_red"),
+                                size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        thueringen?.setPosition()
+        mapSide.addChild(thueringen!)
+        
+        allBundeslaender = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, hessen, mecklenburgVorpommern, niedersachsen, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, sachsenAnhalt, schleswigHolstein, thueringen]
+    }
+    
+    func initBlAnzahlTruppen(){
+        // Hinzufügen der Truppenstärke sowie der Labels zur Anzeige der Truppenstärke eines Bundeslandes
+        
+        //Baden-Württemberg:
+        if(badenWuerttembergAnzahlTruppenLabel != nil){
+            badenWuerttembergAnzahlTruppenLabel.removeFromParent()
+        }
+        let badenWuerttembergAnzahlTruppen = String(badenWuerttemberg?.anzahlTruppen ?? Int())
+        badenWuerttembergAnzahlTruppenLabel = SKLabelNode(text: badenWuerttembergAnzahlTruppen)
+        badenWuerttembergAnzahlTruppenLabel.name = badenWuerttemberg?.blNameString
+        badenWuerttembergAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 435 + rightScene.position.x, y: self.size.height/3 + 40)
+        setTruppenAnzahlLabel(badenWuerttembergAnzahlTruppenLabel)
+        
+        //Bayern:
+        if(bayernAnzahlTruppenLabel != nil){
+            bayernAnzahlTruppenLabel.removeFromParent()
+        }
+        let bayernAnzahlTruppen = String(bayern?.anzahlTruppen ?? Int())
+        bayernAnzahlTruppenLabel = SKLabelNode(text: bayernAnzahlTruppen)
+        bayernAnzahlTruppenLabel.name = bayern?.blNameString
+        bayernAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 330 + rightScene.position.x, y: self.size.height/3 + 55)
+        setTruppenAnzahlLabel(bayernAnzahlTruppenLabel)
+        
+        //Berlin:
+        if(berlinAnzahlTruppenLabel != nil){
+            berlinAnzahlTruppenLabel.removeFromParent()
+        }
+        let berlinAnzahlTruppen = String(berlin?.anzahlTruppen ?? Int())
+        berlinAnzahlTruppenLabel = SKLabelNode(text: berlinAnzahlTruppen)
+        berlinAnzahlTruppenLabel.name = berlin?.blNameString
+        berlinAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 270 + rightScene.position.x, y: self.size.height/3 + 305)
+        setTruppenAnzahlLabel(berlinAnzahlTruppenLabel)
+        
+        //Brandenburg:
+        if(brandenburgAnzahlTruppenLabel != nil){
+            brandenburgAnzahlTruppenLabel.removeFromParent()
+        }
+        let brandenburgAnzahlTruppen = String(brandenburg?.anzahlTruppen ?? Int())
+        brandenburgAnzahlTruppenLabel = SKLabelNode(text: brandenburgAnzahlTruppen)
+        brandenburgAnzahlTruppenLabel.name = brandenburg?.blNameString
+        brandenburgAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 245 + rightScene.position.x, y: self.size.height/3 + 275)
+        setTruppenAnzahlLabel(brandenburgAnzahlTruppenLabel)
+        
+        //Bremen:
+        if(bremenAnzahlTruppenLabel != nil){
+            bremenAnzahlTruppenLabel.removeFromParent()
+        }
+        let bremenAnzahlTruppen = String(bremen?.anzahlTruppen ?? Int())
+        bremenAnzahlTruppenLabel = SKLabelNode(text: bremenAnzahlTruppen)
+        bremenAnzahlTruppenLabel.name = bremen?.blNameString
+        bremenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 440 + rightScene.position.x, y: self.size.height/3 + 345)
+        setTruppenAnzahlLabel(bremenAnzahlTruppenLabel)
+        
+        //Hamburg:
+        if(hamburgAnzahlTruppenLabel != nil){
+            hamburgAnzahlTruppenLabel.removeFromParent()
+        }
+        let hamburgAnzahlTruppen = String(hamburg?.anzahlTruppen ?? Int())
+        hamburgAnzahlTruppenLabel = SKLabelNode(text: hamburgAnzahlTruppen)
+        hamburgAnzahlTruppenLabel.name = hamburg?.blNameString
+        hamburgAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 390 + rightScene.position.x, y: self.size.height/3 + 370)
+        setTruppenAnzahlLabel(hamburgAnzahlTruppenLabel)
+        
+        //Mecklenburg-Vorpommern:
+        if(mecklenburgVorpommernAnzahlTruppenLabel != nil){
+            mecklenburgVorpommernAnzahlTruppenLabel.removeFromParent()
+        }
+        let mecklenburgVorpommernAnzahlTruppen = String(mecklenburgVorpommern?.anzahlTruppen ?? Int())
+        mecklenburgVorpommernAnzahlTruppenLabel = SKLabelNode(text: mecklenburgVorpommernAnzahlTruppen)
+        mecklenburgVorpommernAnzahlTruppenLabel.name = mecklenburgVorpommern?.blNameString
+        mecklenburgVorpommernAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 305 + rightScene.position.x, y: self.size.height/3 + 385)
+        setTruppenAnzahlLabel(mecklenburgVorpommernAnzahlTruppenLabel)
+        
+        //Niedersachsen:
+        if(niedersachsenAnzahlTruppenLabel != nil){
+            niedersachsenAnzahlTruppenLabel.removeFromParent()
+        }
+        let niedersachsenAnzahlTruppen = String(niedersachsen?.anzahlTruppen ?? Int())
+        niedersachsenAnzahlTruppenLabel = SKLabelNode(text: niedersachsenAnzahlTruppen)
+        niedersachsenAnzahlTruppenLabel.name = niedersachsen?.blNameString
+        niedersachsenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 400 + rightScene.position.x, y: self.size.height/3 + 290)
+        setTruppenAnzahlLabel(niedersachsenAnzahlTruppenLabel)
+        
+        //Nordrhein-Westfalen:
+        if(nordrheinWestfalenAnzahlTruppenLabel != nil){
+            nordrheinWestfalenAnzahlTruppenLabel.removeFromParent()
+        }
+        let nordrheinWestfalenAnzahlTruppen = String(nordrheinWestfalen?.anzahlTruppen ?? Int())
+        nordrheinWestfalenAnzahlTruppenLabel = SKLabelNode(text: nordrheinWestfalenAnzahlTruppen)
+        nordrheinWestfalenAnzahlTruppenLabel.name = nordrheinWestfalen?.blNameString
+        nordrheinWestfalenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 495 + rightScene.position.x, y: self.size.height/3 + 230)
+        setTruppenAnzahlLabel(nordrheinWestfalenAnzahlTruppenLabel)
+        
+        //Rheinland-Pfalz:
+        if(rheinlandPfalzAnzahlTruppenLabel != nil){
+            rheinlandPfalzAnzahlTruppenLabel.removeFromParent()
+        }
+        let rheinlandPfalzAnzahlTruppen = String(rheinlandPfalz?.anzahlTruppen ?? Int())
+        rheinlandPfalzAnzahlTruppenLabel = SKLabelNode(text: rheinlandPfalzAnzahlTruppen)
+        rheinlandPfalzAnzahlTruppenLabel.name = rheinlandPfalz?.blNameString
+        rheinlandPfalzAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 510 + rightScene.position.x, y: self.size.height/3 + 140)
+        setTruppenAnzahlLabel(rheinlandPfalzAnzahlTruppenLabel)
+        
+        //Saaarland:
+        if(saarlandAnzahlTruppenLabel != nil){
+            saarlandAnzahlTruppenLabel.removeFromParent()
+        }
+        let saarlandAnzahlTruppen = String(saarland?.anzahlTruppen ?? Int())
+        saarlandAnzahlTruppenLabel = SKLabelNode(text: saarlandAnzahlTruppen)
+        saarlandAnzahlTruppenLabel.name = saarland?.blNameString
+        saarlandAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 518 + rightScene.position.x, y: self.size.height/3 + 90)
+        setTruppenAnzahlLabel(saarlandAnzahlTruppenLabel)
+        
+        //Sachsen:
+        if(sachsenAnzahlTruppenLabel != nil){
+            sachsenAnzahlTruppenLabel.removeFromParent()
+        }
+        let sachsenAnzahlTruppen = String(sachsen?.anzahlTruppen ?? Int())
+        sachsenAnzahlTruppenLabel = SKLabelNode(text: sachsenAnzahlTruppen)
+        sachsenAnzahlTruppenLabel.name = sachsen?.blNameString
+        sachsenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 265 + rightScene.position.x, y: self.size.height/3 + 205)
+        setTruppenAnzahlLabel(sachsenAnzahlTruppenLabel)
+        
+        //Sachsen-Anhalt:
+        if(sachsenAnhaltAnzahlTruppenLabel != nil){
+            sachsenAnhaltAnzahlTruppenLabel.removeFromParent()
+        }
+        let sachsenAnhaltAnzahlTruppen = String(sachsenAnhalt?.anzahlTruppen ?? Int())
+        sachsenAnhaltAnzahlTruppenLabel = SKLabelNode(text: sachsenAnhaltAnzahlTruppen)
+        sachsenAnhaltAnzahlTruppenLabel.name = sachsenAnhalt?.blNameString
+        sachsenAnhaltAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 335 + rightScene.position.x, y: self.size.height/3 + 265)
+        setTruppenAnzahlLabel(sachsenAnhaltAnzahlTruppenLabel)
+        
+        //Schleswig-Holstein:
+        if(schleswigHolsteinAnzahlTruppenLabel != nil){
+            schleswigHolsteinAnzahlTruppenLabel.removeFromParent()
+        }
         let schleswigHolsteinAnzahlTruppen = String(schleswigHolstein?.anzahlTruppen ?? Int())
         schleswigHolsteinAnzahlTruppenLabel = SKLabelNode(text: schleswigHolsteinAnzahlTruppen)
         schleswigHolsteinAnzahlTruppenLabel.name = schleswigHolstein?.blNameString
         schleswigHolsteinAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 400 + rightScene.position.x, y: self.size.height/3 + 415)
         setTruppenAnzahlLabel(schleswigHolsteinAnzahlTruppenLabel)
-        mapSide.addChild(schleswigHolstein!)
         
-        // Thüringen:
-        thueringen = Bundesland(blName: BundeslandEnum.Thueringen, texture: SKTexture(imageNamed: "Thueringen_red"),
-            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
-        thueringen?.setPosition()
+        //Thüringen:
+        if(thueringenAnzahlTruppenLabel != nil){
+            thueringenAnzahlTruppenLabel.removeFromParent()
+        }
         let thueringenAnzahlTruppen = String(thueringen?.anzahlTruppen ?? Int())
         thueringenAnzahlTruppenLabel = SKLabelNode(text: thueringenAnzahlTruppen)
         thueringenAnzahlTruppenLabel.name = thueringen?.blNameString
         thueringenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 355 + rightScene.position.x, y: self.size.height/3 + 190)
         setTruppenAnzahlLabel(thueringenAnzahlTruppenLabel)
-        mapSide.addChild(thueringen!)
-        
-        allBundeslaender = [badenWuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, hessen, mecklenburgVorpommern, niedersachsen, nordrheinWestfalen, rheinlandPfalz, saarland, sachsen, sachsenAnhalt, schleswigHolstein, thueringen]
     }
     
     // Für jedes Bundesland wird ein Array mit den Nachbarländern initialisiert
@@ -651,7 +740,7 @@ class GermanMap: SKScene {
         for bundesland in allBundeslaender{
             
             let zufallszahl : UInt32 = arc4random_uniform(2) //Zahlen (zwischen) 0 und 1 generieren
-            
+        
             if(zufallszahl < 1  && player1.blEigene.count < 8){ //wenn Zufallszahl < 1 ist, Bundesland an Spieler 1
                 player1?.blEigene.append(bundesland)
             }else if(zufallszahl >= 1  && player2.blEigene.count < 8) { //wenn Zufallszahl >= 1 ist, Bundesland an Spieler 2
@@ -682,16 +771,35 @@ class GermanMap: SKScene {
     }
     
     
+    func initPlayButton() {
+        playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
+        playButton.setScale(1.1)
+        playButton.position = CGPoint(x: 0, y: -250)
+        statsSideRootNode.addChild(playButton)
+    }
+    
+    // Initialisieren des Shop-Buttons
+    func initShopButton(){
+        
+        shopButton = Button(texture: SKTexture(imageNamed: "shopButton"), size: CGSize(width: 130, height: 70), isPressable: true)
+        shopButton.setScale(0.6)
+        shopButton.position = CGPoint(x: -10, y: -230)
+        
+        statsSide.addChild(shopButton)
+    }
+    
     func initStatistics() {
+        if(table != nil){
+            table.removeFromParent()
+        }
         let anzahlEigeneBl: Int = (player1?.blEigene.count)!
         let eigeneTruppenStaerke: Int = (player1?.calculateTruppenStaerke())!
         let anzahlGegnerischeBl: Int = (player2?.blEigene.count)!
         let gegnerischeTruppenStaerke: Int = (player2?.calculateTruppenStaerke())!
-        let neutraleBl: Int = 16 - anzahlEigeneBl - anzahlGegnerischeBl
         
         //Erstelle Tabelle mit allen Einträgen
-        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Neutrale Gebiete:", "Verfügbare Angriffe:"]
-        let values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, neutraleBl, 2]
+        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Verfügbare Angriffe:"]
+        let values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, 2]
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
         
@@ -716,7 +824,7 @@ class GermanMap: SKScene {
         truppenLabel.zPosition=4
         self.addChild(truppenLabel)
     }
- 
+    
     func showBlAfterArrowSelect(_ bl1: Bundesland, against bl2: Bundesland){
         //falls es den Knoten schon gibt -> lösche ihn, denn die komplette Animtion und alle Kinder dieser Node sollen erneut erscheinen, wenn der Pfeil erneut gezogen wird
         statsSideRootNode?.removeFromParent()
@@ -782,7 +890,7 @@ class GermanMap: SKScene {
         let fadeIn = SKAction.fadeIn(withDuration: 0.8)
         //führe Effekt hintereinander aus
         backGroundBl1.run(fadeIn, completion: { self.vsLabel.run(fadeIn, completion: { self.backGroundBl2.run(fadeIn) })})
-       
+        
         initPlayButton()
     }
     
@@ -825,7 +933,7 @@ class GermanMap: SKScene {
         }
     }
     
- 
+    
     
     // Initialisieren des Pfeils zur Anzeige der verbundenen Bundesländer
     func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
@@ -852,5 +960,14 @@ class GermanMap: SKScene {
         gameScene.germanMapReference = self
         
         self.view?.presentScene(gameScene, transition: transition)
+    }
+    
+    func transitToShopScene(){
+        shopScene.scaleMode = .aspectFill
+        activePlayer.anzahlTruppen = activePlayer.calculateTruppenStaerke()
+        shopScene.setActivePlayer(playerParam: activePlayer) //TODO: Richtigen ActivePlayer übergeben
+        shopScene.germanMapReference = self
+        
+        self.view?.presentScene(shopScene)
     }
 }
