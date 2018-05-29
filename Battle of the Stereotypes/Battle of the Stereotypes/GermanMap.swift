@@ -953,7 +953,7 @@ class GermanMap: SKScene {
     //Voraussetzung 4: Das Bundesland zum Starten des Angriffs gehört dem eigenen Spieler
     //Voraussetzung 5: Das Bundesland zum angreifen gehört dem anderen Spieler
     func isAttackValid() -> Bool{
-        return blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!)
+        return blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1)
     }
     
     // Design der Labels zur Anzeige der Truppenstärke eines Bundeslandes
