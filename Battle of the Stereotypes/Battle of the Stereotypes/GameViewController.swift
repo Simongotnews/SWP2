@@ -30,7 +30,7 @@ class GameViewController: UIViewController {
             GameCenterHelper.getInstance().authenticateLocalPlayer()
         
             // Lösche alle aktiven Matches für Testzwecke
-            // GameCenterHelper.getInstance().removeGames()
+            //GameCenterHelper.getInstance().removeGames()
             
             // Get the SKScene from the loaded GKScene
             if let sceneNode = scene.rootNode as! StartScene? {
