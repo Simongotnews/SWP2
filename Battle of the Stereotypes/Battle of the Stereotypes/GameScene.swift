@@ -836,7 +836,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let anzahlEigeneBl: Int = germanMapReference.table.getValue(index: attackerIndex-1)
         let anzahlGegnerischeBl : Int = germanMapReference.table.getValue(index: defenderIndex-1)
-        let verfügbareAngriffe : Int = germanMapReference.table.getValue(index: 5)
+        let verfügbareAngriffe : Int = germanMapReference.table.getValue(index: 4)
         
         if attackerIndex == 1 { //rightDummy wird besiegt
             gegnerischeTruppenStaerke -= gegnerDamage
@@ -846,14 +846,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.table.setValue(index: defenderIndex-1, value: anzahlGegnerischeBl - 1)
             germanMapReference.table.setValue(index: attackerIndex-1, value: anzahlEigeneBl + 1)
             
-            germanMapReference.table.setValue(index: 5, value: verfügbareAngriffe - 1)
+            germanMapReference.table.setValue(index: 4, value: verfügbareAngriffe - 1)
             
         } else { //leftDummy wird besiegt
             gegnerischeTruppenStaerke -= gegnerDamage
             eigeneTruppenStaerke -= angreiferDamage
             germanMapReference.table.setValue(index: attackerIndex, value: eigeneTruppenStaerke)
             germanMapReference.table.setValue(index: defenderIndex, value: gegnerischeTruppenStaerke)
-            germanMapReference.table.setValue(index: 5, value: verfügbareAngriffe-1)
+            germanMapReference.table.setValue(index: 4, value: verfügbareAngriffe-1)
         }
         germanMapReference.table.update()
     }
