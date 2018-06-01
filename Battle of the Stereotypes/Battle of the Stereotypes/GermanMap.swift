@@ -765,8 +765,21 @@ class GermanMap: SKScene {
             while Double (player1.calculateTruppenStaerke()) * 1.2 <= Double (player2.calculateTruppenStaerke()){
                 
                 for bundesland in player2.blEigene{  //player2 in jedem BL eine Truppe wegnehmen
-                    if (bundesland.anzahlTruppen >= 2){
+                    
+                    if (player2.calculateTruppenStaerke() - player1.calculateTruppenStaerke() >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                        if (bundesland.anzahlTruppen >= 10){
+                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 4
+                        }
+                    }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
+                        
+                        if (bundesland.anzahlTruppen > 2){
                         bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
+                        }
+                        
+                    }
+                    
+                    if (player2.calculateTruppenStaerke() <= 16 ){ //Endlosschleife vermeiden
+                        break
                     }
                 }
             }
@@ -777,8 +790,20 @@ class GermanMap: SKScene {
             while Double (player2.calculateTruppenStaerke()) * 1.2 <= Double (player1.calculateTruppenStaerke()){
                 
                 for bundesland in player1.blEigene{ //player1 in jedem BL eine Truppe wegnehmen
-                    if (bundesland.anzahlTruppen >= 2){
-                        bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
+                    if (player1.calculateTruppenStaerke() - player2.calculateTruppenStaerke() >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                        if (bundesland.anzahlTruppen >= 10){
+                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 4
+                        }
+                    }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
+                        
+                        if (bundesland.anzahlTruppen > 2){
+                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
+                        }
+                        
+                    }
+                    
+                    if (player1.calculateTruppenStaerke() <= 16 ){ //Endlosschleife vermeiden
+                        break
                     }
                 }
             }
