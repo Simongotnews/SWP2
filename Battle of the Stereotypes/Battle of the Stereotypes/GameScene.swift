@@ -210,6 +210,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func refreshScene(){
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
+        rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
+        rightDummy.lifePoints = rightDummyHealthInitial
+        leftDummyHealthInitial = germanMapReference.blAngreifer.anzahlTruppen-1
+        leftDummy.lifePoints = leftDummyHealthInitial
+        
     }
     /** Aktualisiert lokale Variablen */
     func updateStats(){
@@ -752,7 +757,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //ball.removeFromParent()
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
             leftDummy.blink()
-            leftDummy.damage = Int(floor(contact.collisionImpulse/32))
+            leftDummy.damage = germanMapReference.player1.getFinalDamage(collisionImpulse: (contact.collisionImpulse))
             if leftDummy.lifePoints > leftDummy.damage {
                 leftDummy.lifePoints -= leftDummy.damage
             } else {
@@ -764,7 +769,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
             rightDummy.blink()
-            rightDummy.damage = Int(floor(contact.collisionImpulse/32))
+            rightDummy.damage = germanMapReference.player2.getFinalDamage(collisionImpulse: contact.collisionImpulse)
             if rightDummy.lifePoints > rightDummy.damage {
                 rightDummy.lifePoints -= rightDummy.damage
             } else {
