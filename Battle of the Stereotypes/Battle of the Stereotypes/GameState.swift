@@ -41,7 +41,7 @@ class GameState {
         var health = [100, 100]
         /** Wie lautet die PlayerID des aktiven Spielers in der GameScene, TurnOwner muss diesen Wert immer up-to-date halten TODO: Falls man das Spiel später ausfallsicher machen will und Neustarten etc. möglich machen will,
             ist die Speicherung überall notwendig. Aktuell aber unbenutzt. */
-        var turnOwnerActive : Int = 0
+        var activePlayerID : Int = 0
         /** Im aktuellen Spiel letzter Bildschirm nach "Tiefe" - 0.Start -1.Karte - 2.Schlacht */
         var currentScene : Int = 0
     }
@@ -139,7 +139,7 @@ class GameState {
     /** Gibt die String Representation von StructGameState zurück */
     static func gameStateToString(gameState: StructGameState) -> String
     {
-        return "GameState [ownerOfBundesland=" + gameState.ownerOfbundesland.description + ", troups=" + gameState.troups.description + ", money=" + gameState.money.description + ", lives=" + gameState.health.description + ", turnOwnerActive=" + String(gameState.turnOwnerActive)
+        return "GameState [ownerOfBundesland=" + gameState.ownerOfbundesland.description + ", troups=" + gameState.troups.description + ", money=" + gameState.money.description + ", lives=" + gameState.health.description + ", turnOwnerActive=" + String(gameState.activePlayerID)
     }
     
     /** Gibt die String Representation von StructArrowExchangeRequest */

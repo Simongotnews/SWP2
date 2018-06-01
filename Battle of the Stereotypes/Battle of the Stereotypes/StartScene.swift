@@ -30,6 +30,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     var backgroundOfButton: SKSpriteNode!
     //playButton
     var playGameButton: Button!
+    /** Button für die Spielauswahl */
+    var gameSelectionButton : UIButton!
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
@@ -40,6 +42,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         
         initBackground()
         initStartGameButton()
+        initGameSelectionButton()
         
         //Sound
         //...
@@ -64,8 +67,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         self.view?.addSubview(buttonMusik)
         
     }
+    
     @IBAction func buttonMusikAction(sender: UIButton!){
-        
         if (statusMusik){
             print("Musik An")
             statusMusik = false
@@ -82,7 +85,11 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
             audioPlayer.pause()
             
         }
-        
+    }
+    
+    /** EventHandler für Button um Spiel auswählen zu können */
+    @IBAction func buttonGameSelectionAction(sender: UIButton!){
+        GameCenterHelper.getInstance().findBattleMatch()
     }
     
     func refreshScene(){
@@ -94,12 +101,23 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         background = SKSpriteNode(imageNamed: "Holzhintergrund")
         
         background.size = CGSize(width: self.size.width, height: self.size.height/2.3)
+        background.scale(to: background.size)
         background.anchorPoint=CGPoint(x: 0.5, y: 0.5)
         //background.position=CGPoint(x: 0, y: -60)
         //Hintergrund ist am weitesten weg bei der Ansicht
         background.zPosition = -1
         
         self.addChild(background)
+    }
+    
+    /** initialisiert den Button für die Spielauswahl */
+    func initGameSelectionButton() {
+        gameSelectionButton = UIButton(frame: CGRect(x: 6*self.frame.height/10 , y: 9*self.frame.width/10, width: self.frame.height/10, height: self.frame.width/10))
+        gameSelectionButton.addTarget(self, action: #selector(buttonGameSelectionAction), for: .touchUpInside)
+        gameSelectionButton.setTitle("Spielauswahl", for: UIControlState.normal)
+        gameSelectionButton.backgroundColor = UIColor.red
+        //gameSelectionButton.
+        self.view?.addSubview(gameSelectionButton)
     }
     
     func initStartGameButton() { //initialisiere den Start-Button
@@ -121,9 +139,9 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
-        print("Derzeitig am Zug ist Spieler #\(GameCenterHelper.getInstance().getIndexOfCurrentPlayer())")
-        print("Eigener Spieler #\(GameCenterHelper.getInstance().getIndexOfLocalPlayer())")
-        print("Nächste Spieler #\(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
+        //print("Derzeitig am Zug ist Spieler #\(GameCenterHelper.getInstance().getIndexOfCurrentPlayer())")
+        //print("Eigener Spieler #\(GameCenterHelper.getInstance().getIndexOfLocalPlayer())")
+        //print("Nächste Spieler #\(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)

@@ -211,6 +211,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     }
     /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
     func getIndexOfNextPlayer() -> Int {
+        
         return (getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!
     }
     
@@ -253,7 +254,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Gibt an ob lokaler Spieler aktiv */
     func isLocaLPlayerActive() -> Bool {
-        if (self.gameState.turnOwnerActive == self.getIndexOfLocalPlayer()){
+        if (self.gameState.activePlayerID == self.getIndexOfLocalPlayer()){
             return true
         }
         return false
@@ -263,7 +264,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     /** Speichert Spiel+Daten ohne turn abzugeben */
     func saveGameDataToGameCenter() -> Void {
         if GameViewController.debugMode {
-            gameState.turnOwnerActive = getIndexOfLocalPlayer()
+            gameState.activePlayerID = getIndexOfLocalPlayer()
         }
         let dataToSave = GameState.encodeStruct(structToEncode: gameState)
         self.currentMatch.saveCurrentTurn(withMatch: dataToSave) { (error : Error?) in
@@ -314,7 +315,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     print("Keine Daten gefunden -> Speichere Daten in GameCenter")
                     //Daten neu initialisieren für neues Spiel; um Daten alten geladenen Spiels zu löschen
                     self.gameState.currentScene = 0
-                    self.gameState.turnOwnerActive = 0
+                    self.gameState.activePlayerID = 0
                     self.saveGameDataToGameCenter()
                 }
             } else {
@@ -472,7 +473,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Exchange-Nachricht: \(exchange.message)")
                 print("GameState.Identifier: \(GameState.IdentifierThrowExchange)")
                 if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){//}&& exchange.message == GameState.IdentifierThrowExchange){
-                    self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
+                    self.gameState.activePlayerID = self.getIndexOfLocalPlayer()
                     self.mergeCompletedExchangeToSave(exchange: exchange)
                 }
                 // StartScene.germanMapScene.gameScene.updateStats()
@@ -545,7 +546,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if error == nil {
                 print("MergeRequest bestätigt, merge drei Exchanges")
                 if (self.isLocalPlayersTurn()){
-                    self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
+                    self.gameState.activePlayerID = self.getIndexOfLocalPlayer()
                     self.mergeCompletedExchangesToSave(exchanges: self.tempExchanges)
                     self.tempExchanges = [GKTurnBasedExchange]()
                 }
@@ -564,7 +565,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             if(error == nil ) {
                 print("TestExchange-Reply erfolgreich verschickt")
                 if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){
-                    self.gameState.turnOwnerActive = self.getIndexOfLocalPlayer()
+                    self.gameState.activePlayerID = self.getIndexOfLocalPlayer()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
                         print("Dispatching assynchronous Thread")
                         self.mergeCompletedExchangeToSave(exchange: testExchange)
@@ -597,7 +598,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
             if (exchange.message == GameState.IdentifierDamageExchange){
                 tempExchanges.append(exchange)
-                gameState.turnOwnerActive = getIndexOfOtherPlayer()
+                gameState.activePlayerID = getIndexOfOtherPlayer()
                 mergeCompletedExchangesToSave(exchanges: tempExchanges)
             }
         }
@@ -639,16 +640,16 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 if (exchange.sender?.player! == GKLocalPlayer.localPlayer()){
                     print("Setze aktiven Spieler auf (nextPlayer): \(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
                     if (GameViewController.debugMode){
-                        gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-                        print("Setze Spieler als aktiv: \(gameState.turnOwnerActive)")
+                        gameState.activePlayerID = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
+                        print("Setze Spieler als aktiv: \(gameState.activePlayerID)")
                     } else {
-                        gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfNextPlayer()
-                        print("Setze Spieler als aktiv: \(gameState.turnOwnerActive)")
+                        gameState.activePlayerID = GameCenterHelper.getInstance().getIndexOfNextPlayer()
+                        print("Setze Spieler als aktiv: \(gameState.activePlayerID)")
                     }
 
                 } else{
                     print("Setze aktiven Spieler auf (currentPlayer) : \(GameCenterHelper.getInstance().getIndexOfCurrentPlayer())")
-                    gameState.turnOwnerActive = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+                    gameState.activePlayerID = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
                 }
             }
             

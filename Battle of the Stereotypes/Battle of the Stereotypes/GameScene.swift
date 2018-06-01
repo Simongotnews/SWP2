@@ -116,7 +116,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             initialized = true  //TODO Skeltek: Notlösung, später korrigieren
             updateStats()
             //initilialisiere Geschoss für Spieler 1
-            initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive) //Skeltek: Notlösung, später entsprechend ersetzen
+            initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID) //Skeltek: Notlösung, später entsprechend ersetzen
             initHealthBar()
         } else {
             refreshScene()
@@ -195,7 +195,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     /** Aktualisiert lokale Variablen */
     func updateStats(){
-        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().gameState.turnOwnerActive){
+        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().gameState.activePlayerID){
             print("+++Touchpad unlocked+++")
             touchpadLocked = false
         } else {
@@ -217,7 +217,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             rightDummyHealthLabel.text = "Health: \(rightDummyHealth)/\(rightDummyHealthInitial)"
             
             leftDummyHealth * rightDummyHealth == 0 ? transitToGermanMap() : nil
-            initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+            initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
         } else {
             
         }
@@ -420,12 +420,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         var statusText : String = ""
-        if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+        if(GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
             statusText += "Spieler: DU "
         } else {
             statusText += "Spieler: Gegner "
         }
-        if(leftDummyID! == GameCenterHelper.getInstance().gameState.turnOwnerActive) {
+        if(leftDummyID! == GameCenterHelper.getInstance().gameState.activePlayerID) {
             statusText += "(links)"
         } else {
             statusText += "(rechts)"
@@ -480,7 +480,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
-        print("Spieler aktiv: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
+        print("Spieler aktiv: \(GameCenterHelper.getInstance().gameState.activePlayerID)")
         print("Eigene ID: \(germanMapReference.player1.id)")
         print("leftDummyID: \(leftDummyID)")
         print("rightDummyID: \(rightDummyID)\n")
@@ -620,7 +620,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
             didCollide = true
             print("Dummy getroffen!")
-            if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+            if(GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
                 projectileDidCollideWithDummy(contact) }
             //Sound bei Treffer
             if(statusSound){
@@ -706,7 +706,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(ball.position.x >= (self.frame.width) || ball.position.x <= (-self.frame.width)) {
                 print("Ball verlässt Bildschirm!")
                 damageSent = true
-                if (GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
+                if (GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
                 } else if(GameCenterHelper.getInstance().getIndexOfCurrentPlayer() != GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
                     //GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
