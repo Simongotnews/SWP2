@@ -145,7 +145,9 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
-        
+        if !GameCenterHelper.getInstance().spielGeladen{
+            return
+        }
         //wenn Back-Button gedrückt wurde, zur Bundesländer-Übersicht wechseln
         if playGameButton != nil {
             if playGameButton.isPressable == true && playGameButton.contains(touch.location(in: self)) {

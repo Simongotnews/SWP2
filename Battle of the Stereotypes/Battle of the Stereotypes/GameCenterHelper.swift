@@ -375,7 +375,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     var tempExchanges : [GKTurnBasedExchange] = [GKTurnBasedExchange]()
 
     /** Listet alle Exchanges auf, welche nicht abgeschlossen sind */
-    func listExchanges(){
+    func listExchangesOfCurrentMatch(){
         if (currentMatch.exchanges?.count != nil){
             print("Aktuelle Liste der Exchanges")
             for exchange in currentMatch.exchanges!{
@@ -424,6 +424,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Spieler erhält einen Exchange Request */
     func player(_ player: GKPlayer, receivedExchangeRequest exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
+        if match != currentMatch {
+            return
+        }
         switch exchange.message {
         case GameState.IdentifierArrowExchange:
             print("ArrowExchange empfangen")
@@ -486,6 +489,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Spieler erhält Information das der Exchange abgebrochen wurde */
     func player(_ player: GKPlayer, receivedExchangeCancellation exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch) {
+        if match != currentMatch {
+            return
+        }
         print("Exchange abgebrochen")
     }
     
@@ -582,6 +588,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     
     /** Wird aufgerufen, wenn eine Exchange von allen Empfängern beantwortet oder abgebrochen wurde. Empfänger: ExchangeAbsender + Turnowner */
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch){
+        if match != currentMatch{
+            return
+        }
         print("Exchange completed")
         
         if (self.isLocalPlayersTurn()){ // && isLocalPlayerActive überflüssig
