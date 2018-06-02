@@ -262,8 +262,8 @@ class GermanMap: SKScene {
             verschiebeOkButton.alpha = 5
             verschiebeLabel.addChild(verschiebeOkButton)
             
-            verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"), size: CGSize(width: 130, height: 50), isPressable: true)
-            verschiebeFinishButton.position = CGPoint(x: 110, y: -83)
+            verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"), size: CGSize(width: 80, height: 50), isPressable: true)
+            verschiebeFinishButton.position = CGPoint(x: 53, y: -80)
             verschiebeFinishButton.alpha = 5
             verschiebeLabel.addChild(verschiebeFinishButton)
             
@@ -370,8 +370,15 @@ class GermanMap: SKScene {
             
         }
         
-        //Interaktionen mit Verschiebeansicht (dürfen nur gedrückt werden, wenn Pfeil ausgewählt wurde)
-        if phase==PhaseEnum.Verschieben && pfeil != nil {
+        if verschiebeFinishButton != nil {
+            if verschiebeFinishButton.contains(touch.location(in: verschiebeLabel)) {
+                //HIER EINFÜGEN, WAS PASSIEREN SOLL WENN DER ZUG ZUENDE IST UND DER ANDERE SPIELER DRAN IST
+                
+            }
+        }
+        
+        //Interaktionen mit Verschiebeansicht (dürfen nur gedrückt werden, wenn Pfeil ausgewählt wurde und man noch Verschiebungen übrig hat)
+        if phase==PhaseEnum.Verschieben && pfeil != nil && table.getValue(index: 5)>0 {
             //beachte, dass nicht beliebige Zahlen eingestellt werden dürfen
             if verschiebePlusButton.contains(touch.location(in: verschiebeLabel)) {
                 if verschiebeZahl < blAngreifer.anzahlTruppen! {
@@ -401,6 +408,14 @@ class GermanMap: SKScene {
                     initBlAnzahlTruppen()
                     verschiebeZahl = 0
                     verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+                    
+                    //lösche den Pfeil
+                    pfeil.removeFromParent()
+                    pfeil = nil
+                    
+                    //verringere die verfügbaren Verschiebungen in der Statistik
+                    table.setValue(index: 5, value: table.getValue(index: 5)-1)
+                    table.update()
                 }
                 return
             }
@@ -1026,7 +1041,7 @@ class GermanMap: SKScene {
         
         shopButton = Button(texture: SKTexture(imageNamed: "shopButton"), size: CGSize(width: 130, height: 70), isPressable: true)
         shopButton.setScale(0.6)
-        shopButton.position = CGPoint(x: -10, y: -230)
+        shopButton.position = CGPoint(x: -50, y: -230)
         
         statsSide.addChild(shopButton)
     }
@@ -1041,7 +1056,7 @@ class GermanMap: SKScene {
         let gegnerischeTruppenStaerke: Int = (player2?.calculateTruppenStaerke())!
         
         //Erstelle Tabelle mit allen Einträgen
-        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Verfügbare Angriffe:", "Mögliche Verschiebungen:"]
+        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Verfügbare Angriffe:", "Verfügbare Verschiebungen:"]
         let values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, 2, 2]
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
@@ -1060,8 +1075,9 @@ class GermanMap: SKScene {
         if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Angriff){
             return true
         }
-            //Achtung Auch beim Verschieben wird ein Pfeil gezogen, welcher die oben genannten Voraussetzungen leicht verändert
-            else if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && ((activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Verschieben){
+            //Achtung: auch beim Verschieben wird ein Pfeil gezogen, welcher die oben genannten Voraussetzungen leicht verändert
+            //Es kommt hinzu, dass man noch Verschiebungen übrig hat
+            else if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && ((activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Verschieben) && (table.getValue(index: 5)>0) {
             return true
         } else {
             return false
