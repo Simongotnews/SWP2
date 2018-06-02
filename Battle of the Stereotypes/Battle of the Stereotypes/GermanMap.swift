@@ -180,27 +180,28 @@ class GermanMap: SKScene {
             ////initialisiere Phase Label
             //setPhase(PhaseEnum.Verschieben)
             
-            //Sound
-            //...
-            hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
-            
-            do{
-                audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
-            }catch{
-                print("Datei nicht gefunden")
-            }
-            //Wie oft abgespielt werden soll (-1 unendlich oft)
-            audioPlayer.numberOfLoops = -1
-            //Performance verbessern von Audioplayer
-            audioPlayer.prepareToPlay()
-            
-            audioPlayer.play()
-            
-            buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
-            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
-            buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
-            
-            self.view?.addSubview(buttonMusik)
+            initMusikButton()
+//            //Sound
+//            //...
+//            hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+//
+//            do{
+//                audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+//            }catch{
+//                print("Datei nicht gefunden")
+//            }
+//            //Wie oft abgespielt werden soll (-1 unendlich oft)
+//            audioPlayer.numberOfLoops = -1
+//            //Performance verbessern von Audioplayer
+//            audioPlayer.prepareToPlay()
+//
+//            audioPlayer.play()
+//
+//            buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
+//            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+//            buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+//
+//            self.view?.addSubview(buttonMusik)
             
             initialized = true
             print("GermanMapScene didMove finished")
@@ -264,6 +265,30 @@ class GermanMap: SKScene {
             phaseLabel.text = "Gegner ist am Zug"
         }
         
+    }
+    
+    func initMusikButton(){
+        //Sound
+        //...
+        hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+        
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+        }catch{
+            print("Datei nicht gefunden")
+        }
+        //Wie oft abgespielt werden soll (-1 unendlich oft)
+        audioPlayer.numberOfLoops = -1
+        //Performance verbessern von Audioplayer
+        audioPlayer.prepareToPlay()
+        
+        audioPlayer.play()
+        
+        buttonMusik = UIButton(frame: CGRect(x: frame.size.height*(7/10), y: 10, width: 30, height: 30))
+        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+        
+        self.view?.addSubview(buttonMusik)
     }
     
     @IBAction func buttonMusikAction(sender: UIButton!){
