@@ -180,7 +180,7 @@ class GermanMap: SKScene {
             initShopButton()
             
             //initialisiere Phase Label
-            phase = PhaseEnum.Verschieben
+            phase = PhaseEnum.Angriff
             setPhase(phase)
             
             initMusikButton()
