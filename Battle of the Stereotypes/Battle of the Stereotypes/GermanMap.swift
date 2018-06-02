@@ -420,7 +420,7 @@ class GermanMap: SKScene {
             
             //setzt verschiebeZahl auf 0, da Aktion abgebrochen
             verschiebeZahl = 0
-            verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+            verschiebeLabel?.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
         }
         
     }
