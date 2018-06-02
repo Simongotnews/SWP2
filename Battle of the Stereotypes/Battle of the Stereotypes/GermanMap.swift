@@ -1041,7 +1041,7 @@ class GermanMap: SKScene {
         let gegnerischeTruppenStaerke: Int = (player2?.calculateTruppenStaerke())!
         
         //Erstelle Tabelle mit allen Einträgen
-        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Verfügbare Angriffe:", "Mögliche Verschiebungen"]
+        let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Verfügbare Angriffe:", "Mögliche Verschiebungen:"]
         let values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, 2, 2]
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
