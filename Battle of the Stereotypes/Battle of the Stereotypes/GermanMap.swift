@@ -183,27 +183,28 @@ class GermanMap: SKScene {
             phase = PhaseEnum.Verschieben
             setPhase(phase)
             
-            //Sound
-            //...
-            hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
-            
-            do{
-                audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
-            }catch{
-                print("Datei nicht gefunden")
-            }
-            //Wie oft abgespielt werden soll (-1 unendlich oft)
-            audioPlayer.numberOfLoops = -1
-            //Performance verbessern von Audioplayer
-            audioPlayer.prepareToPlay()
-            
-            audioPlayer.play()
-            
-            buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
-            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
-            buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
-            
-            self.view?.addSubview(buttonMusik)
+            initMusikButton()
+//            //Sound
+//            //...
+//            hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+//
+//            do{
+//                audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+//            }catch{
+//                print("Datei nicht gefunden")
+//            }
+//            //Wie oft abgespielt werden soll (-1 unendlich oft)
+//            audioPlayer.numberOfLoops = -1
+//            //Performance verbessern von Audioplayer
+//            audioPlayer.prepareToPlay()
+//
+//            audioPlayer.play()
+//
+//            buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
+//            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+//            buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+//
+//            self.view?.addSubview(buttonMusik)
             
             initialized = true
             print("GermanMapScene didMove finished")
@@ -270,6 +271,30 @@ class GermanMap: SKScene {
             phaseLabel.text = "Gegner ist am Zug"
         }
         
+    }
+    
+    func initMusikButton(){
+        //Sound
+        //...
+        hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+        
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+        }catch{
+            print("Datei nicht gefunden")
+        }
+        //Wie oft abgespielt werden soll (-1 unendlich oft)
+        audioPlayer.numberOfLoops = -1
+        //Performance verbessern von Audioplayer
+        audioPlayer.prepareToPlay()
+        
+        audioPlayer.play()
+        
+        buttonMusik = UIButton(frame: CGRect(x: frame.size.height*(7/10), y: 10, width: 30, height: 30))
+        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+        
+        self.view?.addSubview(buttonMusik)
     }
     
     @IBAction func buttonMusikAction(sender: UIButton!){
@@ -818,8 +843,21 @@ class GermanMap: SKScene {
             while Double (player1.calculateTruppenStaerke()) * 1.2 <= Double (player2.calculateTruppenStaerke()){
                 
                 for bundesland in player2.blEigene{  //player2 in jedem BL eine Truppe wegnehmen
-                    if (bundesland.anzahlTruppen >= 2){
+                    
+                    if (player2.calculateTruppenStaerke() - player1.calculateTruppenStaerke() >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                        if (bundesland.anzahlTruppen >= 10){
+                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 4
+                        }
+                    }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
+                        
+                        if (bundesland.anzahlTruppen > 2){
                         bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
+                        }
+                        
+                    }
+                    
+                    if (player2.calculateTruppenStaerke() <= 16 ){ //Endlosschleife vermeiden
+                        break
                     }
                 }
             }
@@ -830,8 +868,20 @@ class GermanMap: SKScene {
             while Double (player2.calculateTruppenStaerke()) * 1.2 <= Double (player1.calculateTruppenStaerke()){
                 
                 for bundesland in player1.blEigene{ //player1 in jedem BL eine Truppe wegnehmen
-                    if (bundesland.anzahlTruppen >= 2){
-                        bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
+                    if (player1.calculateTruppenStaerke() - player2.calculateTruppenStaerke() >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                        if (bundesland.anzahlTruppen >= 10){
+                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 4
+                        }
+                    }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
+                        
+                        if (bundesland.anzahlTruppen > 2){
+                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
+                        }
+                        
+                    }
+                    
+                    if (player1.calculateTruppenStaerke() <= 16 ){ //Endlosschleife vermeiden
+                        break
                     }
                 }
             }

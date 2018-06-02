@@ -34,7 +34,7 @@ class Player {
         //muss später vom GameCenter entschieden werden
         self.id = id
         self.coins = 80;
-        self.damage = 20
+        self.damage = 5
     }
     
     func setCoins(coinsNewValue :Int){  //Variable coins komplett neu setzen

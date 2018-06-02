@@ -122,6 +122,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var initialized : Bool = false
     override func didMove(to view: SKView) {
         GameViewController.currentlyShownSceneNumber = 2
+        
+        initMusikButton()
+        initSoundButton()
+        
         if (!initialized){
             //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
             self.physicsWorld.contactDelegate = self
@@ -139,7 +143,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             refreshScene()
         }
+
+        
+//        //Sound
+//        //...
+//        hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
+//
+//        do{
+//            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
+//        }catch{
+//            print("Datei nicht gefunden")
+//        }
+//        //Wie oft abgespielt werden soll (-1 unendlich oft)
+//        audioPlayer.numberOfLoops = -1
+//        //Performance verbessern von Audioplayer
+//        audioPlayer.prepareToPlay()
+//
+//        audioPlayer.play()
+//
+//        buttonMusik = UIButton(frame: CGRect(x: size.width-70, y: 10, width: 80, height: 80))
+//        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+//        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
+//
+//        self.view?.addSubview(buttonMusik)
+//
+//        buttonSound = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
+//        buttonSound.setImage(UIImage(named: "SoundAN.png"), for: .normal)
+//        buttonSound.addTarget(self, action: #selector(buttonSoundAction), for: .touchUpInside)
+//
+//        self.view?.addSubview(buttonSound)
+    }
     
+    func initMusikButton(){
         //Sound
         //...
         hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
@@ -156,18 +191,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         audioPlayer.play()
         
-        buttonMusik = UIButton(frame: CGRect(x: size.width-70, y: 10, width: 80, height: 80))
+        buttonMusik = UIButton(frame: CGRect(x: frame.size.height*(7/10), y: 10, width: 30, height: 30))
         buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
         buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
         
         self.view?.addSubview(buttonMusik)
+    }
+    func initSoundButton(){
         
-        buttonSound = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
+        buttonSound = UIButton(frame: CGRect(x: frame.size.height*(7/10)+40, y: 10, width: 30, height: 30))
         buttonSound.setImage(UIImage(named: "SoundAN.png"), for: .normal)
         buttonSound.addTarget(self, action: #selector(buttonSoundAction), for: .touchUpInside)
         
         self.view?.addSubview(buttonSound)
+        
     }
+    
     @IBAction func buttonMusikAction(sender: UIButton!){
         
         if (statusMusik){
@@ -210,6 +249,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func refreshScene(){
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
+        
+        //der Krug ist in der Hand, aber man kann nicht den Pfeil aufstellen, bis Exchange komplett durchgeführt wird.
+        //initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+        rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
+        rightDummy.lifePoints = rightDummyHealthInitial
+        leftDummyHealthInitial = germanMapReference.blAngreifer.anzahlTruppen-1
+        leftDummy.lifePoints = leftDummyHealthInitial
+        
+        angreiferNameLabel.removeFromParent()
+        verteidigerNameLabel.removeFromParent()
+        leftDummyHealthLabel.removeFromParent()
+        rightDummyHealthLabel.removeFromParent()
+       
+        initDummyLabels()
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealthInitial, initialHealthPoints: leftDummyHealthInitial)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealthInitial, initialHealthPoints: rightDummyHealthInitial)
     }
     /** Aktualisiert lokale Variablen */
     func updateStats(){
@@ -752,7 +807,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //ball.removeFromParent()
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
             leftDummy.blink()
-            leftDummy.damage = Int(floor(contact.collisionImpulse/32))
+            leftDummy.damage = germanMapReference.player1.getFinalDamage(collisionImpulse: (contact.collisionImpulse))
             if leftDummy.lifePoints > leftDummy.damage {
                 leftDummy.lifePoints -= leftDummy.damage
             } else {
@@ -764,7 +819,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
             rightDummy.blink()
-            rightDummy.damage = Int(floor(contact.collisionImpulse/32))
+            rightDummy.damage = germanMapReference.player2.getFinalDamage(collisionImpulse: contact.collisionImpulse)
             if rightDummy.lifePoints > rightDummy.damage {
                 rightDummy.lifePoints -= rightDummy.damage
             } else {
