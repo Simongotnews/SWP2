@@ -210,11 +210,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func refreshScene(){
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
+        
+        //der Krug ist in der Hand, aber man kann nicht den Pfeil aufstellen, bis Exchange komplett durchgeführt wird.
+        //initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
         rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
         rightDummy.lifePoints = rightDummyHealthInitial
         leftDummyHealthInitial = germanMapReference.blAngreifer.anzahlTruppen-1
         leftDummy.lifePoints = leftDummyHealthInitial
         
+        angreiferNameLabel.removeFromParent()
+        verteidigerNameLabel.removeFromParent()
+        leftDummyHealthLabel.removeFromParent()
+        rightDummyHealthLabel.removeFromParent()
+       
+        initDummyLabels()
+        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealthInitial, initialHealthPoints: leftDummyHealthInitial)
+        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealthInitial, initialHealthPoints: rightDummyHealthInitial)
     }
     /** Aktualisiert lokale Variablen */
     func updateStats(){
