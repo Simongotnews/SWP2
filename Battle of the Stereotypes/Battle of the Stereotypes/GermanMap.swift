@@ -83,6 +83,7 @@ class GermanMap: SKScene {
     var verschiebePlusButton: SKSpriteNode!
     var verschiebeMinusButton: SKSpriteNode!
     var verschiebeOkButton: SKSpriteNode!
+    var verschiebeFinishButton: SKSpriteNode!
     
     
     var mapSize:(width:CGFloat, height:CGFloat) = (0.0, 0.0)  // globale Groeße welche in allen Funktionen verwendet werden kann.
@@ -177,8 +178,10 @@ class GermanMap: SKScene {
             initCoinLabel()
             
             initShopButton()
-            ////initialisiere Phase Label
-            //setPhase(PhaseEnum.Verschieben)
+            
+            //initialisiere Phase Label
+            phase = PhaseEnum.Verschieben
+            setPhase(phase)
             
             //Sound
             //...
@@ -244,21 +247,24 @@ class GermanMap: SKScene {
             statsSide.addChild(verschiebeLabel)
             
             verschiebePlusButton = Button(texture: SKTexture(imageNamed: "plus"), size: CGSize(width: 50, height: 50), isPressable: true)
-            verschiebePlusButton.position = CGPoint(x: 0, y: -30)
+            verschiebePlusButton.position = CGPoint(x: -50, y: -30)
             verschiebePlusButton.alpha = 5
             verschiebeLabel.addChild(verschiebePlusButton)
             
             verschiebeMinusButton = Button(texture: SKTexture(imageNamed: "minus"), size: CGSize(width: 50, height: 50), isPressable: true)
-            verschiebeMinusButton.position = CGPoint(x: 50, y: -30)
+            verschiebeMinusButton.position = CGPoint(x: 0, y: -30)
             verschiebeMinusButton.alpha = 5
             verschiebeLabel.addChild(verschiebeMinusButton)
             
-            verschiebeOkButton = Button(texture: SKTexture(imageNamed: "Haken"), size: CGSize(width: 50, height: 50), isPressable: true)
-            verschiebeOkButton.position = CGPoint(x: 100, y: -30)
+            verschiebeOkButton = Button(texture: SKTexture(imageNamed: "Haken"), size: CGSize(width: 40, height: 40), isPressable: true)
+            verschiebeOkButton.position = CGPoint(x: 50, y: -30)
             verschiebeOkButton.alpha = 5
             verschiebeLabel.addChild(verschiebeOkButton)
             
-            
+            verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"), size: CGSize(width: 130, height: 50), isPressable: true)
+            verschiebeFinishButton.position = CGPoint(x: 110, y: -83)
+            verschiebeFinishButton.alpha = 5
+            verschiebeLabel.addChild(verschiebeFinishButton)
             
         } else {
             phaseLabel.text = "Gegner ist am Zug"
@@ -320,7 +326,15 @@ class GermanMap: SKScene {
                 transitToGameScene()
                 // Exchange, um anderen Spieler in die GameScene zu schicken
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
-                return
+            }
+        }
+        
+        //suche nach dem Angreifer
+        if pfeil == nil {
+            blAngreifer = nil
+            let bundeslandName = atPoint(touch.location(in: self)).name
+            if(bundeslandName != nil){
+                blAngreifer = getBundesland(bundeslandName!)
             }
         }
         
@@ -331,28 +345,46 @@ class GermanMap: SKScene {
             
         }
         
-        //Klicken der Verschiebeansicht
-        if phase==PhaseEnum.Verschieben {
+        //Interaktionen mit Verschiebeansicht (dürfen nur gedrückt werden, wenn Pfeil ausgewählt wurde)
+        if phase==PhaseEnum.Verschieben && pfeil != nil {
+            //beachte, dass nicht beliebige Zahlen eingestellt werden dürfen
             if verschiebePlusButton.contains(touch.location(in: verschiebeLabel)) {
-                verschiebeZahl += 1
-                verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+                if verschiebeZahl < blAngreifer.anzahlTruppen! {
+                    verschiebeZahl += 1
+                    verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+                }
+                return
             }
             
             if verschiebeMinusButton.contains(touch.location(in: verschiebeLabel)) {
-                verschiebeZahl -= 1
-                verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+                if verschiebeZahl > 0 {
+                    verschiebeZahl -= 1
+                    verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+                }
+                return
             }
-        }
-        
-        blAngreifer = nil
-        let bundeslandName = atPoint(touch.location(in: self)).name
-        if(bundeslandName != nil){
-            blAngreifer = getBundesland(bundeslandName!)
+            
+            //Drücken des Hakens zum Bestätigen
+            if verschiebeOkButton.contains(touch.location(in: verschiebeLabel)) {
+                //führe die Verschieben Transaktion durch, wenn Zahl ausgewählt wurde
+                if verschiebeZahl>0 {
+                    //ziehe Truppen ab und füge sie bei anderem BL hinzu
+                    blAngreifer.anzahlTruppen! -= verschiebeZahl
+                    blVerteidiger.anzahlTruppen! += verschiebeZahl
+                    
+                    //aktualisiere die Labels und resette die Zahl
+                    initBlAnzahlTruppen()
+                    verschiebeZahl = 0
+                    verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
+                }
+                return
+            }
         }
         
         //wenn der Pfeil ausgewählt wurde, soll bei einem Klick der Angriff abgebrochen und die Statistiken wieder angezeigt werden
         if(pfeil != nil){
             pfeil.removeFromParent()
+            pfeil = nil
             statsSideRootNode?.removeFromParent()
             //Die Statistik-Tabelle soll wieder sichtbar werden
             if table != nil {
@@ -360,28 +392,39 @@ class GermanMap: SKScene {
                     table.alpha = 1
                 }
             }
+            
+            //setzt verschiebeZahl auf 0, da Aktion abgebrochen
+            verschiebeZahl = 0
+            verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
         }
+        
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch:UITouch = touches.first!
         touchesEndedLocation = touch.location(in: self)
         
-        let bundeslandName = atPoint(touch.location(in: self)).name
-        
-        blVerteidiger = nil
-        if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
-            blVerteidiger = getBundesland(bundeslandName!)
-        }
-        if(isAttackValid()){
-            setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
-            showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
+        if pfeil == nil {
+            let bundeslandName = atPoint(touch.location(in: self)).name
             
-            // Schicke die Infos an den Gegner, damit dieser bei einem Angriff Bescheid weiß welche Bundesländer in der Scene beteiligt sind
-            var arrowExchange = GameState.StructArrowExchangeRequest()
-            arrowExchange.startBundesland = blAngreifer.blNameString
-            arrowExchange.endBundesland = blVerteidiger.blNameString
-            GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
+            blVerteidiger = nil
+            if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
+                blVerteidiger = getBundesland(bundeslandName!)
+            }
+            if(isAttackValid()){
+                setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
+                
+                //die folgende Methode und Exchanges sollen nur aufgerufen werden, wenn man sich im Angriffsmodus befindet
+                if phase==PhaseEnum.Angriff {
+                    showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
+                    
+                    // Schicke die Infos an den Gegner, damit dieser bei einem Angriff Bescheid weiß welche Bundesländer in der Scene beteiligt sind
+                    var arrowExchange = GameState.StructArrowExchangeRequest()
+                    arrowExchange.startBundesland = blAngreifer.blNameString
+                    arrowExchange.endBundesland = blVerteidiger.blNameString
+                    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
+                }
+            }
         }
     }
     
@@ -592,6 +635,16 @@ class GermanMap: SKScene {
         hamburgAnzahlTruppenLabel.name = hamburg?.blNameString
         hamburgAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 390 + rightScene.position.x, y: self.size.height/3 + 370)
         setTruppenAnzahlLabel(hamburgAnzahlTruppenLabel)
+        
+        //Hessen
+        if(hessenAnzahlTruppenLabel != nil){
+            hessenAnzahlTruppenLabel.removeFromParent()
+        }
+        let hessenAnzahlTruppen = String(hessen?.anzahlTruppen ?? Int())
+        hessenAnzahlTruppenLabel = SKLabelNode(text: hessenAnzahlTruppen)
+        hessenAnzahlTruppenLabel.name = hessen?.blNameString
+        hessenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 435 + rightScene.position.x, y: self.size.height/3 + 170)
+        setTruppenAnzahlLabel(hessenAnzahlTruppenLabel)
         
         //Mecklenburg-Vorpommern:
         if(mecklenburgVorpommernAnzahlTruppenLabel != nil){
@@ -952,8 +1005,17 @@ class GermanMap: SKScene {
     //Voraussetzung 3: Die Bundesländer sind benachbart (TODO: Prüfung auf Flughafen einbauen)
     //Voraussetzung 4: Das Bundesland zum Starten des Angriffs gehört dem eigenen Spieler
     //Voraussetzung 5: Das Bundesland zum angreifen gehört dem anderen Spieler
+    //Voraussetzung 6: Man befindet sich in der Angriffsphase
     func isAttackValid() -> Bool{
-        return blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1)
+        if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Angriff){
+            return true
+        }
+            //Achtung Auch beim Verschieben wird ein Pfeil gezogen, welcher die oben genannten Voraussetzungen leicht verändert
+            else if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && ((activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Verschieben){
+            return true
+        } else {
+            return false
+        }
     }
     
     // Design der Labels zur Anzeige der Truppenstärke eines Bundeslandes
