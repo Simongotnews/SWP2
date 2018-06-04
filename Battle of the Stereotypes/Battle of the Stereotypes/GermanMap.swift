@@ -17,6 +17,9 @@ enum PhaseEnum {
 
 class GermanMap: SKScene {
     let sceneID = 1
+    //TouchPad-Sperre
+    var touchpadLocked = false
+    var touchEnabled = true
     
     //Sound
     var audioPlayer = AVAudioPlayer()
@@ -147,7 +150,6 @@ class GermanMap: SKScene {
     var initialized: Bool = false
     
     override func didMove(to view: SKView) {
-        print("GermanMapScene didMove is executing")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
         GameViewController.currentlyShownSceneNumber = 1
         if initialized == false {
@@ -164,56 +166,24 @@ class GermanMap: SKScene {
             
             //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
             initPlayer()
-            
             activePlayer = player1
             unActivePlayer = player2
-            
             //Setze die Farben der Bundesländer
             initColors()
-            
             //initialisiere Statistiken
             initStatistics()
-            
             //initialisiere Coins-Label
             initCoinLabel()
-            
             initShopButton()
-            
             //initialisiere Phase Label
             phase = PhaseEnum.Angriff
             setPhase(phase)
-            
             initMusikButton()
-//            //Sound
-//            //...
-//            hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
-//
-//            do{
-//                audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
-//            }catch{
-//                print("Datei nicht gefunden")
-//            }
-//            //Wie oft abgespielt werden soll (-1 unendlich oft)
-//            audioPlayer.numberOfLoops = -1
-//            //Performance verbessern von Audioplayer
-//            audioPlayer.prepareToPlay()
-//
-//            audioPlayer.play()
-//
-//            buttonMusik = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
-//            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
-//            buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
-//
-//            self.view?.addSubview(buttonMusik)
-            
             initialized = true
-            print("GermanMapScene didMove finished")
         } else {
             refreshScene()
         }
-        
     }
-    
     func setPhase(_ phase:PhaseEnum) {
         self.phase = phase
         
@@ -330,6 +300,12 @@ class GermanMap: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if (touchpadLocked){
+            touchEnabled = false    //soll touchEnded abschalten, wenn nicht zuvor touch Began stattfand
+            return
+        }
+        touchEnabled = true
+        
         let touch:UITouch = touches.first!
         touchesBeganLocation = touch.location(in: self)
         
@@ -341,13 +317,9 @@ class GermanMap: SKScene {
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
-                //der angreifende Spieler ist aktiv und darf dann zuerst werfen in der Kampfszene
-                //activePlayerID = GameCenterHelper.getInstance().gameState.turnOwnerActive //CHECK FOR CRASH
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
-                
-                
                 transitToGameScene()
                 // Exchange, um anderen Spieler in die GameScene zu schicken
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
@@ -441,7 +413,11 @@ class GermanMap: SKScene {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if (!touchEnabled){ //verhindert ein touchEnded, wenn nicht zuvor touchBegan stattfand
+            return
+        }
         let touch:UITouch = touches.first!
+        
         touchesEndedLocation = touch.location(in: self)
         
         if pfeil == nil {
@@ -451,7 +427,12 @@ class GermanMap: SKScene {
             if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
                 blVerteidiger = getBundesland(bundeslandName!)
             }
+            
+            
             if(isAttackValid()){
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
+                    self.touchpadLocked = false
+                })
                 setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
                 
                 //die folgende Methode und Exchanges sollen nur aufgerufen werden, wenn man sich im Angriffsmodus befindet
@@ -810,14 +791,12 @@ class GermanMap: SKScene {
         }
     }
     
+    
     // Initialisieren der Spieler
     func initPlayer(){
-        
-        //ID aus GameCenter ändern // Skeltek: Sollte so nur bei neuem Spiel ausgeführt werden, sonst aus geladenem Spiel Infos holen
         if (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfGameOwner()){    //TODO Skeltek: getIndexOfCurrentPlayer hier falsch, später durch Spieleröffner ersetzen
             player1 = Player(id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
             player2 = Player(id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
-            
             distributeBLsToPlayersRandomly()
             
         } else {
@@ -850,7 +829,7 @@ class GermanMap: SKScene {
             }
         }
         
-    
+        
         //Truppenzahl ausgleichen, falls Spieler2 >= 20 % mehr Truppen hat, als Spieler 1
         
         if Double (player1.calculateTruppenStaerke()) * 1.2 <= Double (player2.calculateTruppenStaerke()){
@@ -866,7 +845,7 @@ class GermanMap: SKScene {
                     }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
                         
                         if (bundesland.anzahlTruppen > 2){
-                        bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
+                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
                         }
                         
                     }
@@ -1077,7 +1056,7 @@ class GermanMap: SKScene {
         }
             //Achtung: auch beim Verschieben wird ein Pfeil gezogen, welcher die oben genannten Voraussetzungen leicht verändert
             //Es kommt hinzu, dass man noch Verschiebungen übrig hat
-            else if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && ((activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Verschieben) && (table.getValue(index: 5)>0) {
+        else if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && ((activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Verschieben) && (table.getValue(index: 5)>0) {
             return true
         } else {
             return false
@@ -1223,7 +1202,8 @@ class GermanMap: SKScene {
         let transition = SKTransition.crossFade(withDuration: 2)
         
         gameScene.scaleMode = .aspectFill
-        
+        /*GameCenterHelper.getInstance().gameState.health[GameCenterHelper.getInstance().getIndexOfGameOwner()] = GameCenterHelper.getInstance().getIndexOfGameOwner() == GameCenterHelper.getInstance().getIndexOfCurrentPlayer() ? gameScene.leftDummy.lifePoints : gameScene.rightDummy.lifePoints
+        GameCenterHelper.getInstance().gameState.health[GameCenterHelper.getInstance().getIndexOfNextPlayer()] = GameCenterHelper.getInstance().getIndexOfGameOwner() == GameCenterHelper.getInstance().getIndexOfCurrentPlayer() ? gameScene.rightDummy.lifePoints : gameScene.leftDummy.lifePoints*/
         //halte eine Referenz auf diese Szene in der Kampfscene
         gameScene.germanMapReference = self
         

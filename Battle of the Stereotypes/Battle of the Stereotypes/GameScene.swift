@@ -12,7 +12,8 @@ import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     let sceneID = 2
-    
+    var damageSent : Bool = false
+    var passiveThrow : Bool = false
     //Sound
     var audioPlayer = AVAudioPlayer()
     var hintergrundMusik: URL?
@@ -143,35 +144,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             refreshScene()
         }
-
-        
-//        //Sound
-//        //...
-//        hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
-//
-//        do{
-//            audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
-//        }catch{
-//            print("Datei nicht gefunden")
-//        }
-//        //Wie oft abgespielt werden soll (-1 unendlich oft)
-//        audioPlayer.numberOfLoops = -1
-//        //Performance verbessern von Audioplayer
-//        audioPlayer.prepareToPlay()
-//
-//        audioPlayer.play()
-//
-//        buttonMusik = UIButton(frame: CGRect(x: size.width-70, y: 10, width: 80, height: 80))
-//        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
-//        buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
-//
-//        self.view?.addSubview(buttonMusik)
-//
-//        buttonSound = UIButton(frame: CGRect(x: size.width+30, y: 10, width: 80, height: 80))
-//        buttonSound.setImage(UIImage(named: "SoundAN.png"), for: .normal)
-//        buttonSound.addTarget(self, action: #selector(buttonSoundAction), for: .touchUpInside)
-//
-//        self.view?.addSubview(buttonSound)
     }
     
     func initMusikButton(){
@@ -218,9 +190,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             
         }else if (!statusMusik){
-            print("Musik Aus")
             statusMusik = true
-            print(statusMusik)
             buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
             audioPlayer.pause()
             
@@ -228,9 +198,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     @IBAction func buttonSoundAction(sender: UIButton!){
-        
         if (!statusSound){
-            print("Sound An")
             statusSound = true
             buttonSound.setImage(UIImage(named: "SoundAn.png"), for: .normal)
             
@@ -238,7 +206,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             
         }else if (statusSound){
-            print("Sound Aus")
             statusSound = false
             buttonSound.setImage(UIImage(named: "SoundAus.png"), for: .normal)
             
@@ -248,10 +215,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func refreshScene(){
-        //TODO Skeltek: Für das Aktualisieren falls schon geladen
-        
-        //der Krug ist in der Hand, aber man kann nicht den Pfeil aufstellen, bis Exchange komplett durchgeführt wird.
-        //initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
         rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
         rightDummy.lifePoints = rightDummyHealthInitial
         leftDummyHealthInitial = germanMapReference.blAngreifer.anzahlTruppen-1
@@ -261,7 +224,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         verteidigerNameLabel.removeFromParent()
         leftDummyHealthLabel.removeFromParent()
         rightDummyHealthLabel.removeFromParent()
-       
+        
         initDummyLabels()
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummyHealthInitial, initialHealthPoints: leftDummyHealthInitial)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummyHealthInitial, initialHealthPoints: rightDummyHealthInitial)
@@ -275,10 +238,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("---Touchpad locked---")
             touchpadLocked = true
         }
-        if initialized{ //TODO Skeltek: Check For Crashes
-            //germanMapReference.player1.id? = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
-            //germanMapReference.player2.id? = GameCenterHelper.getInstance().getIndexOfOtherPlayer()
-            //updateStatusLabel()
+        if initialized{
+            
         }
         updateStatusLabel()
         if (GameViewController.currentlyShownSceneNumber == 2){
@@ -342,7 +303,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         referenceLeftArm()
         
-       let rightDummyTexture = SKTexture(imageNamed: "Bayer_links")
+        let rightDummyTexture = SKTexture(imageNamed: "Bayer_links")
         rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
         rightDummy = childNode(withName: "rightDummy_Koerper") as! Fighter
         rightDummy.initFighter(lifePoints: rightDummyHealthInitial, damage: 0, texture: rightDummyTexture, size: CGSize(width: rightDummyTexture.size().width, height: rightDummyTexture.size().height))
@@ -627,8 +588,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.removeAction(forKey: "powerBarAction")
             }
         })
-        let sequence = SKAction.sequence([wait,block])
-        run(SKAction.repeatForever(sequence), withKey: "powerBarAction")
     }
     
     func powerBarReset(){
@@ -745,7 +704,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //wenn man gerade nicht aktiv ist, darf man nichts machen
+        // wenn man gerade nicht aktiv ist, darf man nichts machen
         if (touchpadLocked) {
             return
         }
@@ -790,12 +749,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact){
+        // Kollision von Geschoss und Boden
         if (!didCollide && ((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) == (weaponCategory|groundCategory))){
             didCollide = true
+            print("Boden getroffen!")
+            //wenn aktiver Spieler
+            if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
+                damageSent = true
+                //if (!GameCenterHelper.getInstance().isLocalPlayersTurn()) {
+                //    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+                //}
+            }
         }
+        //Kollision von Geschoss und Dummy
         if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
             didCollide = true
-            projectileDidCollideWithDummy(contact)
+            print("Dummy getroffen!")
+            if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+                projectileDidCollideWithDummy(contact) }
             //Sound bei Treffer
             if(statusSound){
                 ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
@@ -804,10 +776,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func projectileDidCollideWithDummy(_ contact : SKPhysicsContact) {
+        var damageExchange = GameState.StructDamageExchangeRequest()
         //ball.removeFromParent()
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
             leftDummy.blink()
             leftDummy.damage = germanMapReference.player1.getFinalDamage(collisionImpulse: (contact.collisionImpulse))
+            damageExchange.damage = leftDummy.damage
             if leftDummy.lifePoints > leftDummy.damage {
                 leftDummy.lifePoints -= leftDummy.damage
             } else {
@@ -820,6 +794,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
             rightDummy.blink()
             rightDummy.damage = germanMapReference.player2.getFinalDamage(collisionImpulse: contact.collisionImpulse)
+            damageExchange.damage = rightDummy.damage
             if rightDummy.lifePoints > rightDummy.damage {
                 rightDummy.lifePoints -= rightDummy.damage
             } else {
@@ -828,7 +803,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 blIstEingenommen()
             }
             rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
-         
+            
         }
         updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummy.lifePoints, initialHealthPoints: leftDummyHealthInitial)
         updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummy.lifePoints, initialHealthPoints: rightDummyHealthInitial)
@@ -838,7 +813,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.transitToGermanMap(transitToAngriffAnsicht: true)
             })
         }
+        if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
+            damageSent = true
+            GameCenterHelper.getInstance().sendExchangeRequest(structToSend: damageExchange, messageKey: GameState.IdentifierDamageExchange)
+            if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
+                GameCenterHelper.getInstance().mergeCompletedExchangesToSave(exchanges: GameCenterHelper.getInstance().tempExchanges)
+            }
+        } else{
+            if (!passiveThrow){
+                //GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+            }
+            passiveThrow = false
+        }
     }
+    
     
     func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int, initialHealthPoints: Int) {
         let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
@@ -877,6 +865,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.tickCounter = 0
                 self.throwingMove = false
                 moveArmBackToOrigin(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+            }
+        }
+        
+        // Called before each frame is rendered
+        if(!damageSent && ball != nil) {
+            if(ball.position.x >= (self.frame.width) || ball.position.x <= (-self.frame.width)) {
+                print("Ball verlässt Bildschirm!")
+                damageSent = true
+                if (GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
+                    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
+                } else if(GameCenterHelper.getInstance().getIndexOfCurrentPlayer() != GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
+                    //GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
+                }
             }
         }
     }
@@ -945,5 +946,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.view?.presentScene(germanMapReference)
     }
-
+    
 }

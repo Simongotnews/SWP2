@@ -30,6 +30,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     var backgroundOfButton: SKSpriteNode!
     //playButton
     var playGameButton: Button!
+    /** Button für die Spielauswahl */
+    var gameSelectionButton : UIButton!
     
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
@@ -40,11 +42,12 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         
         initBackground()
         initStartGameButton()
+        initGameSelectionButton()
         initMusikButton()
         
     }
+    
     @IBAction func buttonMusikAction(sender: UIButton!){
-        
         if (statusMusik){
             print("Musik An")
             statusMusik = false
@@ -61,7 +64,11 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
             audioPlayer.pause()
             
         }
-        
+    }
+    
+    /** EventHandler für Button um Spiel auswählen zu können */
+    @IBAction func buttonGameSelectionAction(sender: UIButton!){
+        GameCenterHelper.getInstance().findBattleMatch()
     }
     
     func refreshScene(){
@@ -73,6 +80,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         background = SKSpriteNode(imageNamed: "Holzhintergrund")
         
         background.size = CGSize(width: self.size.width, height: self.size.height/2.3)
+        background.scale(to: background.size)
         background.anchorPoint=CGPoint(x: 0.5, y: 0.5)
         //background.position=CGPoint(x: 0, y: -60)
         //Hintergrund ist am weitesten weg bei der Ansicht
@@ -105,6 +113,16 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         self.view?.addSubview(buttonMusik)
     }
     
+    /** initialisiert den Button für die Spielauswahl */
+    func initGameSelectionButton() {
+        gameSelectionButton = UIButton(frame: CGRect(x: 6*self.frame.height/10 , y: 9*self.frame.width/10, width: self.frame.height/10, height: self.frame.width/10))
+        gameSelectionButton.addTarget(self, action: #selector(buttonGameSelectionAction), for: .touchUpInside)
+        gameSelectionButton.setTitle("Spielauswahl", for: UIControlState.normal)
+        gameSelectionButton.backgroundColor = UIColor.red
+        //gameSelectionButton.
+        self.view?.addSubview(gameSelectionButton)
+    }
+    
     func initStartGameButton() { //initialisiere den Start-Button
         playGameButton = Button(texture: SKTexture(imageNamed: "playbutton_klein4"), size: CGSize(width: 80, height: 70), isPressable: true)
         playGameButton.alpha = 1
@@ -124,54 +142,53 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
-        print("Derzeitig am Zug ist Spieler #\(GameCenterHelper.getInstance().getIndexOfCurrentPlayer())")
-        print("Eigener Spieler #\(GameCenterHelper.getInstance().getIndexOfLocalPlayer())")
-        print("Nächste Spieler #\(GameCenterHelper.getInstance().getIndexOfNextPlayer())")
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
-        
-        //wenn Back-Button gedrückt wurde, zur Bundesländer-Übersicht wechseln
+        if !GameCenterHelper.getInstance().spielGeladen{
+            return
+        }
         if playGameButton != nil {
             if playGameButton.isPressable == true && playGameButton.contains(touch.location(in: self)) {
                 print("Loading GermanMapScene:")
                 
                 loadGermanMapScene()
-            return
+                return
             }
         }
-    }
-    
-    func loadGermanMapScene() { // Lade die Bundeslandübersicht-Scene
         
-        audioPlayer.stop()
-        buttonMusik.removeFromSuperview()
-        // Load 'GameScene.sks' as a GKScene. This provides gameplay related content
-        // including entities and graphs.
-        if let scene = GKScene(fileNamed: "GermanMap") {
+    }
+        
+        func loadGermanMapScene() { // Lade die Bundeslandübersicht-Scene
             
-            // Get the SKScene from the loaded GKScene
-            if let sceneNode = scene.rootNode as! GermanMap? {
-                StartScene.germanMapScene = sceneNode   //Skeltek: Referenzen bitte immer direkt nach dem Instanzieren setzen
-                // Copy gameplay related content over to the scene
-                sceneNode.entities = scene.entities
-                sceneNode.graphs = scene.graphs
+            audioPlayer.stop()
+            buttonMusik.removeFromSuperview()
+            // Load 'GameScene.sks' as a GKScene. This provides gameplay related content
+            // including entities and graphs.
+            if let scene = GKScene(fileNamed: "GermanMap") {
                 
-                // Set the scale mode to scale to fit the window
-                sceneNode.scaleMode = .aspectFill
-                
-                // Present the scene
-                if let view = self.view as! SKView? {
-                    print("Showing loaded Scene")
-                    GameViewController.currentlyShownSceneNumber = 1
-                    view.presentScene(sceneNode)
-
-                    view.ignoresSiblingOrder = true
+                // Get the SKScene from the loaded GKScene
+                if let sceneNode = scene.rootNode as! GermanMap? {
+                    StartScene.germanMapScene = sceneNode   //Skeltek: Referenzen bitte immer direkt nach dem Instanzieren setzen
+                    // Copy gameplay related content over to the scene
+                    sceneNode.entities = scene.entities
+                    sceneNode.graphs = scene.graphs
                     
-                    view.showsFPS = true
-                    view.showsNodeCount = true
+                    // Set the scale mode to scale to fit the window
+                    sceneNode.scaleMode = .aspectFill
+                    
+                    // Present the scene
+                    if let view = self.view as! SKView? {
+                        print("Showing loaded Scene")
+                        GameViewController.currentlyShownSceneNumber = 1
+                        view.presentScene(sceneNode)
+                        
+                        view.ignoresSiblingOrder = true
+                        
+                        view.showsFPS = true
+                        view.showsNodeCount = true
+                    }
                 }
             }
         }
     }
-}
