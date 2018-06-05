@@ -818,19 +818,19 @@ class GermanMap: SKScene {
             player1 = Player(id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
             player2 = Player(id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
             
-            distributeBLsToPlayersRandomly()
+            distributeBLsToPlayersRandomly() //neu
             
         } else {
             player2 = Player(id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
             player1 = Player(id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
             
-            distributeBLsToPlayersRandomly()
+            //distributeBLsToPlayersRandomly()  //neu
         }
     }
     
     //zufälliges Zuweisen der Bundesländer an die Spieler bei Spielbeginn, Anzahl Truppen in den Bundesländern ändern, falls ein Spieler hierdurch deutlich mehr Truppen bekommt
     
-    func distributeBLsToPlayersRandomly(){
+    func distributeBLsToPlayersRandomly(){//-> GameState.StructGameState{
         for bundesland in allBundeslaender{ //an jeden Spieler 8 Bundesländer verteilen
             
             let zufallszahl : UInt32 = arc4random_uniform(2) //Zahlen (zwischen) 0 und 1 generieren
@@ -902,56 +902,155 @@ class GermanMap: SKScene {
             }
         }
         
+        //var gameState : GameState = GameState();//neu
+        var gameStateLocal : GameState.StructGameState = GameState.StructGameState()
         
         for bula in player1.blEigene{ //Werte in die Bundesländer übertragen (außerhalb von blEigene) und AnzahlTruppenLabel der German Map aktualisieren
             if bula.name == badenWuerttemberg.name{
                 badenWuerttemberg.anzahlTruppen = bula.anzahlTruppen
                 badenWuerttembergAnzahlTruppenLabel.text = String(badenWuerttemberg.anzahlTruppen ?? Int())
+                
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(badenWuerttemberg)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == bayern.name{
                 bayern.anzahlTruppen = bula.anzahlTruppen
                 bayernAnzahlTruppenLabel.text = String(bayern.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bayern)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == berlin.name{
                 berlin.anzahlTruppen = bula.anzahlTruppen
                 berlinAnzahlTruppenLabel.text = String(berlin.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(berlin)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == brandenburg.name{
                 brandenburg.anzahlTruppen = bula.anzahlTruppen
                 brandenburgAnzahlTruppenLabel.text = String(brandenburg.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(brandenburg)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == bremen.name{
                 bremen.anzahlTruppen = bula.anzahlTruppen
                 bremenAnzahlTruppenLabel.text = String(bremen.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == hamburg.name{
                 hamburg.anzahlTruppen = bula.anzahlTruppen
                 hamburgAnzahlTruppenLabel.text = String(hamburg.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == hessen.name{
                 hessen.anzahlTruppen = bula.anzahlTruppen
                 hessenAnzahlTruppenLabel.text = String(hessen.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == mecklenburgVorpommern.name{
                 mecklenburgVorpommern.anzahlTruppen = bula.anzahlTruppen
                 mecklenburgVorpommernAnzahlTruppenLabel.text = String(mecklenburgVorpommern.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == niedersachsen.name{
                 niedersachsen.anzahlTruppen = bula.anzahlTruppen
                 niedersachsenAnzahlTruppenLabel.text = String(niedersachsen.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == nordrheinWestfalen.name{
                 nordrheinWestfalen.anzahlTruppen = bula.anzahlTruppen
                 nordrheinWestfalenAnzahlTruppenLabel.text = String(nordrheinWestfalen.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == rheinlandPfalz.name{
                 rheinlandPfalz.anzahlTruppen = bula.anzahlTruppen
                 rheinlandPfalzAnzahlTruppenLabel.text = String(rheinlandPfalz.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == saarland.name{
                 saarland.anzahlTruppen = bula.anzahlTruppen
                 saarlandAnzahlTruppenLabel.text = String(saarland.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == sachsen.name{
                 sachsen.anzahlTruppen = bula.anzahlTruppen
                 sachsenAnzahlTruppenLabel.text = String(sachsen.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == sachsenAnhalt.name{
                 sachsenAnhalt.anzahlTruppen = bula.anzahlTruppen
                 sachsenAnhaltAnzahlTruppenLabel.text = String(sachsenAnhalt.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == schleswigHolstein.name{
                 schleswigHolstein.anzahlTruppen = bula.anzahlTruppen
                 schleswigHolsteinAnzahlTruppenLabel.text = String(schleswigHolstein.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else if bula.name == thueringen.name{
                 thueringen.anzahlTruppen = bula.anzahlTruppen
                 thueringenAnzahlTruppenLabel.text = String(thueringen.anzahlTruppen ?? Int())
+                gameStateLocal.troups[0] =  bula.anzahlTruppen //neu
+                if(player1.blEigene.contains(bula)){
+                    gameStateLocal.ownerOfbundesland[0] = 0
+                }else{
+                    gameStateLocal.ownerOfbundesland[0] = 1
+                }
             }else{
                 print("Bundesland nicht vorhanden!")
                 
@@ -1012,7 +1111,7 @@ class GermanMap: SKScene {
                 print("Bundesland nicht vorhanden!")}
             
         }
-        
+        //return gameStateLocal
     }
     
     // Initialisieren des Geld-Labels des Spielers

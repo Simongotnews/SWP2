@@ -128,6 +128,52 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 } else{
                     print("Keine Daten gefunden -> Speichere Daten in GameCenter")
                     //Daten neu initialisieren für neues Spiel; um Daten alten geladenen Spiels zu löschen
+                    
+                    //neu
+                    //Bundesländer zufällig an Spieler zuweisen und Fairnessprüfung
+                    /*var gameStateResult : GameState.StructGameState = StartScene.germanMapScene.distributeBLsToPlayersRandomly()
+                    self.gameState.ownerOfbundesland = gameStateResult.ownerOfbundesland
+                    self.gameState.troups = gameStateResult.troups*/
+                    
+                    //static var germanMapScene : GermanMap!
+                    
+                    if let scene = GKScene(fileNamed: "GermanMap") {
+                        
+                        // Get the SKScene from the loaded GKScene
+                        if let sceneNode = scene.rootNode as! GermanMap? {
+                            StartScene.germanMapScene = sceneNode   //Skeltek: Referenzen bitte immer direkt nach dem Instanzieren setzen
+                            // Copy gameplay related content over to the scene
+                            sceneNode.entities = scene.entities
+                            sceneNode.graphs = scene.graphs
+                            
+                            // Set the scale mode to scale to fit the window
+                            sceneNode.scaleMode = .aspectFill
+                            
+                           /* // Present the scene
+                            if let view = self.view as! SKView? {
+                                print("Showing loaded Scene")
+                                GameViewController.currentlyShownSceneNumber = 1
+                                view.presentScene(sceneNode)
+                                
+                                view.ignoresSiblingOrder = true
+                                
+                                view.showsFPS = true
+                                view.showsNodeCount = true
+                            }*/
+                        }
+                    }
+                    
+                    self.gameState.ownerOfbundesland = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1]
+                    self.gameState.troups = [10, 11, 10, 11, 11, 10, 11, 10, 11, 11, 10, 11, 11, 10, 11, 11]
+                    
+                    //StartScene.germanMapScene.distributeBLsToPlayersRandomly()
+                    //self.gameState.ownerOfbundesland = gameStateResult.ownerOfbundesland
+                    //self.gameState.troups = gameStateResult.troups
+                    
+                    
+                    
+                    
+                    
                     self.gameState.currentScene = 0
                     self.gameState.turnOwnerActive = 0
                     self.saveGameDataToGameCenter()
