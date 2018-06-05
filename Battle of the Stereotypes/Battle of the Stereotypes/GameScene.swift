@@ -579,11 +579,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func throwProjectile(xImpulse : Double, yImpulse : Double, passivelyThrown : Bool? = false) { //Wurf des Projektils, Flugbahn
+        var pos = CGPoint(x:0,y:0)
+        let id = GameCenterHelper.getInstance().gameState.activePlayerID
+        if(id == leftDummyID){
+            pos = leftDummy.position
+            pos.x = pos.x + 50
+            pos.y = pos.y + 50
+        }
+        else{
+            pos = rightDummy.position
+            pos.x = pos.x - 50
+            pos.y = pos.y - 50
+        }
         leftDummyHand.removeAllChildren()
         rightDummyHand.removeAllChildren()
         
         damageSent = false
         self.addChild(ball)
+        ball.position = pos
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
