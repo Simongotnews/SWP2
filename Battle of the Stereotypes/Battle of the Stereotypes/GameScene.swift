@@ -454,10 +454,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.size = CGSize(width: 30, height: 30)
         if player==leftDummyID {
             leftDummyHand.addChild(ball)
-            ball.position=leftDummyHand.position
         } else {
             rightDummyHand.addChild(ball)
-            ball.position=leftDummyHand.position
         }
         ball.zPosition=3
         
@@ -864,6 +862,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.texture = SKTexture(image: spriteImage!)
         node.size = barSize
     }
+    
     func moveAt(_ location: CGPoint,for player: Int) {
         if(player == leftDummyID){
             let move = SKAction.reach(to: location, rootNode: leftDummyOberarm, duration: 0.01)

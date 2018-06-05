@@ -526,7 +526,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             return
         }
         // Hier Schuss simulieren
-        StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchangeStruct.xImpulse, yImpulse: throwExchangeStruct.yImpulse, for: self.gameState.turnOwnerActive )
+        StartScene.germanMapScene.gameScene.throwProjectile(xImpulse: throwExchangeStruct.xImpulse, yImpulse: throwExchangeStruct.yImpulse)
         exchange?.reply(withLocalizableMessageKey: GameState.IdentifierThrowExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructMergeRequestExchangeReply()), completionHandler: nil)
     }
     
