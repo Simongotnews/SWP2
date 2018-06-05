@@ -332,12 +332,14 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         if(!isGameRunning()) {
             return
         }
+        gameState.activePlayerID = getIndexOfNextPlayer()
         print("Turn beenden")
         var nextParticipant : GKTurnBasedParticipant
         nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
         currentMatch.endTurn(withNextParticipants: [nextParticipant], turnTimeout: TimeInterval(5.0), match: GameState.encodeStruct(structToEncode: gameState), completionHandler: { (error: Error?) in
             if(error == nil ) {
                 //StartScene.germanMapScene.gameScene.isActive = false     // Operation erfolgreich
+                print("Turn abgegeben")
             } else {
                 print("Fehler gefunden beim Turn beenden")
                 print(error as Any)

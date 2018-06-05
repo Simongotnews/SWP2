@@ -36,6 +36,8 @@ class GameState {
         /** Geld der Spieler */
         var money = [0, 0]
         
+        var angriffsPhase = true
+        
         // BattleScene spezifisch:
         /** Leben der Spieler */
         var health = [100, 100]

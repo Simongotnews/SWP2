@@ -251,6 +251,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             
         }
+        if(leftDummy.lifePoints*rightDummy.lifePoints == 0){
+            transitToGermanMap(transitToAngriffAnsicht: false)
+        }
     }
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
@@ -953,10 +956,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         if (transitToAngriffAnsicht == false){ //VerschiebenAnsicht soll geladen werden
-            
-            
+            GameCenterHelper.getInstance().gameState.angriffsPhase = false
+            self.view?.presentScene(germanMapReference)
+            print("Phasenwechsel: Verschiebemodus")
+            germanMapReference.setPhase(PhaseEnum.Verschieben)
         } else {
-            
+            GameCenterHelper.getInstance().gameState.angriffsPhase = true
+            self.view?.presentScene(germanMapReference)
+            print("Phasenwechsel: Angriffsmodus")
+            germanMapReference.setPhase(PhaseEnum.Angriff)
         }
         
         self.view?.presentScene(germanMapReference)

@@ -176,7 +176,11 @@ class GermanMap: SKScene {
             initCoinLabel()
             initShopButton()
             //initialisiere Phase Label
-            phase = PhaseEnum.Angriff
+            if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
+                phase = (isAngriffsPhase()) ? PhaseEnum.Angriff : PhaseEnum.Verschieben
+            } else {
+                phase = PhaseEnum.Warten
+            }
             setPhase(phase)
             initMusikButton()
             initialized = true
@@ -241,6 +245,10 @@ class GermanMap: SKScene {
             phaseLabel.text = "Gegner ist am Zug"
         }
         
+    }
+    
+    func isAngriffsPhase() -> Bool{
+        return GameCenterHelper.getInstance().gameState.angriffsPhase
     }
     
     func initMusikButton(){
