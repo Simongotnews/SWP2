@@ -670,8 +670,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
     }
     
-    
-    
     /** Markiert eine Echange als aufgelöst und speichert den aktuellen gameState */
     func mergeCompletedExchangeToSave(exchange : GKTurnBasedExchange) -> Void{
         if(!isLocalPlayersTurn()) {

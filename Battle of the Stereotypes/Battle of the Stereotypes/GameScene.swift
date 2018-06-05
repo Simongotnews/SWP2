@@ -454,8 +454,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.size = CGSize(width: 30, height: 30)
         if player==leftDummyID {
             leftDummyHand.addChild(ball)
+            ball.position=leftDummyHand.position
         } else {
             rightDummyHand.addChild(ball)
+            ball.position=leftDummyHand.position
         }
         ball.zPosition=3
         
@@ -473,12 +475,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if player==leftDummyID {
             ball.physicsBody?.contactTestBitMask = groundCategory | rightDummyCategory
             ball.physicsBody?.collisionBitMask = groundCategory | rightDummyCategory
-            
         } else {
             ball.physicsBody?.contactTestBitMask = groundCategory | leftDummyCategory
             ball.physicsBody?.collisionBitMask = groundCategory | leftDummyCategory
         }
-        
     }
     
     func initBackButton() { //initialisiere den Zurück-zur-Bundesländerübersicht-Button
@@ -571,7 +571,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if(statusSound){
             ball.run(SKAction.playSoundFileNamed("wurf", waitForCompletion: true))
         }
+    }
+    
+    func throwProjectile(xImpulse : Double, yImpulse : Double, passivelyThrown : Bool? = false) { //Wurf des Projektils, Flugbahn
+        leftDummyHand.removeAllChildren()
+        rightDummyHand.removeAllChildren()
         
+        damageSent = false
+        
+        ball.physicsBody?.affectedByGravity=true
+        ball.physicsBody?.isDynamic=true
+        ball.physicsBody?.allowsRotation=true
+        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
+        ball.physicsBody?.usesPreciseCollisionDetection = true
+        if(arrow != nil) {
+            arrow.removeFromParent()
+        }
+        allowsRotation = true
+        
+        //Sound bei Wurf
+        if(statusSound){
+            ball.run(SKAction.playSoundFileNamed("wurf", waitForCompletion: true))
+        }
     }
     
     func powerBarRun(){
@@ -599,10 +620,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
-        print("Spieler aktiv: \(GameCenterHelper.getInstance().gameState.turnOwnerActive)")
-        print("Eigene ID: \(germanMapReference.player1.id)")
-        print("leftDummyID: \(leftDummyID)")
-        print("rightDummyID: \(rightDummyID)\n")
         //Keine Eingabe bei aktiviertem Lock
         if (touchpadLocked){
             return
@@ -692,7 +709,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let finalXImpulse = xImpulse * force
             let finalYImpulse = yImpulse * force
             if childNode(withName: "arrow") != nil {
-                throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse, for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+                throwProjectile(xImpulse: finalXImpulse, yImpulse: finalYImpulse)
                 var throwExchange = GameState.StructThrowExchangeRequest()
                 throwExchange.xImpulse = finalXImpulse
                 throwExchange.yImpulse = finalYImpulse
@@ -856,6 +873,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             rightDummyHand.run(move)
         }
     }
+    
+    // Called before each frame is rendered
     override func update(_ currentTime: TimeInterval) {
         if (self.throwingMove == true){
             if (self.tickCounter < self.throwingDuration) {
@@ -868,7 +887,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
-        // Called before each frame is rendered
         if(!damageSent && ball != nil) {
             if(ball.position.x >= (self.frame.width) || ball.position.x <= (-self.frame.width)) {
                 print("Ball verlässt Bildschirm!")

@@ -430,6 +430,7 @@ class GermanMap: SKScene {
             
             
             if(isAttackValid()){
+                touchpadLocked = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
                     self.touchpadLocked = false
                 })
