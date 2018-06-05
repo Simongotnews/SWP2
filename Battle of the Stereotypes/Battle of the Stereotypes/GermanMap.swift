@@ -308,6 +308,8 @@ class GermanMap: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("Touchpad locked: " + String(touchpadLocked))
+        print("TouchEnabled: " + String(touchEnabled))
         if (touchpadLocked){
             touchEnabled = false    //soll touchEnded abschalten, wenn nicht zuvor touch Began stattfand
             return
@@ -397,6 +399,8 @@ class GermanMap: SKScene {
                     //verringere die verfügbaren Verschiebungen in der Statistik
                     table.setValue(index: 5, value: table.getValue(index: 5)-1)
                     table.update()
+                    setPhase(PhaseEnum.Angriff)
+                    GameCenterHelper.getInstance().gameState.angriffsPhase = true
                 }
                 return
             }

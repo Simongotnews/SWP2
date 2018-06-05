@@ -960,11 +960,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.view?.presentScene(germanMapReference)
             print("Phasenwechsel: Verschiebemodus")
             germanMapReference.setPhase(PhaseEnum.Verschieben)
+            return
         } else {
-            GameCenterHelper.getInstance().gameState.angriffsPhase = true
-            self.view?.presentScene(germanMapReference)
-            print("Phasenwechsel: Angriffsmodus")
-            germanMapReference.setPhase(PhaseEnum.Angriff)
+            
         }
         
         self.view?.presentScene(germanMapReference)
