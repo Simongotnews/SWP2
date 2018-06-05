@@ -15,7 +15,7 @@ class GameViewController: UIViewController {
     static var currentlyShownSceneNumber = 0
     static var gameHasStarted = false
     /* Debug-Modus um das Spiel als 0. oder 1. Spieler zu testen */
-    static var debugMode : Bool = true
+    static var debugMode : Bool = false
     static var playerInDebug : Int = 0  //[0 oder 1] für Debug  (not implemented yet)
     
     override func viewDidLoad() {

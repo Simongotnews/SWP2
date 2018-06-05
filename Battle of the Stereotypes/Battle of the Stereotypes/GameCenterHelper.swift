@@ -535,11 +535,13 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func handleDamageExchange(damageExchangeStruct : GameState.StructDamageExchangeRequest, exchange : GKTurnBasedExchange?) {
         if(getIndexOfLocalPlayer() == StartScene.germanMapScene.gameScene.leftDummyID) {
             self.gameState.health[getIndexOfGameOwner() == getIndexOfCurrentPlayer() ? 0 : 1] -= damageExchangeStruct.damage    //Soll später untere Zeile ersetzen
-            StartScene.germanMapScene.gameScene.leftDummy.lifePoints -= damageExchangeStruct.damage
+            //StartScene.germanMapScene.gameScene.leftDummy.lifePoints -= damageExchangeStruct.damage
+            StartScene.germanMapScene.gameScene.leftDummy.lifePoints = damageExchangeStruct.damage<StartScene.germanMapScene.gameScene.leftDummy.lifePoints ? StartScene.germanMapScene.gameScene.leftDummy.lifePoints-damageExchangeStruct.damage : 0
             damageExchangeStruct.damage > 0 ? StartScene.germanMapScene.gameScene.leftDummy.blink(): nil    //Abfrage ob Schaden > 0
         } else {
             self.gameState.health[getIndexOfGameOwner() == getIndexOfCurrentPlayer() ? 1 : 0] -= damageExchangeStruct.damage
-            StartScene.germanMapScene.gameScene.rightDummy.lifePoints -= damageExchangeStruct.damage
+            //StartScene.germanMapScene.gameScene.rightDummy.lifePoints -= damageExchangeStruct.damage
+            StartScene.germanMapScene.gameScene.rightDummy.lifePoints = damageExchangeStruct.damage<StartScene.germanMapScene.gameScene.rightDummy.lifePoints ? StartScene.germanMapScene.gameScene.rightDummy.lifePoints-damageExchangeStruct.damage : 0
             damageExchangeStruct.damage > 0 ? StartScene.germanMapScene.gameScene.rightDummy.blink() : nil
         }
         StartScene.germanMapScene.gameScene.updateStats()

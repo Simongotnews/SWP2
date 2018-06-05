@@ -239,6 +239,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             touchpadLocked = true
         }
         if initialized{
+            updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummy.lifePoints, initialHealthPoints: leftDummyHealthInitial)
+            updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummy.lifePoints, initialHealthPoints: rightDummyHealthInitial)
+            leftDummyHealthLabel.text = "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)"
+            rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
             
         }
         updateStatusLabel()
@@ -576,7 +580,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummyHand.removeAllChildren()
         
         damageSent = false
-        
+        self.addChild(ball)
         ball.physicsBody?.affectedByGravity=true
         ball.physicsBody?.isDynamic=true
         ball.physicsBody?.allowsRotation=true
@@ -803,8 +807,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 leftDummy.lifePoints = 0
                 updateStatistics(attackerIndex: 3, defenderIndex: 1)
             }
-            leftDummyHealthLabel.text = "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)"
-            
         }
         else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
             rightDummy.blink()
@@ -817,11 +819,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 updateStatistics(attackerIndex: 1, defenderIndex: 3)
                 blIstEingenommen()
             }
-            rightDummyHealthLabel.text = "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)"
-            
         }
-        updateHealthBar(node: leftDummyHealthBar, withHealthPoints: leftDummy.lifePoints, initialHealthPoints: leftDummyHealthInitial)
-        updateHealthBar(node: rightDummyHealthBar, withHealthPoints: rightDummy.lifePoints, initialHealthPoints: rightDummyHealthInitial)
+        updateStats()
         
         if(leftDummy.lifePoints == 0 || rightDummy.lifePoints == 0){
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
