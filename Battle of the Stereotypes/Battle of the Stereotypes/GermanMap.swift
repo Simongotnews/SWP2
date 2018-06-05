@@ -55,7 +55,7 @@ class GermanMap: SKScene {
     //playButton
     var playButton: Button!
     
-    //playButton
+    //shopButton
     var shopButton: Button!
     
     //Tabelle für Methode initStatistics
@@ -323,6 +323,7 @@ class GermanMap: SKScene {
                 transitToGameScene()
                 // Exchange, um anderen Spieler in die GameScene zu schicken
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
+                return
             }
         }
         
@@ -344,7 +345,7 @@ class GermanMap: SKScene {
         
         if verschiebeFinishButton != nil {
             if verschiebeFinishButton.contains(touch.location(in: verschiebeLabel)) {
-                //HIER EINFÜGEN, WAS PASSIEREN SOLL WENN DER ZUG ZUENDE IST UND DER ANDERE SPIELER DRAN IST
+                GameCenterHelper.getInstance().endTurn()
                 
             }
         }

@@ -139,7 +139,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             initialized = true  //TODO Skeltek: Notlösung, später korrigieren
             updateStats()
             //initilialisiere Geschoss für Spieler 1
-            initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive) //Skeltek: Notlösung, später entsprechend ersetzen
+            initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID) //Skeltek: Notlösung, später entsprechend ersetzen
             initHealthBar()
         } else {
             refreshScene()
@@ -231,7 +231,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     /** Aktualisiert lokale Variablen */
     func updateStats(){
-        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().gameState.turnOwnerActive){
+        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().gameState.activePlayerID){
             print("+++Touchpad unlocked+++")
             touchpadLocked = false
         } else {
@@ -243,7 +243,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         updateStatusLabel()
         if (GameViewController.currentlyShownSceneNumber == 2){
-            initBall(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+            initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
         } else {
             
         }
@@ -535,12 +535,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         var statusText : String = ""
-        if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+        if(GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
             statusText += "Spieler: DU "
         } else {
             statusText += "Spieler: Gegner "
         }
-        if(leftDummyID! == GameCenterHelper.getInstance().gameState.turnOwnerActive) {
+        if(leftDummyID! == GameCenterHelper.getInstance().gameState.activePlayerID) {
             statusText += "(links)"
         } else {
             statusText += "(rechts)"
@@ -607,6 +607,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.removeAction(forKey: "powerBarAction")
             }
         })
+        let sequence = SKAction.sequence([wait,block])
+        run(SKAction.repeatForever(sequence), withKey: "powerBarAction")
     }
     
     func powerBarReset(){
@@ -732,20 +734,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let touchedNode = self.atPoint(pos)
                 let deltaX = self.arrow.position.x - pos.x
                 let deltaY = self.arrow.position.y - pos.y
-                if(touchedNode.name == "leftdummy"){
-                    angleForArrow = atan2(deltaY, deltaX)
-                    if(0.0 <= angleForArrow && angleForArrow <= CGFloat(Double.pi)){
-                        sprite.zRotation = angleForArrow
-                        angleForArrow2 = angleForArrow
-                    }
+                angleForArrow = atan2(deltaY, deltaX)
+                if (angleForArrow <= -0.5 * CGFloat.pi){
+                    angleForArrow = CGFloat.pi
                 }
-                else if(touchedNode.name == "rightdummy"){
-                    angleForArrow = atan2(deltaY, deltaX)
-                    if(0 <= angleForArrow && CGFloat(Double.pi) >= angleForArrow){
-                        sprite.zRotation = angleForArrow
-                        angleForArrow2 = angleForArrow
-                    }
+                if (angleForArrow <= 0){
+                    angleForArrow = 0
                 }
+                sprite.zRotation = angleForArrow
+                angleForArrow2 = angleForArrow
             }
         }
     }
@@ -781,7 +778,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (!didCollide && (((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask)&(leftDummyCategory|rightDummyCategory)) != 0)){
             didCollide = true
             print("Dummy getroffen!")
-            if(GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+            if(GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
                 projectileDidCollideWithDummy(contact) }
             //Sound bei Treffer
             if(statusSound){
@@ -791,6 +788,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func projectileDidCollideWithDummy(_ contact : SKPhysicsContact) {
+        if (!GameCenterHelper.getInstance().isLocaLPlayerActive()){
+            return
+        }
         var damageExchange = GameState.StructDamageExchangeRequest()
         //ball.removeFromParent()
         if(((contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask) & leftDummyCategory) != 0){
@@ -800,7 +800,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if leftDummy.lifePoints > leftDummy.damage {
                 leftDummy.lifePoints -= leftDummy.damage
             } else {
-                leftDummy.lifePoints -= leftDummy.lifePoints
+                leftDummy.lifePoints = 0
                 updateStatistics(attackerIndex: 3, defenderIndex: 1)
             }
             leftDummyHealthLabel.text = "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)"
@@ -813,7 +813,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if rightDummy.lifePoints > rightDummy.damage {
                 rightDummy.lifePoints -= rightDummy.damage
             } else {
-                rightDummy.lifePoints -= rightDummy.lifePoints
+                rightDummy.lifePoints = 0
                 updateStatistics(attackerIndex: 1, defenderIndex: 3)
                 blIstEingenommen()
             }
@@ -825,7 +825,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if(leftDummy.lifePoints == 0 || rightDummy.lifePoints == 0){
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
-                self.transitToGermanMap(transitToAngriffAnsicht: true)
+                self.transitToGermanMap(transitToAngriffAnsicht: false)
             })
         }
         if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
@@ -841,7 +841,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             passiveThrow = false
         }
     }
-    
     
     func updateHealthBar(node: SKSpriteNode, withHealthPoints hp: Int, initialHealthPoints: Int) {
         let barSize = CGSize(width: healthBarWidth, height: healthBarHeight);
@@ -878,11 +877,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (self.throwingMove == true){
             if (self.tickCounter < self.throwingDuration) {
                 self.tickCounter = self.tickCounter + 1
-                self.moveAt(self.ball.position, for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+                self.moveAt(self.ball.position, for: GameCenterHelper.getInstance().gameState.activePlayerID)
             } else {
                 self.tickCounter = 0
                 self.throwingMove = false
-                moveArmBackToOrigin(for: GameCenterHelper.getInstance().gameState.turnOwnerActive)
+                moveArmBackToOrigin(for: GameCenterHelper.getInstance().gameState.activePlayerID)
             }
         }
         
@@ -890,7 +889,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(ball.position.x >= (self.frame.width) || ball.position.x <= (-self.frame.width)) {
                 print("Ball verlässt Bildschirm!")
                 damageSent = true
-                if (GameCenterHelper.getInstance().gameState.turnOwnerActive == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
+                if (GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()){
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructDamageExchangeRequest(), messageKey: GameState.IdentifierDamageExchange)
                 } else if(GameCenterHelper.getInstance().getIndexOfCurrentPlayer() != GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
                     //GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructMergeRequestExchange(), messageKey: GameState.IdentifierMergeRequestExchange)
