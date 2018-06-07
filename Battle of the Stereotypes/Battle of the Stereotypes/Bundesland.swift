@@ -154,6 +154,10 @@ class Bundesland: SKSpriteNode {
         self.zPosition = 3                      // in Vordergrund bringen
     }
     
+    func getGS() -> GameState.StructGameState{
+        return GameCenterHelper.getInstance().gameState
+    }
+    
     init(blName: BundeslandEnum, texture: SKTexture, size: CGSize) {
         super.init(texture: texture, color: UIColor.blue, size: size)
         self.blNameEnum = blName
@@ -164,67 +168,67 @@ class Bundesland: SKSpriteNode {
         if blName == BundeslandEnum.BadenWuerttemberg {
             blNameString = "Baden-Württemberg"
             blMuenzenWert = 12 // festlegen, wie viele Münzen Besitz des BLs pro Runde einbringt
-            anzahlTruppen = 11 * (Int (arc4random_uniform(4)+1))// zuweisen der Tuppenzahl an die Bundesländer bei Spielbeginn (Bevölkerunszahl in Mio gerundet mal Zufallszahl zwischen 1 und 4)
+            anzahlTruppen = self.getGS().troops[0]// zuweisen der Tuppenzahl an die Bundesländer bei Spielbeginn (Bevölkerunszahl in Mio gerundet mal Zufallszahl zwischen 1 und 4)
         } else if blName == BundeslandEnum.Bayern {
             blNameString = "Bayern"
             blMuenzenWert = 12
-            anzahlTruppen = 13 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[1]
         } else if blName == BundeslandEnum.Berlin {
             blNameString = "Berlin"
             blMuenzenWert = 5
-            anzahlTruppen = 4 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[2]
         } else if blName == BundeslandEnum.Brandenburg {
             blNameString = "Brandenburg"
             blMuenzenWert = 6
-            anzahlTruppen = 2 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[3]
         } else if blName == BundeslandEnum.Bremen {
             blNameString = "Bremen"
             blMuenzenWert = 5
-            anzahlTruppen = 1 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[4]
         } else if blName == BundeslandEnum.Hamburg {
             blNameString = "Hamburg"
             blMuenzenWert = 5
-            anzahlTruppen = 2 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[5]
         } else if blName == BundeslandEnum.Hessen {
             blNameString = "Hessen"
             blMuenzenWert = 9
-            anzahlTruppen = 6 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[6]
         } else if blName == BundeslandEnum.MecklenburgVorpommern {
             blNameString = "Mecklenburg-Vorpommern"
             blMuenzenWert = 7
-            anzahlTruppen = 2 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[7]
         } else if blName == BundeslandEnum.Niedersachsen {
             blNameString = "Niedersachsen"
             blMuenzenWert = 10
-            anzahlTruppen = 8 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[8]
         } else if blName == BundeslandEnum.NordrheinWestfalen {
             blNameString = "Nordrhein-Westfalen"
             blMuenzenWert = 11
-            anzahlTruppen = 18 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[9]
         } else if blName == BundeslandEnum.RheinlandPfalz {
             blNameString = "Rheinland-Pfalz"
             blMuenzenWert = 8
-            anzahlTruppen = 4 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[10]
         } else if blName == BundeslandEnum.Saarland {
             blNameString = "Saarland"
             blMuenzenWert = 3
-            anzahlTruppen = 1 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[11]
         } else if blName == BundeslandEnum.Sachsen {
             blNameString = "Sachsen"
             blMuenzenWert = 7
-            anzahlTruppen = 4 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[12]
         } else if blName == BundeslandEnum.SachsenAnhalt {
             blNameString = "Sachsen-Anhalt"
             blMuenzenWert = 6
-            anzahlTruppen = 2 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[13]
         } else if blName == BundeslandEnum.SchleswigHolstein {
             blNameString = "Schleswig-Holstein"
             blMuenzenWert = 12
-            anzahlTruppen = 3 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[14]
         } else if blName == BundeslandEnum.Thueringen {
             blNameString = "Thüringen"
             blMuenzenWert = 8
-            anzahlTruppen = 2 * (Int (arc4random_uniform(4)+1))
+            anzahlTruppen = self.getGS().troops[15]
         } else {
             blNameString = "Mallorca"
         }

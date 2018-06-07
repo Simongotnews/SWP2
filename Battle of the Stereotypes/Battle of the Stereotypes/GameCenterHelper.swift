@@ -195,10 +195,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func getIndexOfGameOwner() -> Int {
         for participant in currentMatch.participants!{
             if participant.player == GKLocalPlayer.localPlayer(){
-                return currentMatch.participants!.index(of: participant)!
+                //return currentMatch.participants!.index(of: participant)!
             }
         }
-        return -1
+        return 0
     }
     
     /** Gibt Index des Spieler welcher am Zug/Turn ist */
@@ -309,14 +309,63 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                             }
                         }
                     }
+                    
+                    if self.gameState.currentScene == 2{
+                        //if GameViewController.currentlyShownSceneNumber == 0{
+                        //    var transit = true
+                        //    GameViewController.startScene.loadGermanMapScene()
+                        //    while (GameViewController.currentlyShownSceneNumber != 1 && transit){
+                        //        transit = GameViewController.currentlyShownSceneNumber == 1 ? false : true
+                        //    }
+                        //}
+                        //if GameViewController.currentlyShownSceneNumber == 1{
+                        //    var transit = true
+                        //    StartScene.germanMapScene.transitToGameScene()
+                        //    while (GameViewController.currentlyShownSceneNumber != 2 && transit){
+                        //        transit = GameViewController.currentlyShownSceneNumber == 2 ? false : true
+                        //    }
+                        //}
+                    
                     if (GameViewController.currentlyShownSceneNumber == 2){ //Skeltek: Unbedingt erst hier drin im Completion handler updaten, da sonst Spiel zu spät mit Laden fertig
+                        //Setzen der Werte
+                        //StartScene.germanMapScene.gameScene.leftDummy.lifePoints = self.getIndexOfGameOwner()==self.getIndexOfCurrentPlayer() ? self.gameState.health[0] : self.gameState.health[1]
+                        //StartScene.germanMapScene.gameScene.rightDummy.lifePoints = self.getIndexOfGameOwner()==self.getIndexOfCurrentPlayer() ? self.gameState.health[1] : self.gameState.health[0]
+                        //StartScene.germanMapScene.player1.coins = self.getIndexOfGameOwner()==self.getIndexOfLocalPlayer() ? self.gameState.money[0] : self.gameState.money[1]
+                        //StartScene.germanMapScene.player2.coins = self.getIndexOfGameOwner()==self.getIndexOfLocalPlayer() ? self.gameState.money[1] : self.gameState.money[0]
+                        //updaten der Variablen und Labels
                         StartScene.germanMapScene.gameScene.updateStats()
+                        }
+                    }
+                    print("Derzeit gezeigte Szene: " + String(GameViewController.currentlyShownSceneNumber))
+                    if GameViewController.currentlyShownSceneNumber != 0{
+                        print("Lade BL-Verteilung")
+                        StartScene.germanMapScene.player1.blEigene.removeAll()
+                        StartScene.germanMapScene.player2.blEigene.removeAll()
+                        for (index,bundesland) in self.gameState.ownerOfbundesland.enumerated() {
+                            if(bundesland == self.getIndexOfLocalPlayer()) {
+                                StartScene.germanMapScene.player1.blEigene.append(StartScene.germanMapScene.allBundeslaender[index])
+                                self.getIndexOfLocalPlayer()==self.getIndexOfGameOwner() ? StartScene.germanMapScene.player1.blEigene.last?.switchColorToBlue() : StartScene.germanMapScene.player1.blEigene.last?.switchColorToRed()
+                            } else {
+                                StartScene.germanMapScene.player2.blEigene.append(StartScene.germanMapScene.allBundeslaender[index])
+                                self.getIndexOfLocalPlayer()==self.getIndexOfGameOwner() ? StartScene.germanMapScene.player2.blEigene.last?.switchColorToRed() : StartScene.germanMapScene.player2.blEigene.last?.switchColorToBlue()
+                            }
+                            //StartScene.germanMapScene.initColors()
+                            StartScene.germanMapScene.getBundesland(StartScene.germanMapScene.allBundeslaender[index].blNameString)?.anzahlTruppen = self.gameState.troops[index]
+                            
+                            StartScene.germanMapScene.player1.coins = self.gameState.money[self.getIndexOfLocalPlayer()]
+                            StartScene.germanMapScene.refreshScene()
+                                //
+                            }
+                        
                     }
                 } else{
                     print("Keine Daten gefunden -> Speichere Daten in GameCenter")
                     //Daten neu initialisieren für neues Spiel; um Daten alten geladenen Spiels zu löschen
                     self.gameState.currentScene = 0
                     self.gameState.activePlayerID = 0
+                    self.gameState.ownerOfbundesland = [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]
+                    self.gameState.troops = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+                    self.gameState.money = [160,160]
                     self.saveGameDataToGameCenter()
                 }
             } else {
@@ -699,6 +748,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             print("MergeCompletedExchangesToSave: Merge fehlgeschlagen, da nicht am Zug")
             return
         }
+        self.gameState.currentScene = GameViewController.currentlyShownSceneNumber
         currentMatch.saveMergedMatch(GameState.encodeStruct(structToEncode: gameState), withResolvedExchanges: exchanges, completionHandler: {(error: Error?) -> Void in
             if (error != nil){
                 print("CompletedExchanges-Merge fehlgeschlagen mit folgendem Fehler: \(error as Any)")

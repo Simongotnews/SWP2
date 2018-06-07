@@ -13,7 +13,7 @@ import GameplayKit
 class Player {
     
     //ID des Spielers
-    var id: Int!
+    var id = GameCenterHelper.getInstance().getIndexOfLocalPlayer()
     
     var coins: Int; //Geld des Spielers
     
@@ -32,8 +32,7 @@ class Player {
     
     init(id: Int) {
         //muss später vom GameCenter entschieden werden
-        self.id = id
-        self.coins = 80;
+        self.coins = GameCenterHelper.getInstance().gameState.money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()];
         self.damage = 5
     }
     
@@ -96,5 +95,10 @@ class Player {
         
         return Int(finalDamage!)
     }
-    
+    static func getGS() -> GameState.StructGameState{
+        return GameCenterHelper.getInstance().gameState
+    }
+    static func getGCH() -> GameCenterHelper{
+        return GameCenterHelper.getInstance()
+    }
 }

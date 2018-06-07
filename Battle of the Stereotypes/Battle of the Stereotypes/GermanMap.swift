@@ -150,6 +150,7 @@ class GermanMap: SKScene {
     var initialized: Bool = false
     
     override func didMove(to view: SKView) {
+        print("DidMove wird durchgeführt")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
         GameViewController.currentlyShownSceneNumber = 1
         if initialized == false {
@@ -166,10 +167,9 @@ class GermanMap: SKScene {
             
             //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
             initPlayer()
-            activePlayer = player1
-            unActivePlayer = player2
+            GameCenterHelper.getInstance().loadGameDataFromGameCenter() //Skeltek TODO: Später wieder raunehmen
             //Setze die Farben der Bundesländer
-            initColors()
+            //initColors()
             //initialisiere Statistiken
             initStatistics()
             //initialisiere Coins-Label
@@ -300,7 +300,7 @@ class GermanMap: SKScene {
     
     
     func refreshScene(){
-        coinLabel.text = "\(player1.getCoins()) €"
+        coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
         initStatistics()
         
         initBlAnzahlTruppen()
@@ -545,11 +545,6 @@ class GermanMap: SKScene {
         hessen = Bundesland(blName: BundeslandEnum.Hessen, texture: SKTexture(imageNamed: "Hessen_red"),
                             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         hessen?.setPosition()
-        let hessenAnzahlTruppen = String(hessen?.anzahlTruppen ?? Int())
-        hessenAnzahlTruppenLabel = SKLabelNode(text: hessenAnzahlTruppen)
-        hessenAnzahlTruppenLabel.name = hessen?.blNameString
-        hessenAnzahlTruppenLabel.position = CGPoint(x: (self.size.width - rightScene.position.x)/2 - 435 + rightScene.position.x, y: self.size.height/3 + 170)
-        setTruppenAnzahlLabel(hessenAnzahlTruppenLabel)
         mapSide.addChild(hessen!)
         
         // Mecklenburg-Vorpommern:
@@ -795,9 +790,9 @@ class GermanMap: SKScene {
     // Prüfung, welcher Spieler welche Bundesländer besitzt, um die Farben der Bundesländer zu initialisieren
     func initColors(){
         for bundesland in allBundeslaender{
-            if(player1?.blEigene.contains(bundesland))!{
+            if(player1.blEigene.contains(bundesland)){
                 bundesland.switchColorToBlue()
-            } else if(player2?.blEigene.contains(bundesland))!{
+            } else if(player2.blEigene.contains(bundesland)){
                 bundesland.switchColorToRed()
             } else{
                 bundesland.toBackground()
@@ -808,17 +803,10 @@ class GermanMap: SKScene {
     
     // Initialisieren der Spieler
     func initPlayer(){
-        if (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfGameOwner()){    //TODO Skeltek: getIndexOfCurrentPlayer hier falsch, später durch Spieleröffner ersetzen
+            //TODO Skeltek: getIndexOfCurrentPlayer hier falsch, später durch Spieleröffner ersetzen
             player1 = Player(id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
             player2 = Player(id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
             distributeBLsToPlayersRandomly()
-            
-        } else {
-            player2 = Player(id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
-            player1 = Player(id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
-            
-            distributeBLsToPlayersRandomly()
-        }
     }
     
     //zufälliges Zuweisen der Bundesländer an die Spieler bei Spielbeginn, Anzahl Truppen in den Bundesländern ändern, falls ein Spieler hierdurch deutlich mehr Truppen bekommt
@@ -1011,7 +999,7 @@ class GermanMap: SKScene {
     // Initialisieren des Geld-Labels des Spielers
     func initCoinLabel(){
         
-        coinLabel  = SKLabelNode(text: "\(player1.getCoins()) €")
+        coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")
         coinLabel.position = CGPoint(x: -80, y: 255)
         coinLabel.fontName = "AvenirNext-Bold"
         coinLabel.fontColor = UIColor.black
@@ -1020,6 +1008,9 @@ class GermanMap: SKScene {
         
         statsSide.addChild(coinLabel)
     }
+    
+    func updateCoinLabel(){
+        coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")    }
     
     
     func initPlayButton() {
@@ -1065,12 +1056,12 @@ class GermanMap: SKScene {
     //Voraussetzung 5: Das Bundesland zum angreifen gehört dem anderen Spieler
     //Voraussetzung 6: Man befindet sich in der Angriffsphase
     func isAttackValid() -> Bool{
-        if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && (!(activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Angriff){
+        if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (player1?.blEigene.contains(blAngreifer!))! && (!(player1?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Angriff){
             return true
         }
             //Achtung: auch beim Verschieben wird ein Pfeil gezogen, welcher die oben genannten Voraussetzungen leicht verändert
             //Es kommt hinzu, dass man noch Verschiebungen übrig hat
-        else if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (activePlayer?.blEigene.contains(blAngreifer!))! && ((activePlayer?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Verschieben) && (table.getValue(index: 5)>0) {
+        else if blAngreifer != nil && blVerteidiger != nil && (blVerteidiger?.blNachbarn.contains(blAngreifer!))! && (player1?.blEigene.contains(blAngreifer!))! && ((player1?.blEigene.contains(blVerteidiger!))!) && (blAngreifer.anzahlTruppen > 1) && (phase==PhaseEnum.Verschieben) && (table.getValue(index: 5)>0) {
             return true
         } else {
             return false
@@ -1220,16 +1211,19 @@ class GermanMap: SKScene {
         GameCenterHelper.getInstance().gameState.health[GameCenterHelper.getInstance().getIndexOfNextPlayer()] = GameCenterHelper.getInstance().getIndexOfGameOwner() == GameCenterHelper.getInstance().getIndexOfCurrentPlayer() ? gameScene.rightDummy.lifePoints : gameScene.leftDummy.lifePoints*/
         //halte eine Referenz auf diese Szene in der Kampfscene
         gameScene.germanMapReference = self
-        
+        GameViewController.currentlyShownSceneNumber = 2
         self.view?.presentScene(gameScene, transition: transition)
     }
     
     func transitToShopScene(){
         shopScene.scaleMode = .aspectFill
-        activePlayer.anzahlTruppen = activePlayer.calculateTruppenStaerke()
-        shopScene.setActivePlayer(playerParam: activePlayer) //TODO: Richtigen ActivePlayer übergeben
+        player1.anzahlTruppen = player1.calculateTruppenStaerke()
+        shopScene.setActivePlayer(playerParam: player1) //TODO: Richtigen ActivePlayer übergeben
         shopScene.germanMapReference = self
         
         self.view?.presentScene(shopScene)
+    }
+    func getGS() -> GameState.StructGameState{
+        return GameCenterHelper.getInstance().gameState
     }
 }

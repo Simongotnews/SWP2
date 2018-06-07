@@ -126,6 +126,7 @@ class ShopScene: SKScene {
     func setActivePlayer(playerParam: Player!){
         player=playerParam
         guthaben = player.getCoins()
+        guthaben = getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]
         rest = guthaben
     }
     
@@ -253,11 +254,13 @@ class ShopScene: SKScene {
     
     //Kehre zur GermanMap zurück, nachdem der Kaufen-Button berührt wird
     func transitToGermanMapByKaufenButton(){
-        germanMapReference.player1.coins = rest // TODO: Dem aktiven Player zuweisen
+        //germanMapReference.player1.coins = rest // TODO: Dem aktiven Player zuweisen
+        GameCenterHelper.getInstance().gameState.money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()] = rest
         
         refreshBlAnzahlTruppenLabels()
         kosten = 0
         self.view?.presentScene(germanMapReference)
+        GameCenterHelper.getInstance().saveGameDataToGameCenter()
     }
     
     //Kehre zur GermanMap zurück, nachdem der Abbrechen-Button berührt wird
@@ -270,6 +273,11 @@ class ShopScene: SKScene {
     func refreshBlAnzahlTruppenLabels(){
         for (index, _) in germanMapReference.player1.blEigene.enumerated(){
             germanMapReference.player1.blEigene[index].anzahlTruppen! = shop.getBlNameStrings(index: index)
+            GameCenterHelper.getInstance().gameState.troops[allBlStrings.index(of: germanMapReference.player1.blEigene[index].blNameString)!]=shop.getBlNameStrings(index: index)
         }
     }
+    func getGS() -> GameState.StructGameState{
+        return GameCenterHelper.getInstance().gameState
+    }
+    var allBlStrings = ["Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"]
 }

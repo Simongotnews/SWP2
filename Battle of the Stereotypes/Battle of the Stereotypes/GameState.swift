@@ -32,7 +32,7 @@ class GameState {
         /** Array mit der Spieler ID die den aktuellen Besitzer des Bundeslandes angibt */
         var ownerOfbundesland = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         /** Array mit der Anzahl Truppen im Bundesland */
-        var troups = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        var troops = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         /** Geld der Spieler */
         var money = [0, 0]
         
@@ -141,7 +141,7 @@ class GameState {
     /** Gibt die String Representation von StructGameState zurück */
     static func gameStateToString(gameState: StructGameState) -> String
     {
-        return "GameState [ownerOfBundesland=" + gameState.ownerOfbundesland.description + ", troups=" + gameState.troups.description + ", money=" + gameState.money.description + ", lives=" + gameState.health.description + ", turnOwnerActive=" + String(gameState.activePlayerID)
+        return "GameState [ownerOfBundesland=" + gameState.ownerOfbundesland.description + ", troups=" + gameState.troops.description + ", money=" + gameState.money.description + ", lives=" + gameState.health.description + ", turnOwnerActive=" + String(gameState.activePlayerID)
     }
     
     /** Gibt die String Representation von StructArrowExchangeRequest */

@@ -146,6 +146,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func getGS() -> GameState.StructGameState {
+        return GameCenterHelper.getInstance().gameState
+    }
+    
     func initMusikButton(){
         //Sound
         //...
@@ -949,12 +953,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if germanMapReference.player1.blEigene.contains(germanMapReference.blAngreifer) {
             germanMapReference.blVerteidiger.switchColorToBlue()
             germanMapReference.player1.blEigene.append(germanMapReference.blVerteidiger)
-            germanMapReference.player2.blEigene.remove(at: germanMapReference.player2.blEigene.index(of: germanMapReference.blVerteidiger)!)
+            //germanMapReference.player2.blEigene.remove(at: germanMapReference.player2.blEigene.index(of: germanMapReference.blVerteidiger)!)
             
         } else if germanMapReference.player2.blEigene.contains(germanMapReference.blAngreifer) {
             germanMapReference.blVerteidiger.switchColorToRed()
             germanMapReference.player2.blEigene.append(germanMapReference.blVerteidiger)
-            germanMapReference.player1.blEigene.remove(at: germanMapReference.player1.blEigene.index(of: germanMapReference.blVerteidiger)!)
+            //germanMapReference.player1.blEigene.remove(at: germanMapReference.player1.blEigene.index(of: germanMapReference.blVerteidiger)!)
         }
     }
     
@@ -971,11 +975,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (transitToAngriffAnsicht == false){ //VerschiebenAnsicht soll geladen werden
             GameCenterHelper.getInstance().gameState.angriffsPhase = false
             self.view?.presentScene(germanMapReference)
-            print("Phasenwechsel: Verschiebemodus")
-            germanMapReference.setPhase(PhaseEnum.Verschieben)
+            if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
+                print("Phasenwechsel: Verschiebemodus")
+                germanMapReference.setPhase(PhaseEnum.Verschieben)
+            } else {
+                print("Phasenwechsel: Wartemodus")
+                germanMapReference.setPhase(PhaseEnum.Warten)
+            }
             return
         } else {
-            
+            //Skeltek: Nach Anrgiff geht nur Verschiebemodus
         }
         
         self.view?.presentScene(germanMapReference)
