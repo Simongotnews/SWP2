@@ -161,13 +161,14 @@ class GermanMap: SKScene {
             splitScene()
             
             setBGMap()
+            //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
+            initPlayer()
             initBundeslaender()
             initBlAnzahlTruppen()
             initBlNachbarn()
             
-            //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
-            initPlayer()
-            GameCenterHelper.getInstance().loadGameDataFromGameCenter() //Skeltek TODO: Später wieder raunehmen
+
+            //GameCenterHelper.getInstance().loadGameDataFromGameCenter() //Skeltek TODO: Später wieder raunehmen
             //Setze die Farben der Bundesländer
             //initColors()
             //initialisiere Statistiken
@@ -507,95 +508,93 @@ class GermanMap: SKScene {
         // HINWEIS: die Größe der einzelnen Kartenelemente richtet sich nach der Size der Hintergrundmap!
         
         // Baden-Württemberg:
-        badenWuerttemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: "BadenWuerttemberg_blue"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        badenWuerttemberg = Bundesland(blName: BundeslandEnum.BadenWuerttemberg, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[0] == 0 ? "BadenWuerttemberg_blue" : "BadenWuerttemberg_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         badenWuerttemberg?.setPosition()
         mapSide.addChild(badenWuerttemberg!)
         
         // Bayern:
-        bayern = Bundesland(blName: BundeslandEnum.Bayern, texture: SKTexture(imageNamed: "Bayern_blue"),
+        bayern = Bundesland(blName: BundeslandEnum.Bayern, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[1] == 0 ? "Bayern_blue" : "Bayern_red"),
                             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         bayern?.setPosition()
         mapSide.addChild(bayern!)
         
         // Berlin:
-        berlin = Bundesland(blName: BundeslandEnum.Berlin, texture: SKTexture(imageNamed: "Berlin_red"),
+        berlin = Bundesland(blName: BundeslandEnum.Berlin, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[2] == 0 ? "Berlin_blue" : "Berlin_red"),
                             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         berlin?.setPosition()
         mapSide.addChild(berlin!)
         
         // Brandenburg:
-        brandenburg = Bundesland(blName: BundeslandEnum.Brandenburg, texture: SKTexture(imageNamed: "Brandenburg_red"),
+        brandenburg = Bundesland(blName: BundeslandEnum.Brandenburg, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[3] == 0 ? "Brandenburg_blue" : "Brandenburg_red"),
                                  size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         brandenburg?.setPosition()
         mapSide.addChild(brandenburg!)
         
         // Bremen:
-        bremen = Bundesland(blName: BundeslandEnum.Bremen, texture: SKTexture(imageNamed: "Bremen_red"),
+        bremen = Bundesland(blName: BundeslandEnum.Bremen, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[4] == 0 ? "Bremen_blue" : "Bremen_red"),
                             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         bremen?.setPosition()
         mapSide.addChild(bremen!)
         
         // Hamburg:
-        hamburg = Bundesland(blName: BundeslandEnum.Hamburg, texture: SKTexture(imageNamed: "Hamburg_red"),
-                             size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        hamburg = Bundesland(blName: BundeslandEnum.Hamburg, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[5] == 0 ? "Hamburg_blue" : "Hamburg_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         hamburg?.setPosition()
         mapSide.addChild(hamburg!)
         
         // Hessen:
-        hessen = Bundesland(blName: BundeslandEnum.Hessen, texture: SKTexture(imageNamed: "Hessen_red"),
-                            size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        hessen = Bundesland(blName: BundeslandEnum.Hessen, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[6] == 0 ? "Hessen_blue" : "Hessen_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         hessen?.setPosition()
         mapSide.addChild(hessen!)
         
         // Mecklenburg-Vorpommern:
-        mecklenburgVorpommern = Bundesland(blName: BundeslandEnum.MecklenburgVorpommern, texture: SKTexture(imageNamed: "MecklenburgVorpommern_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        mecklenburgVorpommern = Bundesland(blName: BundeslandEnum.MecklenburgVorpommern, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[7] == 0 ? "MecklenburgVorpommern_blue" : "MecklenburgVorpommern_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         mecklenburgVorpommern?.setPosition()
         mapSide.addChild(mecklenburgVorpommern!)
         
         // Niedersachsen:
-        niedersachsen = Bundesland(blName: BundeslandEnum.Niedersachsen, texture: SKTexture(imageNamed: "Niedersachsen_blue"),
+        niedersachsen = Bundesland(blName: BundeslandEnum.Niedersachsen, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[8] == 0 ? "Niedersachsen_blue" : "Niedersachsen_red"),
                                    size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         niedersachsen?.setPosition()
         mapSide.addChild(niedersachsen!)
         
         // Nordrhein-Westfalen:
-        nordrheinWestfalen = Bundesland(blName: BundeslandEnum.NordrheinWestfalen, texture: SKTexture(imageNamed: "NRW_blue"),
+        nordrheinWestfalen = Bundesland(blName: BundeslandEnum.NordrheinWestfalen, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[9] == 0 ? "NRW_blue" : "NRW_red"),
                                         size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         nordrheinWestfalen?.setPosition()
         mapSide.addChild(nordrheinWestfalen!)
         
         // Rheinland-Pfalz:
-        rheinlandPfalz = Bundesland(blName: BundeslandEnum.RheinlandPfalz, texture: SKTexture(imageNamed: "RheinlandPfalz_red"),
+        rheinlandPfalz = Bundesland(blName: BundeslandEnum.RheinlandPfalz, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[10] == 0 ? "RheinlandPfalz_blue" : "RheinlandPfalz_red"),
                                     size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         rheinlandPfalz?.setPosition()
         mapSide.addChild(rheinlandPfalz!)
         
         // Saarland:
-        saarland = Bundesland(blName: BundeslandEnum.Saarland, texture: SKTexture(imageNamed: "Saarland_blue"),
+        saarland = Bundesland(blName: BundeslandEnum.Saarland, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[11] == 0 ? "Saarland_blue" : "Saarland_red"),
                               size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         saarland?.setPosition()
         
         mapSide.addChild(saarland!)
         
         // Sachsen:
-        sachsen = Bundesland(blName: BundeslandEnum.Sachsen, texture: SKTexture(imageNamed: "Sachsen_red"),
+        sachsen = Bundesland(blName: BundeslandEnum.Sachsen, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[12] == 0 ? "Sachsen_blue" : "Sachsen_red"),
                              size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         sachsen?.setPosition()
         mapSide.addChild(sachsen!)
         
         // Sachsen-Anhalt:
-        sachsenAnhalt = Bundesland(blName: BundeslandEnum.SachsenAnhalt, texture: SKTexture(imageNamed: "SachsenAnhalt_red"),
+        sachsenAnhalt = Bundesland(blName: BundeslandEnum.SachsenAnhalt, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[13] == 0 ? "SachsenAnhalt_blue" : "SachsenAnhalt_red"),
                                    size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         sachsenAnhalt?.setPosition()
         mapSide.addChild(sachsenAnhalt!)
         
         // Schleswig-Holstein:
-        schleswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: "SchleswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        schleswigHolstein = Bundesland(blName: BundeslandEnum.SchleswigHolstein, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[14] == 0 ? "SchleswigHolstein_blue" : "SchleswigHolstein_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         schleswigHolstein?.setPosition()
         mapSide.addChild(schleswigHolstein!)
         
         // Thüringen:
-        thueringen = Bundesland(blName: BundeslandEnum.Thueringen, texture: SKTexture(imageNamed: "Thueringen_red"),
+        thueringen = Bundesland(blName: BundeslandEnum.Thueringen, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[15] == 0 ? "Thueringen_blue" : "Thueringen_red"),
                                 size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         thueringen?.setPosition()
         mapSide.addChild(thueringen!)

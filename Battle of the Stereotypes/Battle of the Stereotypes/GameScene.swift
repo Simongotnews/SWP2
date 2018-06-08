@@ -593,7 +593,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         else{
             pos = rightDummy.position
             pos.x = pos.x - 50
-            pos.y = pos.y - 50
+            pos.y = pos.y + 50
         }
         leftDummyHand.removeAllChildren()
         rightDummyHand.removeAllChildren()
