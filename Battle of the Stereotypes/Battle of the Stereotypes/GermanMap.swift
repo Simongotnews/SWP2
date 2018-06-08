@@ -365,7 +365,7 @@ class GermanMap: SKScene {
         if phase==PhaseEnum.Verschieben && pfeil != nil && table.getValue(index: 5)>0 {
             //beachte, dass nicht beliebige Zahlen eingestellt werden dürfen
             if verschiebePlusButton.contains(touch.location(in: verschiebeLabel)) {
-                if verschiebeZahl < blAngreifer.anzahlTruppen! {
+                if verschiebeZahl < (blAngreifer.anzahlTruppen! - 1) {
                     verschiebeZahl += 1
                     verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
                 }
