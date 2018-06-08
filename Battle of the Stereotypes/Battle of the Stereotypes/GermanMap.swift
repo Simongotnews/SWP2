@@ -806,7 +806,7 @@ class GermanMap: SKScene {
             //TODO Skeltek: getIndexOfCurrentPlayer hier falsch, später durch Spieleröffner ersetzen
             player1 = Player(id: GameCenterHelper.getInstance().getIndexOfLocalPlayer())
             player2 = Player(id: GameCenterHelper.getInstance().getIndexOfOtherPlayer())
-            distributeBLsToPlayersRandomly()
+            //distributeBLsToPlayersRandomly()
     }
     
     //zufälliges Zuweisen der Bundesländer an die Spieler bei Spielbeginn, Anzahl Truppen in den Bundesländern ändern, falls ein Spieler hierdurch deutlich mehr Truppen bekommt
