@@ -275,6 +275,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Spiel erfolgreich gespeichert")
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
+                    StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
                 }
                 self.spielGeladen = true    //Wer speichert hat ohnehin aktuellen Spielstand
             }
@@ -334,6 +335,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                         //StartScene.germanMapScene.player2.coins = self.getIndexOfGameOwner()==self.getIndexOfLocalPlayer() ? self.gameState.money[1] : self.gameState.money[0]
                         //updaten der Variablen und Labels
                         StartScene.germanMapScene.gameScene.updateStats()
+                        StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
+                        if StartScene.germanMapScene.gameScene.leftDummy.lifePoints*StartScene.germanMapScene.gameScene.rightDummy.lifePoints==0{
+                            StartScene.germanMapScene.gameScene.childNode(withName: "ball")?.removeFromParent()
+                            StartScene.germanMapScene.gameScene.transitToGermanMap(transitToAngriffAnsicht: false)
+                        }
                         }
                     }
                     print("Derzeit gezeigte Szene: " + String(GameViewController.currentlyShownSceneNumber))
@@ -367,149 +373,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     self.gameState.troops = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]*/
                     
                     //Bundesländer zufällig an Spieler verteilen
-                    
-                    
-                    var countBLsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
-                    var countBLsNotGameOwner : Int = 0
-                    
-                    //den Bundesländern Truppenzahl zufälllig zuweisen
-                    
-                    for i in 0...15 {
-                        
-                        if i == 0 {//BundeslandEnum.BadenWuerttemberg
-                            self.gameState.troops[i]  = 11 * (Int (arc4random_uniform(4)+1))// zuweisen der Tuppenzahl an die Bundesländer bei Spielbeginn (Bevölkerunszahl in Mio gerundet mal Zufallszahl zwischen 1 und 4)
-                        } else if i == 1 {//Bayern
-                            self.gameState.troops[i] = 13 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 2 {//Berlin
-                            self.gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 3 {//Brandenburg
-                            self.gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 4 {//Bremen
-                            self.gameState.troops[i]  = 1 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 5 {//Hamburg
-                            self.gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 6 {//Hessen
-                            self.gameState.troops[i]  = 6 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 7 {//Mecklenburg-Vorpommern
-                            self.gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 8 {//Niedersachsen
-                            self.gameState.troops[i]  = 8 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 9 {//Nordrhein-Westfalen
-                            self.gameState.troops[i]  = 18 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 10 {//Rheinland-Pfalz
-                            self.gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 11 {//Saarland
-                            self.gameState.troops[i]  = 1 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 12 {//Sachsen
-                            self.gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 13 {//Sachsen-Anhalt
-                            self.gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 14 {//Schleswig-Holstein
-                            self.gameState.troops[i]  = 3 * (Int (arc4random_uniform(4)+1))
-                        } else if i == 15 {//Thüringen
-                            self.gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
-                        } else {
-                            print("Fehler beim zufälligen Zuweisen der Truppen an die Bundesländer")
-                        }
-                    }
-                    
-                    var countTroupsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
-                    var countTroupsNotGameOwner : Int = 0
-                    
-                    for i in 0...15 { //an jeden Spieler 8 Bundesländer verteilen //!!!
-                        
-                        let zufallszahl : UInt32 = arc4random_uniform(2) //Zahlen (zwischen) 0 und 1 generieren
-                        
-                        if(zufallszahl < 1  && countBLsGameOwner < 8){ //wenn Zufallszahl < 1 ist, Bundesland an GameOwner
-                            self.gameState.ownerOfbundesland[i] = 0; //0 ist Zahl für Gameowner
-                            countBLsGameOwner = countBLsGameOwner + 1
-                            countTroupsGameOwner = countTroupsGameOwner + self.gameState.troops[i]
-                        }else if(zufallszahl >= 1  && countBLsNotGameOwner < 8) { //wenn Zufallszahl >= 1 ist, Bundesland an Nicht-GameOwner
-                            self.gameState.ownerOfbundesland[i] = 1; //1 ist Zahl für den Nicht-Gameowner
-                            countBLsNotGameOwner = countBLsNotGameOwner + 1
-                            countTroupsNotGameOwner = countTroupsNotGameOwner + self.gameState.troops[i]
-                        }else if(zufallszahl < 1  && countBLsGameOwner >= 8) { //GameOwner hat schon 8 Bundesländer, dann Bundesland an Nicht-GameOwner
-                            self.gameState.ownerOfbundesland[i] = 1; //
-                            countBLsNotGameOwner = countBLsNotGameOwner + 1
-                            countTroupsNotGameOwner = countTroupsNotGameOwner + self.gameState.troops[i]
-                        }else if(zufallszahl >= 1  && countBLsNotGameOwner >= 8) { //Nicht-GameOwner hat schon 8 Bundesländer, dann Bundesland an GameOwner
-                            self.gameState.ownerOfbundesland[i] = 0; //0 ist Zahl für Gameowner
-                            countBLsGameOwner = countBLsGameOwner + 1
-                            countTroupsGameOwner = countTroupsGameOwner + self.gameState.troops[i]
-                        }else{
-                            
-                            print("Fehler beim Zuweisen der Bundesländer an die Spieler, Bundesland wurde keinem Spieler zugewiesen")
-                            
-                        }
-                    }
-                    
-                    // var countTroupsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
-                    //var countTroupsNotGameOwner : Int = 0
-                    
-                    //Truppenzahl ausgleichen, falls Nicht-GameOwner >= 20 % mehr Truppen hat, als GameOwner
-                    
-                    if Double (countTroupsGameOwner) * 1.2 <= Double (countTroupsNotGameOwner){
-                        
-                        while Double (countTroupsGameOwner) * 1.2 <= Double (countTroupsNotGameOwner){
-                            
-                            for i in 0...15 {
-                                
-                                //für jedes Bundesland des Nicht-GameOwners{  //Nicht-GameOwner in jedem BL eine Truppe wegnehmen
-                                if(self.gameState.ownerOfbundesland[i] == 1){
-                                    if (countTroupsNotGameOwner - countTroupsGameOwner >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
-                                        if (self.gameState.troops[i] >= 10){
-                                            self.gameState.troops[i] = self.gameState.troops[i] - 4
-                                            countTroupsNotGameOwner = countTroupsNotGameOwner - 4
-                                        }
-                                    }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
-                                        
-                                        if (self.gameState.troops[i] > 2){
-                                            self.gameState.troops[i] = self.gameState.troops[i] - 1
-                                            countTroupsNotGameOwner = countTroupsNotGameOwner - 1
-                                        }
-                                        
-                                    }
-                                    
-                                }
-                            }
-                            if (countTroupsNotGameOwner <= 16 ){ //Endlosschleife vermeiden
-                                break
-                            }
-                            
-                        }
-                    }else if Double (countTroupsNotGameOwner) * 1.2 <= Double (countTroupsGameOwner){
-                        
-                        //Truppenzahl ausgleichen, falls Spieler1 >= 20 % mehr Truppen hat, als Spieler 2
-                        
-                        while Double (countTroupsNotGameOwner) * 1.2 <= Double (countTroupsGameOwner){
-                            
-                            for i in 0...15 {
-                                
-                                //für jedes Bundesland des GameOwners{  //GameOwner in jedem BL eine Truppe wegnehmen
-                                if(self.gameState.ownerOfbundesland[i] == 0){
-                                    if (countTroupsGameOwner - countTroupsNotGameOwner >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
-                                        if (self.gameState.troops[i] >= 10){
-                                            self.gameState.troops[i] = self.gameState.troops[i] - 4
-                                            countTroupsGameOwner = countTroupsGameOwner - 4
-                                        }
-                                    }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
-                                        
-                                        if (self.gameState.troops[i] > 2){
-                                            self.gameState.troops[i] = self.gameState.troops[i] - 1
-                                            countTroupsGameOwner = countTroupsGameOwner - 1
-                                        }
-                                        
-                                    }
-                                    
-                                }
-                            }
-                            if (countTroupsGameOwner <= 16 ){ //Endlosschleife vermeiden
-                                break
-                            }
-                            
-                        }
-                    }
-                    
+                    StartScene.germanMapScene.initializeBlRandomly()
                     self.gameState.money = [160,160]
                     self.saveGameDataToGameCenter()
                 }
@@ -612,6 +476,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                         self.mergeCompletedExchangeToSave(exchange: exchange)
                         if (GameViewController.currentlyShownSceneNumber == 2){
                             StartScene.germanMapScene.gameScene.updateStats()
+                            StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
                         }
                     }
                 }
@@ -636,7 +501,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         case GameState.IdentifierThrowExchange:
             print("ThrowExchange empfangen")
             tempExchanges.append(exchange)
-            testExchange = exchange
             handleThrowExchange(throwExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructThrowExchangeRequest()), exchange: exchange)
             return
         case GameState.IdentifierDamageExchange:
@@ -648,14 +512,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             print("Anfrage zum Mergen erhalten")
             tempExchanges.append(exchange)
             handleMergeRequestExchange(mergeRequestExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructMergeRequestExchange()), exchangeToReplyTo: exchange)
-            return
-        case GameState.IdentifierTestExchange:
-            print("TestExchange empfangen")
-            testExchange = exchange
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                self.handleTestExchange(testExchange: exchange)
-            })
-            //handleTestExchange(testExchange: exchange)
             return
         default:
             print("!!!Fehlerhafter MessageKey von ExchangeRequest!!! \n\n")
@@ -741,6 +597,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             damageExchangeStruct.damage > 0 ? StartScene.germanMapScene.gameScene.rightDummy.blink() : nil
         }
         StartScene.germanMapScene.gameScene.updateStats()
+        //StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
         print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchangeStruct))
         exchange?.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructDamageExchangeRequest()), completionHandler: nil)
     }
@@ -760,31 +617,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
         })
     }
-    
-    /** Methode um Exchange für Testzwecke zu verschicken */
-    let testExchangeReply = GameState.StructTestExchangeReply()
-    var testExchange = GKTurnBasedExchange.init()
-    func handleTestExchange(testExchange: GKTurnBasedExchange) {
-        print("Testexchange erhalten")
-        testExchange.reply(withLocalizableMessageKey: GameState.IdentifierTestExchange , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: testExchangeReply), completionHandler: {(error: Error?) -> Void in
-            if(error == nil ) {
-                print("TestExchange-Reply erfolgreich verschickt")
-                if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){
-                    self.gameState.activePlayerID = self.getIndexOfLocalPlayer()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                        print("Dispatching assynchronous Thread")
-                        self.mergeCompletedExchangeToSave(exchange: testExchange)
-                    })
-                }
-            } else {
-                print("Fehler beim TestExchange beantworten")
-                print(error as Any)
-            }
-        })
-    }
-    
-    
-    
+
     /** Wird aufgerufen, wenn eine Exchange von allen Empfängern beantwortet oder abgebrochen wurde. Empfänger: ExchangeAbsender + Turnowner */
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch){
         if match != currentMatch{
@@ -808,6 +641,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 tempExchanges.append(exchange)
                 gameState.activePlayerID = getIndexOfOtherPlayer()
                 mergeCompletedExchangesToSave(exchanges: tempExchanges)
+                if StartScene.germanMapScene.gameScene.leftDummy.lifePoints*StartScene.germanMapScene.gameScene.rightDummy.lifePoints == 0{
+                    //Skeltek TODO: Hier zurück zur german Map, da sonst zu früh der Wechsel stattfindet
+                    gameState.activePlayerID = getIndexOfCurrentPlayer()
+                }
             }
         }
         
@@ -824,14 +661,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Not my Exchange, aborting")
                 return
             }
-        }
-        if exchange.message == GameState.IdentifierTestExchange {
-            print("TestExchange-Reply erhalten")
-            if (isLocalPlayersTurn()){
-                mergeCompletedExchangeToSave(exchange: exchange)
-                print("TestExchange gemerged")
-            }
-            return
         }
         if (!isLocalPlayersTurn() && exchange.message == GameState.IdentifierDamageExchange){
             print("Damage Exchange-Antwort erhalten, schicke MergeRequest")
@@ -884,7 +713,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Ein CompletedExchange erfolgreich in Save eingebunden.")
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
-                }
+                    StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)                }
             }
         })
     }
@@ -901,6 +730,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Mehrere CompletedExchanges erfolgreich in Save eingebunden.")
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
+                    StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
                 }
             }
         })

@@ -164,6 +164,7 @@ class GermanMap: SKScene {
             //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
             initPlayer()
             initBundeslaender()
+            assignBlToPlayers()
             initBlAnzahlTruppen()
             initBlNachbarn()
             
@@ -387,7 +388,15 @@ class GermanMap: SKScene {
                     //ziehe Truppen ab und füge sie bei anderem BL hinzu
                     blAngreifer.anzahlTruppen! -= verschiebeZahl
                     blVerteidiger.anzahlTruppen! += verschiebeZahl
-                    
+                    for (index, _) in allBundeslaender.enumerated(){
+                        if allBundeslaender[index]==blAngreifer {
+                            GameCenterHelper.getInstance().gameState.troops[index] = blAngreifer.anzahlTruppen
+                        }
+                        if allBundeslaender[index]==blVerteidiger{
+                            GameCenterHelper.getInstance().gameState.troops[index] = blVerteidiger.anzahlTruppen
+                        }
+                    }
+                    GameCenterHelper.getInstance().saveGameDataToGameCenter()
                     //aktualisiere die Labels und resette die Zahl
                     initBlAnzahlTruppen()
                     verschiebeZahl = 0
@@ -564,14 +573,12 @@ class GermanMap: SKScene {
         mapSide.addChild(nordrheinWestfalen!)
         
         // Rheinland-Pfalz:
-        rheinlandPfalz = Bundesland(blName: BundeslandEnum.RheinlandPfalz, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[10] == 0 ? "RheinlandPfalz_blue" : "RheinlandPfalz_red"),
-                                    size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        rheinlandPfalz = Bundesland(blName: BundeslandEnum.RheinlandPfalz, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[10] == 0 ? "RheinlandPfalz_blue" : "RheinlandPfalz_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         rheinlandPfalz?.setPosition()
         mapSide.addChild(rheinlandPfalz!)
         
         // Saarland:
-        saarland = Bundesland(blName: BundeslandEnum.Saarland, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[11] == 0 ? "Saarland_blue" : "Saarland_red"),
-                              size: CGSize(width: (mapSize.width), height: (mapSize.height)))
+        saarland = Bundesland(blName: BundeslandEnum.Saarland, texture: SKTexture(imageNamed: GameCenterHelper.getInstance().gameState.ownerOfbundesland[11] == 0 ? "Saarland_blue" : "Saarland_red"), size: CGSize(width: (mapSize.width), height: (mapSize.height)))
         saarland?.setPosition()
         
         mapSide.addChild(saarland!)
@@ -808,191 +815,10 @@ class GermanMap: SKScene {
             //distributeBLsToPlayersRandomly()
     }
     
-    //zufälliges Zuweisen der Bundesländer an die Spieler bei Spielbeginn, Anzahl Truppen in den Bundesländern ändern, falls ein Spieler hierdurch deutlich mehr Truppen bekommt
-    
-    func distributeBLsToPlayersRandomly(){
-        for bundesland in allBundeslaender{ //an jeden Spieler 8 Bundesländer verteilen
-            
-            let zufallszahl : UInt32 = arc4random_uniform(2) //Zahlen (zwischen) 0 und 1 generieren
-            
-            if(zufallszahl < 1  && player1.blEigene.count < 8){ //wenn Zufallszahl < 1 ist, Bundesland an Spieler 1
-                player1?.blEigene.append(bundesland)
-            }else if(zufallszahl >= 1  && player2.blEigene.count < 8) { //wenn Zufallszahl >= 1 ist, Bundesland an Spieler 2
-                player2?.blEigene.append(bundesland)
-            }else if(zufallszahl < 1  && player1.blEigene.count >= 8) { //Spieler 1 hat schon 8 Bundesländer, dann Bundesland an Spieler 2
-                player2?.blEigene.append(bundesland)
-            }else if(zufallszahl >= 1  && player2.blEigene.count >= 8) { //Spieler 2 hat schon 8 Bundesländer, dann Bundesland an Spieler 1
-                player1?.blEigene.append(bundesland)
-            }else{
-                
-                print("Fehler beim Zuweisen der Bundesländer an die Spieler, Bundesland wurde keinem Spieler zugewiesen")
-                
-            }
+    func assignBlToPlayers(){
+        for (index, _) in allBundeslaender.enumerated() {
+            GameCenterHelper.getInstance().gameState.ownerOfbundesland[index]==GameCenterHelper.getInstance().getIndexOfLocalPlayer() ? player1.blEigene.append(allBundeslaender[index]) : player2.blEigene.append(allBundeslaender[index])
         }
-        
-        
-        //Truppenzahl ausgleichen, falls Spieler2 >= 20 % mehr Truppen hat, als Spieler 1
-        
-        if Double (player1.calculateTruppenStaerke()) * 1.2 <= Double (player2.calculateTruppenStaerke()){
-            
-            while Double (player1.calculateTruppenStaerke()) * 1.2 <= Double (player2.calculateTruppenStaerke()){
-                
-                for bundesland in player2.blEigene{  //player2 in jedem BL eine Truppe wegnehmen
-                    
-                    if (player2.calculateTruppenStaerke() - player1.calculateTruppenStaerke() >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
-                        if (bundesland.anzahlTruppen >= 10){
-                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 4
-                        }
-                    }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
-                        
-                        if (bundesland.anzahlTruppen > 2){
-                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
-                        }
-                        
-                    }
-                    
-                    if (player2.calculateTruppenStaerke() <= 16 ){ //Endlosschleife vermeiden
-                        break
-                    }
-                }
-            }
-        }else if Double (player2.calculateTruppenStaerke()) * 1.2 <= Double (player1.calculateTruppenStaerke()){
-            
-            //Truppenzahl ausgleichen, falls Spieler1 >= 20 % mehr Truppen hat, als Spieler 2
-            
-            while Double (player2.calculateTruppenStaerke()) * 1.2 <= Double (player1.calculateTruppenStaerke()){
-                
-                for bundesland in player1.blEigene{ //player1 in jedem BL eine Truppe wegnehmen
-                    if (player1.calculateTruppenStaerke() - player2.calculateTruppenStaerke() >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
-                        if (bundesland.anzahlTruppen >= 10){
-                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 4
-                        }
-                    }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
-                        
-                        if (bundesland.anzahlTruppen > 2){
-                            bundesland.anzahlTruppen = bundesland.anzahlTruppen - 1
-                        }
-                        
-                    }
-                    
-                    if (player1.calculateTruppenStaerke() <= 16 ){ //Endlosschleife vermeiden
-                        break
-                    }
-                }
-            }
-        }
-        
-        
-        for bula in player1.blEigene{ //Werte in die Bundesländer übertragen (außerhalb von blEigene) und AnzahlTruppenLabel der German Map aktualisieren
-            if bula.name == badenWuerttemberg.name{
-                badenWuerttemberg.anzahlTruppen = bula.anzahlTruppen
-                badenWuerttembergAnzahlTruppenLabel.text = String(badenWuerttemberg.anzahlTruppen ?? Int())
-            }else if bula.name == bayern.name{
-                bayern.anzahlTruppen = bula.anzahlTruppen
-                bayernAnzahlTruppenLabel.text = String(bayern.anzahlTruppen ?? Int())
-            }else if bula.name == berlin.name{
-                berlin.anzahlTruppen = bula.anzahlTruppen
-                berlinAnzahlTruppenLabel.text = String(berlin.anzahlTruppen ?? Int())
-            }else if bula.name == brandenburg.name{
-                brandenburg.anzahlTruppen = bula.anzahlTruppen
-                brandenburgAnzahlTruppenLabel.text = String(brandenburg.anzahlTruppen ?? Int())
-            }else if bula.name == bremen.name{
-                bremen.anzahlTruppen = bula.anzahlTruppen
-                bremenAnzahlTruppenLabel.text = String(bremen.anzahlTruppen ?? Int())
-            }else if bula.name == hamburg.name{
-                hamburg.anzahlTruppen = bula.anzahlTruppen
-                hamburgAnzahlTruppenLabel.text = String(hamburg.anzahlTruppen ?? Int())
-            }else if bula.name == hessen.name{
-                hessen.anzahlTruppen = bula.anzahlTruppen
-                hessenAnzahlTruppenLabel.text = String(hessen.anzahlTruppen ?? Int())
-            }else if bula.name == mecklenburgVorpommern.name{
-                mecklenburgVorpommern.anzahlTruppen = bula.anzahlTruppen
-                mecklenburgVorpommernAnzahlTruppenLabel.text = String(mecklenburgVorpommern.anzahlTruppen ?? Int())
-            }else if bula.name == niedersachsen.name{
-                niedersachsen.anzahlTruppen = bula.anzahlTruppen
-                niedersachsenAnzahlTruppenLabel.text = String(niedersachsen.anzahlTruppen ?? Int())
-            }else if bula.name == nordrheinWestfalen.name{
-                nordrheinWestfalen.anzahlTruppen = bula.anzahlTruppen
-                nordrheinWestfalenAnzahlTruppenLabel.text = String(nordrheinWestfalen.anzahlTruppen ?? Int())
-            }else if bula.name == rheinlandPfalz.name{
-                rheinlandPfalz.anzahlTruppen = bula.anzahlTruppen
-                rheinlandPfalzAnzahlTruppenLabel.text = String(rheinlandPfalz.anzahlTruppen ?? Int())
-            }else if bula.name == saarland.name{
-                saarland.anzahlTruppen = bula.anzahlTruppen
-                saarlandAnzahlTruppenLabel.text = String(saarland.anzahlTruppen ?? Int())
-            }else if bula.name == sachsen.name{
-                sachsen.anzahlTruppen = bula.anzahlTruppen
-                sachsenAnzahlTruppenLabel.text = String(sachsen.anzahlTruppen ?? Int())
-            }else if bula.name == sachsenAnhalt.name{
-                sachsenAnhalt.anzahlTruppen = bula.anzahlTruppen
-                sachsenAnhaltAnzahlTruppenLabel.text = String(sachsenAnhalt.anzahlTruppen ?? Int())
-            }else if bula.name == schleswigHolstein.name{
-                schleswigHolstein.anzahlTruppen = bula.anzahlTruppen
-                schleswigHolsteinAnzahlTruppenLabel.text = String(schleswigHolstein.anzahlTruppen ?? Int())
-            }else if bula.name == thueringen.name{
-                thueringen.anzahlTruppen = bula.anzahlTruppen
-                thueringenAnzahlTruppenLabel.text = String(thueringen.anzahlTruppen ?? Int())
-            }else{
-                print("Bundesland nicht vorhanden!")
-                
-            }
-        }
-        
-        
-        for bula in player2.blEigene{ //dasselbe für die Bundesländer von Player 2
-            if bula.name == badenWuerttemberg.name{
-                badenWuerttemberg.anzahlTruppen = bula.anzahlTruppen
-                badenWuerttembergAnzahlTruppenLabel.text = String(badenWuerttemberg.anzahlTruppen ?? Int())
-            }else if bula.name == bayern.name{
-                bayern.anzahlTruppen = bula.anzahlTruppen
-                bayernAnzahlTruppenLabel.text = String(bayern.anzahlTruppen ?? Int())
-            }else if bula.name == berlin.name{
-                berlin.anzahlTruppen = bula.anzahlTruppen
-                berlinAnzahlTruppenLabel.text = String(berlin.anzahlTruppen ?? Int())
-            }else if bula.name == brandenburg.name{
-                brandenburg.anzahlTruppen = bula.anzahlTruppen
-                brandenburgAnzahlTruppenLabel.text = String(brandenburg.anzahlTruppen ?? Int())
-            }else if bula.name == bremen.name{
-                bremen.anzahlTruppen = bula.anzahlTruppen
-                bremenAnzahlTruppenLabel.text = String(bremen.anzahlTruppen ?? Int())
-            }else if bula.name == hamburg.name{
-                hamburg.anzahlTruppen = bula.anzahlTruppen
-                hamburgAnzahlTruppenLabel.text = String(hamburg.anzahlTruppen ?? Int())
-            }else if bula.name == hessen.name{
-                hessen.anzahlTruppen = bula.anzahlTruppen
-                hessenAnzahlTruppenLabel.text = String(hessen.anzahlTruppen ?? Int())
-            }else if bula.name == mecklenburgVorpommern.name{
-                mecklenburgVorpommern.anzahlTruppen = bula.anzahlTruppen
-                mecklenburgVorpommernAnzahlTruppenLabel.text = String(mecklenburgVorpommern.anzahlTruppen ?? Int())
-            }else if bula.name == niedersachsen.name{
-                niedersachsen.anzahlTruppen = bula.anzahlTruppen
-                niedersachsenAnzahlTruppenLabel.text = String(niedersachsen.anzahlTruppen ?? Int())
-            }else if bula.name == nordrheinWestfalen.name{
-                nordrheinWestfalen.anzahlTruppen = bula.anzahlTruppen
-                nordrheinWestfalenAnzahlTruppenLabel.text = String(nordrheinWestfalen.anzahlTruppen ?? Int())
-            }else if bula.name == rheinlandPfalz.name{
-                rheinlandPfalz.anzahlTruppen = bula.anzahlTruppen
-                rheinlandPfalzAnzahlTruppenLabel.text = String(rheinlandPfalz.anzahlTruppen ?? Int())
-            }else if bula.name == saarland.name{
-                saarland.anzahlTruppen = bula.anzahlTruppen
-                saarlandAnzahlTruppenLabel.text = String(saarland.anzahlTruppen ?? Int())
-            }else if bula.name == sachsen.name{
-                sachsen.anzahlTruppen = bula.anzahlTruppen
-                sachsenAnzahlTruppenLabel.text = String(sachsen.anzahlTruppen ?? Int())
-            }else if bula.name == sachsenAnhalt.name{
-                sachsenAnhalt.anzahlTruppen = bula.anzahlTruppen
-                sachsenAnhaltAnzahlTruppenLabel.text = String(sachsenAnhalt.anzahlTruppen ?? Int())
-            }else if bula.name == schleswigHolstein.name{
-                schleswigHolstein.anzahlTruppen = bula.anzahlTruppen
-                schleswigHolsteinAnzahlTruppenLabel.text = String(schleswigHolstein.anzahlTruppen ?? Int())
-            }else if bula.name == thueringen.name{
-                thueringen.anzahlTruppen = bula.anzahlTruppen
-                thueringenAnzahlTruppenLabel.text = String(thueringen.anzahlTruppen ?? Int())
-            }else{
-                print("Bundesland nicht vorhanden!")}
-            
-        }
-        
     }
     
     // Initialisieren des Geld-Labels des Spielers
@@ -1184,8 +1010,6 @@ class GermanMap: SKScene {
         }
     }
     
-    
-    
     // Initialisieren des Pfeils zur Anzeige der verbundenen Bundesländer
     func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
         let pfeilKoordinaten = UIBezierPath.pfeil(from: CGPoint(x:startLocation.x, y:startLocation.y), to: CGPoint(x:endLocation.x, y: endLocation.y),tailWidth: 10, headWidth: 25, headLength: 20)
@@ -1197,7 +1021,145 @@ class GermanMap: SKScene {
         pfeil.strokeColor = UIColor.black
         addChild(pfeil)
     }
-    
+    func initializeBlRandomly(){
+        var countBLsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
+        var countBLsNotGameOwner : Int = 0
+        
+        //den Bundesländern Truppenzahl zufälllig zuweisen
+        
+        for i in 0...15 {
+            
+            if i == 0 {//BundeslandEnum.BadenWuerttemberg
+                GameCenterHelper.getInstance().gameState.troops[i]  = 11 * (Int (arc4random_uniform(4)+1))// zuweisen der Tuppenzahl an die Bundesländer bei Spielbeginn (Bevölkerunszahl in Mio gerundet mal Zufallszahl zwischen 1 und 4)
+            } else if i == 1 {//Bayern
+                GameCenterHelper.getInstance().gameState.troops[i] = 13 * (Int (arc4random_uniform(4)+1))
+            } else if i == 2 {//Berlin
+                GameCenterHelper.getInstance().gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
+            } else if i == 3 {//Brandenburg
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else if i == 4 {//Bremen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 1 * (Int (arc4random_uniform(4)+1))
+            } else if i == 5 {//Hamburg
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else if i == 6 {//Hessen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 6 * (Int (arc4random_uniform(4)+1))
+            } else if i == 7 {//Mecklenburg-Vorpommern
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else if i == 8 {//Niedersachsen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 8 * (Int (arc4random_uniform(4)+1))
+            } else if i == 9 {//Nordrhein-Westfalen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 18 * (Int (arc4random_uniform(4)+1))
+            } else if i == 10 {//Rheinland-Pfalz
+                GameCenterHelper.getInstance().gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
+            } else if i == 11 {//Saarland
+                GameCenterHelper.getInstance().gameState.troops[i]  = 1 * (Int (arc4random_uniform(4)+1))
+            } else if i == 12 {//Sachsen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
+            } else if i == 13 {//Sachsen-Anhalt
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else if i == 14 {//Schleswig-Holstein
+                GameCenterHelper.getInstance().gameState.troops[i]  = 3 * (Int (arc4random_uniform(4)+1))
+            } else if i == 15 {//Thüringen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else {
+                print("Fehler beim zufälligen Zuweisen der Truppen an die Bundesländer")
+            }
+        }
+        
+        var countTroupsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
+        var countTroupsNotGameOwner : Int = 0
+        
+        for i in 0...15 { //an jeden Spieler 8 Bundesländer verteilen //!!!
+            
+            let zufallszahl : UInt32 = arc4random_uniform(2) //Zahlen (zwischen) 0 und 1 generieren
+            
+            if(zufallszahl < 1  && countBLsGameOwner < 8){ //wenn Zufallszahl < 1 ist, Bundesland an GameOwner
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] = 0; //0 ist Zahl für Gameowner
+                countBLsGameOwner = countBLsGameOwner + 1
+                countTroupsGameOwner = countTroupsGameOwner + GameCenterHelper.getInstance().gameState.troops[i]
+            }else if(zufallszahl >= 1  && countBLsNotGameOwner < 8) { //wenn Zufallszahl >= 1 ist, Bundesland an Nicht-GameOwner
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] = 1; //1 ist Zahl für den Nicht-Gameowner
+                countBLsNotGameOwner = countBLsNotGameOwner + 1
+                countTroupsNotGameOwner = countTroupsNotGameOwner + GameCenterHelper.getInstance().gameState.troops[i]
+            }else if(zufallszahl < 1  && countBLsGameOwner >= 8) { //GameOwner hat schon 8 Bundesländer, dann Bundesland an Nicht-GameOwner
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] = 1; //
+                countBLsNotGameOwner = countBLsNotGameOwner + 1
+                countTroupsNotGameOwner = countTroupsNotGameOwner + GameCenterHelper.getInstance().gameState.troops[i]
+            }else if(zufallszahl >= 1  && countBLsNotGameOwner >= 8) { //Nicht-GameOwner hat schon 8 Bundesländer, dann Bundesland an GameOwner
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] = 0; //0 ist Zahl für Gameowner
+                countBLsGameOwner = countBLsGameOwner + 1
+                countTroupsGameOwner = countTroupsGameOwner + GameCenterHelper.getInstance().gameState.troops[i]
+            }else{
+                print("Fehler beim Zuweisen der Bundesländer an die Spieler, Bundesland wurde keinem Spieler zugewiesen")
+            }
+        }
+        
+        // var countTroupsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
+        //var countTroupsNotGameOwner : Int = 0
+        
+        //Truppenzahl ausgleichen, falls Nicht-GameOwner >= 20 % mehr Truppen hat, als GameOwner
+        
+        if Double (countTroupsGameOwner) * 1.2 <= Double (countTroupsNotGameOwner){
+            
+            while Double (countTroupsGameOwner) * 1.2 <= Double (countTroupsNotGameOwner){
+                
+                for i in 0...15 {
+                    
+                    //für jedes Bundesland des Nicht-GameOwners{  //Nicht-GameOwner in jedem BL eine Truppe wegnehmen
+                    if(GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] == 1){
+                        if (countTroupsNotGameOwner - countTroupsGameOwner >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                            if (GameCenterHelper.getInstance().gameState.troops[i] >= 10){
+                                GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 4
+                                countTroupsNotGameOwner = countTroupsNotGameOwner - 4
+                            }
+                        }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
+                            
+                            if (GameCenterHelper.getInstance().gameState.troops[i] > 2){
+                                GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 1
+                                countTroupsNotGameOwner = countTroupsNotGameOwner - 1
+                            }
+                            
+                        }
+                        
+                    }
+                }
+                if (countTroupsNotGameOwner <= 16 ){ //Endlosschleife vermeiden
+                    break
+                }
+                
+            }
+        }else if Double (countTroupsNotGameOwner) * 1.2 <= Double (countTroupsGameOwner){
+            
+            //Truppenzahl ausgleichen, falls Spieler1 >= 20 % mehr Truppen hat, als Spieler 2
+            
+            while Double (countTroupsNotGameOwner) * 1.2 <= Double (countTroupsGameOwner){
+                
+                for i in 0...15 {
+                    
+                    //für jedes Bundesland des GameOwners{  //GameOwner in jedem BL eine Truppe wegnehmen
+                    if(GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] == 0){
+                        if (countTroupsGameOwner - countTroupsNotGameOwner >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                            if (GameCenterHelper.getInstance().gameState.troops[i] >= 10){
+                                GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 4
+                                countTroupsGameOwner = countTroupsGameOwner - 4
+                            }
+                        }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
+                            
+                            if (GameCenterHelper.getInstance().gameState.troops[i] > 2){
+                                GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 1
+                                countTroupsGameOwner = countTroupsGameOwner - 1
+                            }
+                            
+                        }
+                        
+                    }
+                }
+                if (countTroupsGameOwner <= 16 ){ //Endlosschleife vermeiden
+                    break
+                }
+                
+            }
+        }    }
     func transitToGameScene(){
         
         audioPlayer.stop()

@@ -251,12 +251,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         updateStatusLabel()
         if (GameViewController.currentlyShownSceneNumber == 2){
-            initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
+            //initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID) //Skeltek BUG FOUND
         } else {
             
         }
         if(leftDummy.lifePoints*rightDummy.lifePoints == 0){
-            transitToGermanMap(transitToAngriffAnsicht: false)
+            //transitToGermanMap(transitToAngriffAnsicht: false)
         }
     }
     
@@ -559,29 +559,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         statusLabel.text = statusText
     }
     
-    func throwProjectile(xImpulse : Double, yImpulse : Double,for player: Int) { //Wurf des Projektils, Flugbahn
-        if player==leftDummyID {
-            leftDummyHand.removeAllChildren()
-        } else {
-            rightDummyHand.removeAllChildren()
-        }
-        self.addChild(ball)
-        ball.physicsBody?.affectedByGravity=true
-        ball.physicsBody?.isDynamic=true
-        ball.physicsBody?.allowsRotation=true
-        ball.physicsBody?.applyImpulse(CGVector(dx: xImpulse, dy: yImpulse))
-        ball.physicsBody?.usesPreciseCollisionDetection = true
-        if(arrow != nil) {
-            arrow.removeFromParent()
-        }
-        allowsRotation = true
-        
-        //Sound bei Wurf
-        if(statusSound){
-            ball.run(SKAction.playSoundFileNamed("wurf", waitForCompletion: true))
-        }
-    }
-    
     func throwProjectile(xImpulse : Double, yImpulse : Double, passivelyThrown : Bool? = false) { //Wurf des Projektils, Flugbahn
         var pos = CGPoint(x:0,y:0)
         let id = GameCenterHelper.getInstance().gameState.activePlayerID
@@ -821,6 +798,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             leftDummy.blink()
             leftDummy.damage = germanMapReference.player1.getFinalDamage(collisionImpulse: (contact.collisionImpulse))
             damageExchange.damage = leftDummy.damage
+            print("Damage: \(leftDummy.damage)")
             if leftDummy.lifePoints > leftDummy.damage {
                 leftDummy.lifePoints -= leftDummy.damage
             } else {
@@ -832,9 +810,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             rightDummy.blink()
             rightDummy.damage = germanMapReference.player2.getFinalDamage(collisionImpulse: contact.collisionImpulse)
             damageExchange.damage = rightDummy.damage
+            print("Damage: \(rightDummy.damage)")
             if rightDummy.lifePoints > rightDummy.damage {
+                print("Damage done")
                 rightDummy.lifePoints -= rightDummy.damage
             } else {
+                print("Kill")
                 rightDummy.lifePoints = 0
                 updateStatistics(attackerIndex: 1, defenderIndex: 3)
                 blIstEingenommen()
@@ -960,16 +941,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.player2.blEigene.append(germanMapReference.blVerteidiger)
             //germanMapReference.player1.blEigene.remove(at: germanMapReference.player1.blEigene.index(of: germanMapReference.blVerteidiger)!)
         }
+        for (index, _) in StartScene.germanMapScene.allBundeslaender.enumerated(){
+            if germanMapReference.blVerteidiger == StartScene.germanMapScene.allBundeslaender[index]{
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[index] = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+            }
+        }
     }
     
     func transitToGermanMap(transitToAngriffAnsicht : Bool){  //German Map Scene laden, Parameter: wenn transitToAngriffAnsicht true ist, wird AngriffAnsicht geladen, sonst Verschiebenansicht
         audioPlayer.stop()
         buttonMusik.removeFromSuperview()
         buttonSound.removeFromSuperview()
+        self.childNode(withName: "ball")?.removeFromParent()
         //switch turn
         // TODO: Switch Turn später duch Turn abgeben im GameCenterHelper ersetzen
         //germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1  //CHECK FOR CRASH
         //germanMapReference.activePlayerID = 0
+        GameCenterHelper.getInstance().gameState.activePlayerID = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
         
         
         if (transitToAngriffAnsicht == false){ //VerschiebenAnsicht soll geladen werden
