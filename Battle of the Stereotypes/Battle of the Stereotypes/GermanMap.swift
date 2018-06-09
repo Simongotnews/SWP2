@@ -1010,8 +1010,6 @@ class GermanMap: SKScene {
         }
     }
     
-    
-    
     // Initialisieren des Pfeils zur Anzeige der verbundenen Bundesländer
     func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
         let pfeilKoordinaten = UIBezierPath.pfeil(from: CGPoint(x:startLocation.x, y:startLocation.y), to: CGPoint(x:endLocation.x, y: endLocation.y),tailWidth: 10, headWidth: 25, headLength: 20)
@@ -1023,7 +1021,145 @@ class GermanMap: SKScene {
         pfeil.strokeColor = UIColor.black
         addChild(pfeil)
     }
-    
+    func initializeBlRandomly(){
+        var countBLsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
+        var countBLsNotGameOwner : Int = 0
+        
+        //den Bundesländern Truppenzahl zufälllig zuweisen
+        
+        for i in 0...15 {
+            
+            if i == 0 {//BundeslandEnum.BadenWuerttemberg
+                GameCenterHelper.getInstance().gameState.troops[i]  = 11 * (Int (arc4random_uniform(4)+1))// zuweisen der Tuppenzahl an die Bundesländer bei Spielbeginn (Bevölkerunszahl in Mio gerundet mal Zufallszahl zwischen 1 und 4)
+            } else if i == 1 {//Bayern
+                GameCenterHelper.getInstance().gameState.troops[i] = 13 * (Int (arc4random_uniform(4)+1))
+            } else if i == 2 {//Berlin
+                GameCenterHelper.getInstance().gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
+            } else if i == 3 {//Brandenburg
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else if i == 4 {//Bremen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 1 * (Int (arc4random_uniform(4)+1))
+            } else if i == 5 {//Hamburg
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else if i == 6 {//Hessen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 6 * (Int (arc4random_uniform(4)+1))
+            } else if i == 7 {//Mecklenburg-Vorpommern
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else if i == 8 {//Niedersachsen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 8 * (Int (arc4random_uniform(4)+1))
+            } else if i == 9 {//Nordrhein-Westfalen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 18 * (Int (arc4random_uniform(4)+1))
+            } else if i == 10 {//Rheinland-Pfalz
+                GameCenterHelper.getInstance().gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
+            } else if i == 11 {//Saarland
+                GameCenterHelper.getInstance().gameState.troops[i]  = 1 * (Int (arc4random_uniform(4)+1))
+            } else if i == 12 {//Sachsen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 4 * (Int (arc4random_uniform(4)+1))
+            } else if i == 13 {//Sachsen-Anhalt
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else if i == 14 {//Schleswig-Holstein
+                GameCenterHelper.getInstance().gameState.troops[i]  = 3 * (Int (arc4random_uniform(4)+1))
+            } else if i == 15 {//Thüringen
+                GameCenterHelper.getInstance().gameState.troops[i]  = 2 * (Int (arc4random_uniform(4)+1))
+            } else {
+                print("Fehler beim zufälligen Zuweisen der Truppen an die Bundesländer")
+            }
+        }
+        
+        var countTroupsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
+        var countTroupsNotGameOwner : Int = 0
+        
+        for i in 0...15 { //an jeden Spieler 8 Bundesländer verteilen //!!!
+            
+            let zufallszahl : UInt32 = arc4random_uniform(2) //Zahlen (zwischen) 0 und 1 generieren
+            
+            if(zufallszahl < 1  && countBLsGameOwner < 8){ //wenn Zufallszahl < 1 ist, Bundesland an GameOwner
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] = 0; //0 ist Zahl für Gameowner
+                countBLsGameOwner = countBLsGameOwner + 1
+                countTroupsGameOwner = countTroupsGameOwner + GameCenterHelper.getInstance().gameState.troops[i]
+            }else if(zufallszahl >= 1  && countBLsNotGameOwner < 8) { //wenn Zufallszahl >= 1 ist, Bundesland an Nicht-GameOwner
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] = 1; //1 ist Zahl für den Nicht-Gameowner
+                countBLsNotGameOwner = countBLsNotGameOwner + 1
+                countTroupsNotGameOwner = countTroupsNotGameOwner + GameCenterHelper.getInstance().gameState.troops[i]
+            }else if(zufallszahl < 1  && countBLsGameOwner >= 8) { //GameOwner hat schon 8 Bundesländer, dann Bundesland an Nicht-GameOwner
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] = 1; //
+                countBLsNotGameOwner = countBLsNotGameOwner + 1
+                countTroupsNotGameOwner = countTroupsNotGameOwner + GameCenterHelper.getInstance().gameState.troops[i]
+            }else if(zufallszahl >= 1  && countBLsNotGameOwner >= 8) { //Nicht-GameOwner hat schon 8 Bundesländer, dann Bundesland an GameOwner
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] = 0; //0 ist Zahl für Gameowner
+                countBLsGameOwner = countBLsGameOwner + 1
+                countTroupsGameOwner = countTroupsGameOwner + GameCenterHelper.getInstance().gameState.troops[i]
+            }else{
+                print("Fehler beim Zuweisen der Bundesländer an die Spieler, Bundesland wurde keinem Spieler zugewiesen")
+            }
+        }
+        
+        // var countTroupsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
+        //var countTroupsNotGameOwner : Int = 0
+        
+        //Truppenzahl ausgleichen, falls Nicht-GameOwner >= 20 % mehr Truppen hat, als GameOwner
+        
+        if Double (countTroupsGameOwner) * 1.2 <= Double (countTroupsNotGameOwner){
+            
+            while Double (countTroupsGameOwner) * 1.2 <= Double (countTroupsNotGameOwner){
+                
+                for i in 0...15 {
+                    
+                    //für jedes Bundesland des Nicht-GameOwners{  //Nicht-GameOwner in jedem BL eine Truppe wegnehmen
+                    if(GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] == 1){
+                        if (countTroupsNotGameOwner - countTroupsGameOwner >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                            if (GameCenterHelper.getInstance().gameState.troops[i] >= 10){
+                                GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 4
+                                countTroupsNotGameOwner = countTroupsNotGameOwner - 4
+                            }
+                        }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
+                            
+                            if (GameCenterHelper.getInstance().gameState.troops[i] > 2){
+                                GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 1
+                                countTroupsNotGameOwner = countTroupsNotGameOwner - 1
+                            }
+                            
+                        }
+                        
+                    }
+                }
+                if (countTroupsNotGameOwner <= 16 ){ //Endlosschleife vermeiden
+                    break
+                }
+                
+            }
+        }else if Double (countTroupsNotGameOwner) * 1.2 <= Double (countTroupsGameOwner){
+            
+            //Truppenzahl ausgleichen, falls Spieler1 >= 20 % mehr Truppen hat, als Spieler 2
+            
+            while Double (countTroupsNotGameOwner) * 1.2 <= Double (countTroupsGameOwner){
+                
+                for i in 0...15 {
+                    
+                    //für jedes Bundesland des GameOwners{  //GameOwner in jedem BL eine Truppe wegnehmen
+                    if(GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] == 0){
+                        if (countTroupsGameOwner - countTroupsNotGameOwner >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                            if (GameCenterHelper.getInstance().gameState.troops[i] >= 10){
+                                GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 4
+                                countTroupsGameOwner = countTroupsGameOwner - 4
+                            }
+                        }else { //bei geringerer Differenz bei allen BLs Truppen abziehen
+                            
+                            if (GameCenterHelper.getInstance().gameState.troops[i] > 2){
+                                GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 1
+                                countTroupsGameOwner = countTroupsGameOwner - 1
+                            }
+                            
+                        }
+                        
+                    }
+                }
+                if (countTroupsGameOwner <= 16 ){ //Endlosschleife vermeiden
+                    break
+                }
+                
+            }
+        }    }
     func transitToGameScene(){
         
         audioPlayer.stop()
