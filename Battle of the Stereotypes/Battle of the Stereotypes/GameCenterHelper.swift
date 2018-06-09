@@ -373,7 +373,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     self.gameState.troops = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]*/
                     
                     //Bundesländer zufällig an Spieler verteilen
-                    StartScene.germanMapScene.initializeBlRandomly()
+                    GermanMap.initializeBlRandomly()
                     self.gameState.money = [160,160]
                     self.saveGameDataToGameCenter()
                 }

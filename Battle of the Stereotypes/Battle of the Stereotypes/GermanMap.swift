@@ -1021,11 +1021,12 @@ class GermanMap: SKScene {
         pfeil.strokeColor = UIColor.black
         addChild(pfeil)
     }
-    func initializeBlRandomly(){
+    
+    static func initializeBlRandomly(){
         var countBLsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
         var countBLsNotGameOwner : Int = 0
         
-        //den Bundesländern Truppenzahl zufälllig zuweisen
+        //den Bundesländern Truppenzahl zufällig zuweisen
         
         for i in 0...15 {
             
