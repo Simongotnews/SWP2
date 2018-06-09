@@ -275,6 +275,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Spiel erfolgreich gespeichert")
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
+                    StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
                 }
                 self.spielGeladen = true    //Wer speichert hat ohnehin aktuellen Spielstand
             }
@@ -334,6 +335,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                         //StartScene.germanMapScene.player2.coins = self.getIndexOfGameOwner()==self.getIndexOfLocalPlayer() ? self.gameState.money[1] : self.gameState.money[0]
                         //updaten der Variablen und Labels
                         StartScene.germanMapScene.gameScene.updateStats()
+                        StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
+                        if StartScene.germanMapScene.gameScene.leftDummy.lifePoints*StartScene.germanMapScene.gameScene.rightDummy.lifePoints==0{
+                            StartScene.germanMapScene.gameScene.childNode(withName: "ball")?.removeFromParent()
+                            StartScene.germanMapScene.gameScene.transitToGermanMap(transitToAngriffAnsicht: false)
+                        }
                         }
                     }
                     print("Derzeit gezeigte Szene: " + String(GameViewController.currentlyShownSceneNumber))
@@ -612,6 +618,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                         self.mergeCompletedExchangeToSave(exchange: exchange)
                         if (GameViewController.currentlyShownSceneNumber == 2){
                             StartScene.germanMapScene.gameScene.updateStats()
+                            StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
                         }
                     }
                 }
@@ -636,7 +643,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         case GameState.IdentifierThrowExchange:
             print("ThrowExchange empfangen")
             tempExchanges.append(exchange)
-            testExchange = exchange
             handleThrowExchange(throwExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructThrowExchangeRequest()), exchange: exchange)
             return
         case GameState.IdentifierDamageExchange:
@@ -648,14 +654,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             print("Anfrage zum Mergen erhalten")
             tempExchanges.append(exchange)
             handleMergeRequestExchange(mergeRequestExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructMergeRequestExchange()), exchangeToReplyTo: exchange)
-            return
-        case GameState.IdentifierTestExchange:
-            print("TestExchange empfangen")
-            testExchange = exchange
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                self.handleTestExchange(testExchange: exchange)
-            })
-            //handleTestExchange(testExchange: exchange)
             return
         default:
             print("!!!Fehlerhafter MessageKey von ExchangeRequest!!! \n\n")
@@ -741,6 +739,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             damageExchangeStruct.damage > 0 ? StartScene.germanMapScene.gameScene.rightDummy.blink() : nil
         }
         StartScene.germanMapScene.gameScene.updateStats()
+        //StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
         print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchangeStruct))
         exchange?.reply(withLocalizableMessageKey: GameState.IdentifierDamageExchange, arguments: ["XY","X"], data: GameState.encodeStruct(structToEncode: GameState.StructDamageExchangeRequest()), completionHandler: nil)
     }
@@ -760,31 +759,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
         })
     }
-    
-    /** Methode um Exchange für Testzwecke zu verschicken */
-    let testExchangeReply = GameState.StructTestExchangeReply()
-    var testExchange = GKTurnBasedExchange.init()
-    func handleTestExchange(testExchange: GKTurnBasedExchange) {
-        print("Testexchange erhalten")
-        testExchange.reply(withLocalizableMessageKey: GameState.IdentifierTestExchange , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: testExchangeReply), completionHandler: {(error: Error?) -> Void in
-            if(error == nil ) {
-                print("TestExchange-Reply erfolgreich verschickt")
-                if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){
-                    self.gameState.activePlayerID = self.getIndexOfLocalPlayer()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                        print("Dispatching assynchronous Thread")
-                        self.mergeCompletedExchangeToSave(exchange: testExchange)
-                    })
-                }
-            } else {
-                print("Fehler beim TestExchange beantworten")
-                print(error as Any)
-            }
-        })
-    }
-    
-    
-    
+
     /** Wird aufgerufen, wenn eine Exchange von allen Empfängern beantwortet oder abgebrochen wurde. Empfänger: ExchangeAbsender + Turnowner */
     func player(_ player: GKPlayer, receivedExchangeReplies replies: [GKTurnBasedExchangeReply], forCompletedExchange exchange: GKTurnBasedExchange, for match: GKTurnBasedMatch){
         if match != currentMatch{
@@ -808,6 +783,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 tempExchanges.append(exchange)
                 gameState.activePlayerID = getIndexOfOtherPlayer()
                 mergeCompletedExchangesToSave(exchanges: tempExchanges)
+                if StartScene.germanMapScene.gameScene.leftDummy.lifePoints*StartScene.germanMapScene.gameScene.rightDummy.lifePoints == 0{
+                    //Skeltek TODO: Hier zurück zur german Map, da sonst zu früh der Wechsel stattfindet
+                    gameState.activePlayerID = getIndexOfCurrentPlayer()
+                }
             }
         }
         
@@ -824,14 +803,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Not my Exchange, aborting")
                 return
             }
-        }
-        if exchange.message == GameState.IdentifierTestExchange {
-            print("TestExchange-Reply erhalten")
-            if (isLocalPlayersTurn()){
-                mergeCompletedExchangeToSave(exchange: exchange)
-                print("TestExchange gemerged")
-            }
-            return
         }
         if (!isLocalPlayersTurn() && exchange.message == GameState.IdentifierDamageExchange){
             print("Damage Exchange-Antwort erhalten, schicke MergeRequest")
@@ -884,7 +855,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Ein CompletedExchange erfolgreich in Save eingebunden.")
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
-                }
+                    StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)                }
             }
         })
     }
@@ -901,6 +872,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Mehrere CompletedExchanges erfolgreich in Save eingebunden.")
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
+                    StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
                 }
             }
         })

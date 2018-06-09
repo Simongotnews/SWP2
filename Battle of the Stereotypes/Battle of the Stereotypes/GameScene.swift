@@ -256,7 +256,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
         }
         if(leftDummy.lifePoints*rightDummy.lifePoints == 0){
-            transitToGermanMap(transitToAngriffAnsicht: false)
+            //transitToGermanMap(transitToAngriffAnsicht: false)
         }
     }
     
@@ -941,16 +941,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.player2.blEigene.append(germanMapReference.blVerteidiger)
             //germanMapReference.player1.blEigene.remove(at: germanMapReference.player1.blEigene.index(of: germanMapReference.blVerteidiger)!)
         }
+        for (index, _) in StartScene.germanMapScene.allBundeslaender.enumerated(){
+            if germanMapReference.blVerteidiger == StartScene.germanMapScene.allBundeslaender[index]{
+                GameCenterHelper.getInstance().gameState.ownerOfbundesland[index] = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+            }
+        }
     }
     
     func transitToGermanMap(transitToAngriffAnsicht : Bool){  //German Map Scene laden, Parameter: wenn transitToAngriffAnsicht true ist, wird AngriffAnsicht geladen, sonst Verschiebenansicht
         audioPlayer.stop()
         buttonMusik.removeFromSuperview()
         buttonSound.removeFromSuperview()
+        self.childNode(withName: "ball")?.removeFromParent()
         //switch turn
         // TODO: Switch Turn später duch Turn abgeben im GameCenterHelper ersetzen
         //germanMapReference.turnPlayerID = (germanMapReference.turnPlayerID == 1) ? 2 : 1  //CHECK FOR CRASH
         //germanMapReference.activePlayerID = 0
+        GameCenterHelper.getInstance().gameState.activePlayerID = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
         
         
         if (transitToAngriffAnsicht == false){ //VerschiebenAnsicht soll geladen werden
