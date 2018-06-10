@@ -303,7 +303,7 @@ class GermanMap: SKScene {
     
     func refreshScene(){
         coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
-        //initStatistics()
+        initStatistics()
         
         initBlAnzahlTruppen()
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
@@ -863,9 +863,13 @@ class GermanMap: SKScene {
         let anzahlGegnerischeBl: Int = (player2?.blEigene.count)!
         let gegnerischeTruppenStaerke: Int = (player2?.calculateTruppenStaerke())!
         
+        //lade remainingActions aus GameCenter
+        let verfügbareAngriffe = GameCenterHelper.getInstance().gameState.remainingActions[0]
+        let verfügbareVerschiebungen = GameCenterHelper.getInstance().gameState.remainingActions[1]
+        
         //Erstelle Tabelle mit allen Einträgen
         let keys: [String] = ["Anzahl eigene Bundesländer:", "Eigene Truppenstärke:", "Besetzte Gebiete des Gegners:", "Gegner Truppenstärke:", "Verfügbare Angriffe:", "Verfügbare Verschiebungen:"]
-        let values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, 2, 2]
+        let values: [Int] = [anzahlEigeneBl, eigeneTruppenStaerke, anzahlGegnerischeBl, gegnerischeTruppenStaerke, verfügbareAngriffe, verfügbareVerschiebungen]
         table = Table(xPosition: 0, yPosition: 100, keys: keys, values: values)
         table.createTable()
         
