@@ -407,10 +407,9 @@ class GermanMap: SKScene {
                     pfeil = nil
                     
                     //verringere die verfügbaren Verschiebungen in der Statistik
+                    //man kann insgesamt 2 mal angreifen, bevor man seinen Turn abgibt
                     table.setValue(index: 5, value: table.getValue(index: 5)-1)
                     table.update()
-                    setPhase(PhaseEnum.Angriff)
-                    GameCenterHelper.getInstance().gameState.angriffsPhase = true
                 }
                 return
             }
