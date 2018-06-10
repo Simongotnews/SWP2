@@ -357,6 +357,7 @@ class GermanMap: SKScene {
         
         if verschiebeFinishButton != nil {
             if verschiebeFinishButton.contains(touch.location(in: verschiebeLabel)) {
+                updateCoinLabel()
                 GameCenterHelper.getInstance().endTurn()
                 
             }
@@ -834,7 +835,16 @@ class GermanMap: SKScene {
     }
     
     func updateCoinLabel(){
-        coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")    }
+        for (Bundesland: bl) in player1.blEigene {
+            player1.addCoins(coinsNewValue: bl.blMuenzenWert)
+        }
+        GameCenterHelper.getInstance().gameState.money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()] = player1.getCoins()
+        GameCenterHelper.getInstance().saveGameDataToGameCenter()
+        coinLabel.removeFromParent()
+        initCoinLabel()
+        //coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")
+        
+    }
     
     
     func initPlayButton() {
