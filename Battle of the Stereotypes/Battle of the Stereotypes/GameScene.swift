@@ -824,9 +824,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateStats()
         
         if(leftDummy.lifePoints == 0 || rightDummy.lifePoints == 0){
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
-                self.transitToGermanMap(transitToAngriffAnsicht: false)
-            })
+            if germanMapReference.table.getValue(index: 4) == 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
+                    self.transitToGermanMap(transitToAngriffAnsicht: false)
+                })
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
+                    self.transitToGermanMap(transitToAngriffAnsicht: true)
+                })
+            }
+            
         }
         if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
             damageSent = true
@@ -967,15 +974,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 print("Phasenwechsel: Verschiebemodus")
                 germanMapReference.setPhase(PhaseEnum.Verschieben)
             } else {
-                print("Phasenwechsel: Wartemodus")
+                print("Phase: Wartemodus")
                 germanMapReference.setPhase(PhaseEnum.Warten)
             }
             return
         } else {
-            //Skeltek: Nach Anrgiff geht nur Verschiebemodus
+            self.view?.presentScene(germanMapReference)
+            if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
+                print("Phase: Angriffsmodus")
+            } else {
+                print("Phase: Wartemodus")
+                germanMapReference.setPhase(PhaseEnum.Warten)
+            }
+            return
         }
-        
-        self.view?.presentScene(germanMapReference)
     }
     
 }

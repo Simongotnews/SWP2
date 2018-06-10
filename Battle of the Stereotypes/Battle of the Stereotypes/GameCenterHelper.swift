@@ -359,6 +359,11 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                             StartScene.germanMapScene.getBundesland(StartScene.germanMapScene.allBundeslaender[index].blNameString)?.anzahlTruppen = self.gameState.troops[index]
                             
                             StartScene.germanMapScene.player1.coins = self.gameState.money[self.getIndexOfLocalPlayer()]
+                            if self.isLocalPlayersTurn() {
+                                StartScene.germanMapScene.setPhase(PhaseEnum.Angriff)
+                                StartScene.germanMapScene.table.setValue(index: 4, value: 2)
+                                StartScene.germanMapScene.table.setValue(index: 5, value: 2)
+                            }
                             StartScene.germanMapScene.refreshScene()
                                 //
                             }

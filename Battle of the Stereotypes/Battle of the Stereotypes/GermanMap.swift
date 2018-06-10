@@ -357,8 +357,8 @@ class GermanMap: SKScene {
         
         if verschiebeFinishButton != nil {
             if verschiebeFinishButton.contains(touch.location(in: verschiebeLabel)) {
+                setPhase(PhaseEnum.Warten)
                 GameCenterHelper.getInstance().endTurn()
-                
             }
         }
         
