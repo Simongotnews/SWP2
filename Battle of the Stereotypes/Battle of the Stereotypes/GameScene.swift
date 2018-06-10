@@ -926,6 +926,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.table.setValue(index: attackerIndex-1, value: anzahlEigeneBl + 1)
             
             germanMapReference.table.setValue(index: 4, value: verfügbareAngriffe - 1)
+            GameCenterHelper.getInstance().gameState.remainingActions[0] = verfügbareAngriffe - 1
+            GameCenterHelper.getInstance().saveGameDataToGameCenter()
             
         } else { //leftDummy wird besiegt
             gegnerischeTruppenStaerke -= gegnerDamage
@@ -933,6 +935,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.table.setValue(index: attackerIndex, value: eigeneTruppenStaerke)
             germanMapReference.table.setValue(index: defenderIndex, value: gegnerischeTruppenStaerke)
             germanMapReference.table.setValue(index: 4, value: verfügbareAngriffe-1)
+            GameCenterHelper.getInstance().gameState.remainingActions[0] = verfügbareAngriffe - 1
+            GameCenterHelper.getInstance().saveGameDataToGameCenter()
         }
         germanMapReference.table.update()
     }

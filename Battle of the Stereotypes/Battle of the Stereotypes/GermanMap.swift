@@ -303,7 +303,7 @@ class GermanMap: SKScene {
     
     func refreshScene(){
         coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
-        initStatistics()
+        //initStatistics()
         
         initBlAnzahlTruppen()
         //TODO Skeltek: Für das Aktualisieren falls schon geladen
