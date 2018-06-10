@@ -61,6 +61,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var fireButton: SKSpriteNode!
     
     //Boden des Spiels
+    var groundSpriteKit: SKNode!
     var ground: SKSpriteNode!
     
     //backButton
@@ -73,6 +74,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var powerLabel = SKLabelNode(fontNamed: "ArialMT")
     
     //Hintergrund
+    var backgroundSpriteKit: SKNode!
     var background: SKSpriteNode!
     
     var leftDummy: Fighter!
@@ -151,8 +153,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func initMusikButton(){
-        //Sound
-        //...
         hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
         
         do{
@@ -164,27 +164,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         audioPlayer.numberOfLoops = -1
         //Performance verbessern von Audioplayer
         audioPlayer.prepareToPlay()
-        
         audioPlayer.play()
-        
         buttonMusik = UIButton(frame: CGRect(x: frame.size.height*(7/10), y: 10, width: 30, height: 30))
+        self.buttonMusik.center = CGPoint(x: self.frame.width/2, y: self.frame.height/2 - 350)
+
+        print(self.frame.size)
         buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
         buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
-        
-        self.view?.addSubview(buttonMusik)
+        self.view?.addSubview(buttonMusik!)
     }
+    
     func initSoundButton(){
-        
-        buttonSound = UIButton(frame: CGRect(x: frame.size.height*(7/10)+40, y: 10, width: 30, height: 30))
+        buttonSound = UIButton(frame: CGRect(x: self.frame.size.width*(2/3) + 50, y: self.frame.size.height/2+50, width: 30, height: 30))
         buttonSound.setImage(UIImage(named: "SoundAN.png"), for: .normal)
         buttonSound.addTarget(self, action: #selector(buttonSoundAction), for: .touchUpInside)
         
-        self.view?.addSubview(buttonSound)
-        
+        self.view?.addSubview(buttonSound!)
     }
     
     @IBAction func buttonMusikAction(sender: UIButton!){
-        
         if (statusMusik){
             print("Musik An")
             statusMusik = false
@@ -192,31 +190,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
             audioPlayer.play()
             
-            
         }else if (!statusMusik){
             statusMusik = true
             buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
             audioPlayer.pause()
-            
         }
-        
     }
     @IBAction func buttonSoundAction(sender: UIButton!){
         if (!statusSound){
             statusSound = true
             buttonSound.setImage(UIImage(named: "SoundAn.png"), for: .normal)
             
-            
-            
-            
         }else if (statusSound){
             statusSound = false
             buttonSound.setImage(UIImage(named: "SoundAus.png"), for: .normal)
-            
         }
-        
     }
-    
     
     func refreshScene(){
         rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
@@ -261,13 +250,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
-        let groundTexture = SKTexture(imageNamed: "Boden")
-        ground = SKSpriteNode(texture: groundTexture)
-        ground.size = CGSize(width: self.size.width, height: self.size.height/2.8)
-        ground.position.y -= 60
+        ground = childNode(withName: "ground") as! SKSpriteNode
+        //ground.size = CGSize(width: self.size.width, height: self.size.height/2.8)
+        //ground.position.y -= 60
         //Anpassung des Anchorpoints damit Glättung der Kanten nicht auffällt wenn Geschoss aufkommt
-        ground.anchorPoint=CGPoint(x: 0.5, y: 0.48)
+        //ground.anchorPoint=CGPoint(x: 0.5, y: 0.48)
         ground.zPosition=2
+        let groundTexture = SKTexture(imageNamed: "Boden")
         ground.physicsBody = SKPhysicsBody(texture: groundTexture, size: ground.size)
         //Boden soll sich nicht verändern
         ground.physicsBody?.isDynamic=false
@@ -276,25 +265,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody?.contactTestBitMask=weaponCategory
         ground.physicsBody?.mass = 100000
         
-        self.addChild(ground)
+        //self.addChild(ground)
         
-        background = SKSpriteNode(imageNamed: "Hintergrund")
-        background.size = CGSize(width: self.size.width, height: self.size.height/3)
-        background.anchorPoint=CGPoint(x: 0.5, y: 0.5)
-        background.position=CGPoint(x: 0, y: -60)
+        background = childNode(withName: "background") as! SKSpriteNode
+        //background.size = CGSize(width: self.size.width, height: self.size.height/3)
+        //background.anchorPoint=CGPoint(x: 0.5, y: 0.5)
+        //background.position=CGPoint(x: 0, y: -60)
         //Hintergrund ist am weitesten weg bei der Ansicht (1 = niedrigste Einstellung)
         background.zPosition = 1
         
-        self.addChild(background)
+        //self.addChild(background)
     }
     
     func initDummys(){
         let leftDummyTexture = SKTexture(imageNamed: "Bayer_links")
         leftDummyHealthInitial = germanMapReference.blAngreifer.anzahlTruppen-1
         leftDummy = childNode(withName: "leftDummy_Koerper") as! Fighter
-        leftDummy.initFighter(lifePoints: leftDummyHealthInitial, damage: 0, texture: leftDummyTexture, size: CGSize(width: leftDummyTexture.size().width, height: leftDummyTexture.size().height))
+        leftDummy.initFighter(lifePoints: leftDummyHealthInitial, damage: 0, texture: leftDummyTexture, size: CGSize(width: leftDummy.size.width, height: leftDummy.size.height))
         leftDummy.name = "leftdummy"
-        leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
+        //leftDummy.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 - 250)
         
         leftDummy.physicsBody = SKPhysicsBody(texture: leftDummyTexture, size: leftDummy.size)
         leftDummy.physicsBody?.isDynamic = true
@@ -319,7 +308,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy = childNode(withName: "rightDummy_Koerper") as! Fighter
         rightDummy.initFighter(lifePoints: rightDummyHealthInitial, damage: 0, texture: rightDummyTexture, size: CGSize(width: rightDummyTexture.size().width, height: rightDummyTexture.size().height))
         rightDummy.name = "rightdummy"
-        rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 280)
+        //rightDummy.position = CGPoint(x: self.frame.size.width / 2 - 100, y: rightDummy.size.height / 2 - 280)
         
         rightDummy.physicsBody = SKPhysicsBody(texture: rightDummyTexture,size: rightDummy.size)
         rightDummy.physicsBody?.isDynamic = true
@@ -400,22 +389,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func initStatusLabel()
     {
         statusLabel = SKLabelNode(text: "_")
-        statusLabel.position = CGPoint(x: 0 , y: 100)
+        statusLabel.position = CGPoint(x: self.frame.size.width/2 , y: self.frame.size.height/2 + 200)
         statusLabel.fontName = "Americantypewriter-Bold"
         statusLabel.fontSize = 26
         statusLabel.fontColor = UIColor.red
-        statusLabel.zPosition=3
+        statusLabel.zPosition = 3
         self.updateStatusLabel()
         self.addChild(statusLabel)
     }
     
     func initDummyLabels(){
         leftDummyHealthLabel = SKLabelNode(text: "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)")
-        leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 + 50)
+        leftDummyHealthLabel.position = CGPoint(x: leftDummy.position.x, y: leftDummy.size.height / 2 + 450)
         leftDummyHealthLabel.fontName = "AvenirNext-Bold"
         leftDummyHealthLabel.fontSize = 26
         leftDummyHealthLabel.fontColor = UIColor.white
-        leftDummyHealthLabel.zPosition=3
+        leftDummyHealthLabel.zPosition = 3
         
         self.addChild(leftDummyHealthLabel)
         
@@ -425,17 +414,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             angreiferNameLabel.fontColor = SKColor.red
         }
-        angreiferNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: self.frame.size.height / 2 - 480)
+        angreiferNameLabel.position = CGPoint(x: leftDummy.position.x, y: leftDummy.size.height / 2 + 500)
         
         initBundeslandNameLabel(angreiferNameLabel)
         
         
         rightDummyHealthLabel = SKLabelNode(text: "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)")
-        rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 135, y: rightDummy.size.height / 2 + 50)
+        rightDummyHealthLabel.position = CGPoint(x: rightDummy.position.x, y: rightDummy.size.height / 2 + 450)
         rightDummyHealthLabel.fontName = "AvenirNext-Bold"
         rightDummyHealthLabel.fontSize = 26
         rightDummyHealthLabel.fontColor = UIColor.white
-        rightDummyHealthLabel.zPosition=3
+        rightDummyHealthLabel.zPosition = 3
         
         self.addChild(rightDummyHealthLabel)
         
@@ -445,7 +434,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             verteidigerNameLabel.fontColor = SKColor.blue
         }
-        verteidigerNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 150, y: self.frame.size.height / 2 - 480)
+        verteidigerNameLabel.position = CGPoint(x: rightDummy.position.x, y: rightDummy.size.height / 2 + 500)
         initBundeslandNameLabel(verteidigerNameLabel)
     }
     
@@ -501,7 +490,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBarGray.fillColor = SKColor.gray
         powerBarGray.strokeColor = SKColor.clear
         powerBarGray.position = CGPoint.zero
-        powerBarGray.position = CGPoint(x: 0, y: 230)
+        powerBarGray.position = CGPoint(x: self.frame.size.width/2 , y: self.frame.size.height/2 + 200)
         powerBarGreen.zPosition = 3
         self.addChild(powerBarGray)
         
@@ -599,11 +588,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let wait = SKAction.wait(forDuration: 0.03)
         let block = SKAction.run({
             [unowned self] in
-            if self.forceCounter < 100 {
+            if (self.forceCounter < 100) {
                 self.forceCounter += 1
                 self.powerLabel.text = "\(self.forceCounter) %"
                 self.powerBarGreen.xScale = CGFloat(self.forceCounter)
-                self.powerBarGreen.position = CGPoint(x: 0 - CGFloat((100 - self.forceCounter)), y: 230)
+                //self.powerBarGreen.position = CGPoint(x: 0 - CGFloat((100 - self.forceCounter)), y: 230)
+                self.powerBarGreen.position = CGPoint(x: self.frame.size.width/2 - CGFloat((100 - self.forceCounter)) , y: self.frame.size.height/2 + 200)
             }else {
                 self.removeAction(forKey: "powerBarAction")
             }
@@ -651,10 +641,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //Erstelle Pfeil, aber nur für meinen Kämpfer
-        if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == leftDummyID){
+        if (touchedNode.name == "leftdummy" || touchedNode.name == "leftDummy_Oberarm" || touchedNode.name == "leftDummy_Unterarm") && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == leftDummyID){
             createArrow(node: leftDummy)
         }
-        else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == rightDummyID){
+        else if (touchedNode.name == "rightdummy" || touchedNode.name == "rightDummy_Oberarm" || touchedNode.name == "rightDummy_Unterarm") && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == rightDummyID){
             createArrow(node: rightDummy)
         }
         
