@@ -297,16 +297,15 @@ class GermanMap: SKScene {
         }
         
     }
-    
-    
-    
-    
-    func refreshScene(){
+
+    func refreshScene(){    //Soll Scene und Labels mit Hilfe gameState aktualisieren, falls Scene schon geladen
+        //Länder nach Besitzer einfärben
+        for (index, _) in GameCenterHelper.getInstance().gameState.ownerOfbundesland.enumerated(){
+            GameCenterHelper.getInstance().gameState.ownerOfbundesland[index]==0 ? self.allBundeslaender[index].switchColorToBlue() : self.allBundeslaender[index].switchColorToRed()
+        }
         coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
         initStatistics()
-        
         initBlAnzahlTruppen()
-        //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
