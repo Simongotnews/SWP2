@@ -39,7 +39,7 @@ class GameState {
         var remainingActions = [2,2]
         
         var angriffsPhase = true
-        
+        var remainingActions = [2, 2]
         // BattleScene spezifisch:
         /** Leben der Spieler */
         var health = [100, 100]

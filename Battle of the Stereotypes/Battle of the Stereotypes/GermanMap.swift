@@ -183,7 +183,7 @@ class GermanMap: SKScene {
             } else {
                 phase = PhaseEnum.Warten
             }
-            setPhase(phase)
+            refreshScene()
             initMusikButton()
             initialized = true
         } else {
@@ -285,8 +285,7 @@ class GermanMap: SKScene {
             print(statusMusik)
             buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
             audioPlayer.play()
-            
-            
+
         }else if (!statusMusik){
             print("Musik Aus")
             statusMusik = true
@@ -304,6 +303,26 @@ class GermanMap: SKScene {
             GameCenterHelper.getInstance().gameState.ownerOfbundesland[index]==0 ? self.allBundeslaender[index].switchColorToBlue() : self.allBundeslaender[index].switchColorToRed()
         }
         coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
+        //Phase setzen je nach gameState
+        print("Refreshing germanMapScene")
+        print("Remaining attacks: \(GameCenterHelper.getInstance().gameState.remainingActions[0])")
+        print("Remaining transfers: \(GameCenterHelper.getInstance().gameState.remainingActions[1])")
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer(){
+            if(GameCenterHelper.getInstance().gameState.remainingActions[0] != 0){
+                setPhase(PhaseEnum.Angriff)
+            } else {
+                if GameCenterHelper.getInstance().gameState.remainingActions[1] != 0{
+                    setPhase(PhaseEnum.Verschieben)
+                } else{
+                    GameCenterHelper.getInstance().gameState.remainingActions = [2, 2]
+                    setPhase(PhaseEnum.Warten)
+                    GameCenterHelper.getInstance().endTurn()
+                }
+            }
+        } else {
+            setPhase(PhaseEnum.Warten)
+        }
+        
         initStatistics()
         initBlAnzahlTruppen()
     }
@@ -331,6 +350,7 @@ class GermanMap: SKScene {
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
+                GameCenterHelper.getInstance().gameState.remainingActions[0] -= 1
                 transitToGameScene()
                 // Exchange, um anderen Spieler in die GameScene zu schicken
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
@@ -396,6 +416,7 @@ class GermanMap: SKScene {
                             GameCenterHelper.getInstance().gameState.troops[index] = blVerteidiger.anzahlTruppen
                         }
                     }
+                    GameCenterHelper.getInstance().gameState.remainingActions[1] -= 1
                     GameCenterHelper.getInstance().saveGameDataToGameCenter()
                     //aktualisiere die Labels und resette die Zahl
                     initBlAnzahlTruppen()
@@ -410,6 +431,7 @@ class GermanMap: SKScene {
                     //man kann insgesamt 2 mal angreifen, bevor man seinen Turn abgibt
                     table.setValue(index: 5, value: table.getValue(index: 5)-1)
                     table.update()
+                    StartScene.germanMapScene.refreshScene()
                 }
                 return
             }
@@ -838,7 +860,7 @@ class GermanMap: SKScene {
             player1.addCoins(coinsNewValue: bl.blMuenzenWert)
         }
         GameCenterHelper.getInstance().gameState.money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()] = player1.getCoins()
-        GameCenterHelper.getInstance().saveGameDataToGameCenter()
+        //GameCenterHelper.getInstance().saveGameDataToGameCenter()
         coinLabel.removeFromParent()
         initCoinLabel()
         //coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")

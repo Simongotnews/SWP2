@@ -273,6 +273,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("Fehler beim Speichern des Spielstandes")
             } else {
                 print("Spiel erfolgreich gespeichert")
+                if GameViewController.currentlyShownSceneNumber == 1{
+                    StartScene.germanMapScene.refreshScene()
+                }
                 if (GameViewController.currentlyShownSceneNumber == 2){
                     StartScene.germanMapScene.gameScene.updateStats()
                     StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
@@ -381,6 +384,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     //Bundesländer zufällig an Spieler verteilen
                     GermanMap.initializeBlRandomly()
                     self.gameState.money = [160,160]
+                    self.gameState.remainingActions = [2, 2]
                     if GameViewController.currentlyShownSceneNumber != 0 {
                         StartScene.germanMapScene.refreshScene()
                     }
@@ -403,9 +407,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("Turn beenden")
         var nextParticipant : GKTurnBasedParticipant
         nextParticipant = currentMatch.participants![((getIndexOfLocalPlayer() + 1) % (currentMatch.participants?.count)!)]
-        currentMatch.endTurn(withNextParticipants: [nextParticipant], turnTimeout: TimeInterval(5.0), match: GameState.encodeStruct(structToEncode: gameState), completionHandler: { (error: Error?) in
+        currentMatch.endTurn(withNextParticipants: [nextParticipant], turnTimeout: TimeInterval(604800.0), match: GameState.encodeStruct(structToEncode: gameState), completionHandler: { (error: Error?) in
             if(error == nil ) {
                 //StartScene.germanMapScene.gameScene.isActive = false     // Operation erfolgreich
+                StartScene.germanMapScene.refreshScene()
                 print("Turn abgegeben")
             } else {
                 print("Fehler gefunden beim Turn beenden")
