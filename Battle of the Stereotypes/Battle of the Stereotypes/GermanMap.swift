@@ -350,6 +350,7 @@ class GermanMap: SKScene {
                 pfeil.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
+                GameCenterHelper.getInstance().gameState.remainingActions[0] -= 1
                 transitToGameScene()
                 // Exchange, um anderen Spieler in die GameScene zu schicken
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
@@ -415,6 +416,7 @@ class GermanMap: SKScene {
                             GameCenterHelper.getInstance().gameState.troops[index] = blVerteidiger.anzahlTruppen
                         }
                     }
+                    GameCenterHelper.getInstance().gameState.remainingActions[1] -= 1
                     GameCenterHelper.getInstance().saveGameDataToGameCenter()
                     //aktualisiere die Labels und resette die Zahl
                     initBlAnzahlTruppen()
@@ -429,6 +431,7 @@ class GermanMap: SKScene {
                     //man kann insgesamt 2 mal angreifen, bevor man seinen Turn abgibt
                     table.setValue(index: 5, value: table.getValue(index: 5)-1)
                     table.update()
+                    StartScene.germanMapScene.refreshScene()
                 }
                 return
             }
@@ -857,7 +860,7 @@ class GermanMap: SKScene {
             player1.addCoins(coinsNewValue: bl.blMuenzenWert)
         }
         GameCenterHelper.getInstance().gameState.money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()] = player1.getCoins()
-        GameCenterHelper.getInstance().saveGameDataToGameCenter()
+        //GameCenterHelper.getInstance().saveGameDataToGameCenter()
         coinLabel.removeFromParent()
         initCoinLabel()
         //coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")

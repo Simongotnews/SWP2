@@ -379,6 +379,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     //Bundesländer zufällig an Spieler verteilen
                     GermanMap.initializeBlRandomly()
                     self.gameState.money = [160,160]
+                    self.gameState.remainingActions = [2, 2]
                     if GameViewController.currentlyShownSceneNumber != 0 {
                         StartScene.germanMapScene.refreshScene()
                     }
