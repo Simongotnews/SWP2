@@ -97,7 +97,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
         }catch{
-            print("Datei nicht gefunden")
+            print("Datei nicht gefunden!")
         }
         //Wie oft abgespielt werden soll (-1 unendlich oft)
         audioPlayer.numberOfLoops = -1

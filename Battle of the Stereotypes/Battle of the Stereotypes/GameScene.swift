@@ -985,7 +985,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             self.view?.presentScene(germanMapReference)
             if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
-                print("Phase: Angriffsmodus!")
+                print("Phase: Angriffsmodus")
             } else {
                 print("Phase: Wartemodus")
                 germanMapReference.setPhase(PhaseEnum.Warten)
