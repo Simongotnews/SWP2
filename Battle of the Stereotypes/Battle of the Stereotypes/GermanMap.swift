@@ -304,6 +304,23 @@ class GermanMap: SKScene {
             GameCenterHelper.getInstance().gameState.ownerOfbundesland[index]==0 ? self.allBundeslaender[index].switchColorToBlue() : self.allBundeslaender[index].switchColorToRed()
         }
         coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
+        //Phase setzen je nach gameState
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer(){
+            if(GameCenterHelper.getInstance().gameState.remainingActions[0] != 0){
+                setPhase(PhaseEnum.Angriff)
+            } else {
+                if GameCenterHelper.getInstance().gameState.remainingActions[1] != 0{
+                    setPhase(PhaseEnum.Verschieben)
+                } else{
+                    GameCenterHelper.getInstance().gameState.remainingActions = [2, 2]
+                    setPhase(PhaseEnum.Warten)
+                    GameCenterHelper.getInstance().endTurn()
+                }
+            }
+        } else {
+            setPhase(PhaseEnum.Warten)
+        }
+        
         initStatistics()
         initBlAnzahlTruppen()
     }
