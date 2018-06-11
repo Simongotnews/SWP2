@@ -963,19 +963,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (transitToAngriffAnsicht == false){ //VerschiebenAnsicht soll geladen werden
             GameCenterHelper.getInstance().gameState.angriffsPhase = false
             self.view?.presentScene(germanMapReference)
-            if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
-                print("Phasenwechsel: Verschiebemodus")
-                germanMapReference.setPhase(PhaseEnum.Verschieben)
-            } else {
-                print("Phasenwechsel: Wartemodus")
-                germanMapReference.setPhase(PhaseEnum.Warten)
-            }
+            
             return
         } else {
             //Skeltek: Nach Anrgiff geht nur Verschiebemodus
         }
         
         self.view?.presentScene(germanMapReference)
+        StartScene.germanMapScene.refreshScene()
     }
     
 }

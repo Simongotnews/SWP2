@@ -183,7 +183,7 @@ class GermanMap: SKScene {
             } else {
                 phase = PhaseEnum.Warten
             }
-            setPhase(phase)
+            refreshScene()
             initMusikButton()
             initialized = true
         } else {
@@ -285,8 +285,7 @@ class GermanMap: SKScene {
             print(statusMusik)
             buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
             audioPlayer.play()
-            
-            
+
         }else if (!statusMusik){
             print("Musik Aus")
             statusMusik = true
@@ -305,6 +304,9 @@ class GermanMap: SKScene {
         }
         coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
         //Phase setzen je nach gameState
+        print("Refreshing germanMapScene")
+        print("Remaining attacks: \(GameCenterHelper.getInstance().gameState.remainingActions[0])")
+        print("Remaining transfers: \(GameCenterHelper.getInstance().gameState.remainingActions[1])")
         if GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer(){
             if(GameCenterHelper.getInstance().gameState.remainingActions[0] != 0){
                 setPhase(PhaseEnum.Angriff)
