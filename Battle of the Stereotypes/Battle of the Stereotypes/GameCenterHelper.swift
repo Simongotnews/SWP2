@@ -277,6 +277,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     StartScene.germanMapScene.gameScene.updateStats()
                     StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
                 }
+                
                 self.spielGeladen = true    //Wer speichert hat ohnehin aktuellen Spielstand
             }
         }
@@ -380,6 +381,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     //Bundesländer zufällig an Spieler verteilen
                     GermanMap.initializeBlRandomly()
                     self.gameState.money = [160,160]
+                    if GameViewController.currentlyShownSceneNumber != 0 {
+                        StartScene.germanMapScene.refreshScene()
+                    }
                     self.saveGameDataToGameCenter()
                 }
             } else {

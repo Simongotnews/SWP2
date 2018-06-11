@@ -297,16 +297,15 @@ class GermanMap: SKScene {
         }
         
     }
-    
-    
-    
-    
-    func refreshScene(){
+
+    func refreshScene(){    //Soll Scene und Labels mit Hilfe gameState aktualisieren, falls Scene schon geladen
+        //Länder nach Besitzer einfärben
+        for (index, _) in GameCenterHelper.getInstance().gameState.ownerOfbundesland.enumerated(){
+            GameCenterHelper.getInstance().gameState.ownerOfbundesland[index]==0 ? self.allBundeslaender[index].switchColorToBlue() : self.allBundeslaender[index].switchColorToRed()
+        }
         coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
         initStatistics()
-        
         initBlAnzahlTruppen()
-        //TODO Skeltek: Für das Aktualisieren falls schon geladen
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -834,7 +833,16 @@ class GermanMap: SKScene {
     }
     
     func updateCoinLabel(){
-        coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")    }
+        for (Bundesland: bl) in player1.blEigene {
+            player1.addCoins(coinsNewValue: bl.blMuenzenWert)
+        }
+        GameCenterHelper.getInstance().gameState.money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()] = player1.getCoins()
+        GameCenterHelper.getInstance().saveGameDataToGameCenter()
+        coinLabel.removeFromParent()
+        initCoinLabel()
+        //coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")
+        
+    }
     
     
     func initPlayButton() {
