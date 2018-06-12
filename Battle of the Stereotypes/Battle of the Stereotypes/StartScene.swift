@@ -119,7 +119,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         gameSelectionButton.addTarget(self, action: #selector(buttonGameSelectionAction), for: .touchUpInside)
         gameSelectionButton.setTitle("Spielauswahl", for: UIControlState.normal)
         gameSelectionButton.backgroundColor = UIColor.red
-        //gameSelectionButton.
+        gameSelectionButton.tintColor = UIColor.clear
         self.view?.addSubview(gameSelectionButton)
     }
     
@@ -163,6 +163,7 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
             
             audioPlayer.stop()
             buttonMusik.removeFromSuperview()
+            gameSelectionButton.removeFromSuperview()
             // Load 'GameScene.sks' as a GKScene. This provides gameplay related content
             // including entities and graphs.
             if let scene = GKScene(fileNamed: "GermanMap") {

@@ -28,6 +28,9 @@ class GermanMap: SKScene {
     var statusMusik = false
     var buttonMusik: UIButton!
     
+    var startScene : StartScene = StartScene(fileNamed: "StartScene")!
+    /** Button für die Spielauswahl */
+    var gameSelectionButton : UIButton!
     
     //Referenz auf gameScene
     var gameScene : GameScene = GameScene(fileNamed: "GameScene")!
@@ -153,6 +156,7 @@ class GermanMap: SKScene {
         print("DidMove wird durchgeführt")
         //wenn die Szene erzeugt wird, werden alle Nodes nur einmal initialisiert
         GameViewController.currentlyShownSceneNumber = 1
+        initGameSelectionButton()
         if initialized == false {
             //Setze den Schwerpunkt der gesamten Scene auf die untere linke Ecke
             self.anchorPoint = CGPoint(x: 0, y: 0)
@@ -167,8 +171,6 @@ class GermanMap: SKScene {
             assignBlToPlayers()
             initBlAnzahlTruppen()
             initBlNachbarn()
-            
-
             //GameCenterHelper.getInstance().loadGameDataFromGameCenter() //Skeltek TODO: Später wieder raunehmen
             //Setze die Farben der Bundesländer
             //initColors()
@@ -1198,7 +1200,7 @@ class GermanMap: SKScene {
         
         audioPlayer.stop()
         buttonMusik.removeFromSuperview()
-        
+        gameSelectionButton.removeFromSuperview()
         let transition = SKTransition.crossFade(withDuration: 2)
         
         gameScene.scaleMode = .aspectFill
@@ -1215,10 +1217,23 @@ class GermanMap: SKScene {
         player1.anzahlTruppen = player1.calculateTruppenStaerke()
         shopScene.setActivePlayer(playerParam: player1) //TODO: Richtigen ActivePlayer übergeben
         shopScene.germanMapReference = self
-        
+        gameSelectionButton.removeFromSuperview()
         self.view?.presentScene(shopScene)
     }
     func getGS() -> GameState.StructGameState{
         return GameCenterHelper.getInstance().gameState
+    }
+    
+    /** initialisiert den Button für die Spielauswahl */
+    func initGameSelectionButton() {
+        gameSelectionButton = UIButton(frame: CGRect(x: 6.6*self.frame.height/10 , y: 9*self.frame.width/10, width: self.frame.height/10, height: self.frame.width/10))
+        gameSelectionButton.addTarget(self, action: #selector(buttonGameSelectionAction), for: .touchUpInside)
+        gameSelectionButton.setTitle("Spielauswahl", for: UIControlState.normal)
+        gameSelectionButton.backgroundColor = UIColor.red
+        gameSelectionButton.tintColor = UIColor.clear
+        self.view?.addSubview(gameSelectionButton)
+    }
+    @IBAction func buttonGameSelectionAction(sender: UIButton!){
+        GameCenterHelper.getInstance().findBattleMatch()
     }
 }
