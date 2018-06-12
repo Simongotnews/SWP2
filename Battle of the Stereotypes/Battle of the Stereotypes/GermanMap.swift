@@ -28,7 +28,6 @@ class GermanMap: SKScene {
     var statusMusik = false
     var buttonMusik: UIButton!
     
-    var startScene : StartScene = StartScene(fileNamed: "StartScene")!
     /** Button für die Spielauswahl */
     var gameSelectionButton : UIButton!
     
