@@ -363,11 +363,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                             StartScene.germanMapScene.getBundesland(StartScene.germanMapScene.allBundeslaender[index].blNameString)?.anzahlTruppen = self.gameState.troops[index]
                             
                             StartScene.germanMapScene.player1.coins = self.gameState.money[self.getIndexOfLocalPlayer()]
-                            if self.isLocalPlayersTurn() {
-                                StartScene.germanMapScene.setPhase(PhaseEnum.Angriff)
-                                StartScene.germanMapScene.table.setValue(index: 4, value: 2)
-                                StartScene.germanMapScene.table.setValue(index: 5, value: 2)
-                            }
                             StartScene.germanMapScene.refreshScene()
                                 //
                             }
@@ -610,6 +605,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             StartScene.germanMapScene.gameScene.rightDummy.lifePoints = damageExchangeStruct.damage<StartScene.germanMapScene.gameScene.rightDummy.lifePoints ? StartScene.germanMapScene.gameScene.rightDummy.lifePoints-damageExchangeStruct.damage : 0
             damageExchangeStruct.damage > 0 ? StartScene.germanMapScene.gameScene.rightDummy.blink() : nil
         }
+        //Skeltek TODO: hier Sieg abhandeln
         StartScene.germanMapScene.gameScene.updateStats()
         //StartScene.germanMapScene.gameScene.initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID)
         print(GameState.damageExchangeRequestToString(damageExchangeRequest: damageExchangeStruct))

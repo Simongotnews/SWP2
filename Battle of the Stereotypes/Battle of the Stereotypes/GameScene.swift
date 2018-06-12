@@ -250,14 +250,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
         }
         updateStatusLabel()
-        if (GameViewController.currentlyShownSceneNumber == 2){
-            //initBall(for: GameCenterHelper.getInstance().gameState.activePlayerID) //Skeltek BUG FOUND
-        } else {
-            
-        }
-        if(leftDummy.lifePoints*rightDummy.lifePoints == 0){
-            //transitToGermanMap(transitToAngriffAnsicht: false)
-        }
     }
     
     func initBackground(){ //initialisiere den Boden und den Hintergrund
@@ -824,16 +816,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         updateStats()
         
         if(leftDummy.lifePoints == 0 || rightDummy.lifePoints == 0){
-            if germanMapReference.table.getValue(index: 4) == 0 {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
-                    self.transitToGermanMap(transitToAngriffAnsicht: false)
-                })
-            } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
-                    self.transitToGermanMap(transitToAngriffAnsicht: true)
-                })
-            }
-            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: {
+                self.transitToGermanMap(transitToAngriffAnsicht: false)
+            })
         }
         if(!damageSent && GameCenterHelper.getInstance().isLocaLPlayerActive()) {
             damageSent = true
@@ -926,8 +911,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.table.setValue(index: attackerIndex-1, value: anzahlEigeneBl + 1)
             
             germanMapReference.table.setValue(index: 4, value: verfügbareAngriffe - 1)
-            GameCenterHelper.getInstance().gameState.remainingActions[0] = verfügbareAngriffe - 1
-            GameCenterHelper.getInstance().saveGameDataToGameCenter()
             
         } else { //leftDummy wird besiegt
             gegnerischeTruppenStaerke -= gegnerDamage
@@ -935,8 +918,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.table.setValue(index: attackerIndex, value: eigeneTruppenStaerke)
             germanMapReference.table.setValue(index: defenderIndex, value: gegnerischeTruppenStaerke)
             germanMapReference.table.setValue(index: 4, value: verfügbareAngriffe-1)
-            GameCenterHelper.getInstance().gameState.remainingActions[0] = verfügbareAngriffe - 1
-            GameCenterHelper.getInstance().saveGameDataToGameCenter()
         }
         germanMapReference.table.update()
     }
@@ -974,24 +955,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (transitToAngriffAnsicht == false){ //VerschiebenAnsicht soll geladen werden
             GameCenterHelper.getInstance().gameState.angriffsPhase = false
             self.view?.presentScene(germanMapReference)
-            if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
-                print("Phasenwechsel: Verschiebemodus")
-                germanMapReference.setPhase(PhaseEnum.Verschieben)
-            } else {
-                print("Phase: Wartemodus")
-                germanMapReference.setPhase(PhaseEnum.Warten)
-            }
+            
             return
         } else {
-            self.view?.presentScene(germanMapReference)
-            if (GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer()){
-                print("Phase: Angriffsmodus")
-            } else {
-                print("Phase: Wartemodus")
-                germanMapReference.setPhase(PhaseEnum.Warten)
-            }
-            return
+            //Skeltek: Nach Anrgiff geht nur Verschiebemodus
         }
+        
+        self.view?.presentScene(germanMapReference)
+        StartScene.germanMapScene.refreshScene()
     }
     
 }

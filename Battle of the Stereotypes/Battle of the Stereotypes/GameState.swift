@@ -35,10 +35,9 @@ class GameState {
         var troops = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         /** Geld der Spieler */
         var money = [0, 0]
-        //erster Wert ist verfügbare Angriffe und zweiter Wert ist verfügbare Verschiebungen
-        var remainingActions = [2,2]
         
         var angriffsPhase = true
+        //erster Wert ist verfügbare Angriffe und zweiter Wert ist verfügbare Verschiebungen
         var remainingActions = [2, 2]
         // BattleScene spezifisch:
         /** Leben der Spieler */
