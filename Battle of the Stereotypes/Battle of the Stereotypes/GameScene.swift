@@ -544,7 +544,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             statusText += "Spieler: Gegner "
         }
-        print("LeftDummyID: \(leftDummyID!)")
         if(leftDummyID! == GameCenterHelper.getInstance().gameState.activePlayerID) {
             statusText += "(links)"
         } else {

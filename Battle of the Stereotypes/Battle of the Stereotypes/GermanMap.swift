@@ -961,7 +961,11 @@ class GermanMap: SKScene {
         backGroundBl1 = SKShapeNode()
         backGroundBl1.path = UIBezierPath(roundedRect: CGRect(x:(labelBl1.frame.origin.x) - 15, y: (labelBl1.frame.origin.y) - 8, width: ((labelBl1.frame.size.width) + 30), height: ((labelBl1.frame.size.height) + 18 )), cornerRadius: 59).cgPath
         backGroundBl1.position = CGPoint(x: 0, y: 0)
-        backGroundBl1.fillColor = UIColor.blue
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfGameOwner(){
+            backGroundBl1.fillColor = UIColor.blue
+        } else {
+            backGroundBl1.fillColor = UIColor.red
+        }
         backGroundBl1.strokeColor = UIColor.black
         backGroundBl1.lineWidth = 5
         backGroundBl1.addChild(labelBl1)
@@ -989,7 +993,11 @@ class GermanMap: SKScene {
         backGroundBl2 = SKShapeNode()
         backGroundBl2.path = UIBezierPath(roundedRect: CGRect(x:(labelBl2.frame.origin.x) - 15, y: (labelBl2.frame.origin.y) - 8, width: ((labelBl2.frame.size.width) + 30), height: ((labelBl2.frame.size.height) + 18 )), cornerRadius: 59).cgPath
         backGroundBl2.position = CGPoint(x: 0, y: -120)
-        backGroundBl2.fillColor = UIColor.red
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfGameOwner(){
+            backGroundBl2.fillColor = UIColor.red
+        } else {
+            backGroundBl2.fillColor = UIColor.blue
+        }
         backGroundBl2.strokeColor = UIColor.black
         backGroundBl2.lineWidth = 5
         backGroundBl2.addChild(labelBl2)
