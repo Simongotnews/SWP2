@@ -416,7 +416,9 @@ class GermanMap: SKScene {
                         }
                     }
                     GameCenterHelper.getInstance().gameState.remainingActions[1] -= 1
-                    GameCenterHelper.getInstance().saveGameDataToGameCenter()
+                    if GameCenterHelper.getInstance().gameState.remainingActions[1] != 0{
+                        GameCenterHelper.getInstance().saveGameDataToGameCenter()   //Bei remainingAction==0, wird es über 'endTurn' gespeichert
+                    }
                     //aktualisiere die Labels und resette die Zahl
                     initBlAnzahlTruppen()
                     verschiebeZahl = 0

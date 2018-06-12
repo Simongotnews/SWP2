@@ -205,6 +205,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     func getIndexOfCurrentPlayer() -> Int {
         for participant in self.currentMatch.participants!{
             if participant == currentMatch.currentParticipant{
+                print("CurrentPlayer: \(currentMatch.participants!.index(of: participant)!)")
                 return currentMatch.participants!.index(of: participant)!
             }
         }
@@ -212,7 +213,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
     }
     /** Gibt den Index des nächstes Spielers vom Match, der nicht an der Reihe ist zurück. Ist der nächste Spieler dran so erhält man bei 2 Spieler den Index des lokalen Spielers */
     func getIndexOfNextPlayer() -> Int {
-        
+        print("NextPlayer: \((getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!)")
         return (getIndexOfCurrentPlayer() + 1) % (currentMatch.participants?.count)!
     }
     
@@ -224,6 +225,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
         for participant in currentMatch.participants! {
             if(participant.player?.playerID == GKLocalPlayer.localPlayer().playerID) {
+                print("LocalPlayer: \(currentMatch.participants!.index(of: participant)!)")
                 return currentMatch.participants!.index(of: participant)!
             }
         }
@@ -363,10 +365,10 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                             StartScene.germanMapScene.getBundesland(StartScene.germanMapScene.allBundeslaender[index].blNameString)?.anzahlTruppen = self.gameState.troops[index]
                             
                             StartScene.germanMapScene.player1.coins = self.gameState.money[self.getIndexOfLocalPlayer()]
-                            StartScene.germanMapScene.refreshScene()
-                                //
+                            if GameViewController.currentlyShownSceneNumber==1{
+                                StartScene.germanMapScene.refreshScene()
                             }
-                        
+                        }
                     }
                 } else{
                     print("Keine Daten gefunden -> Speichere Daten in GameCenter")
@@ -525,28 +527,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         default:
             print("!!!Fehlerhafter MessageKey von ExchangeRequest!!! \n\n")
         }
-        //TODO Skeltek: Code ab hier überflüssig geworden.
-        var exchangeReply = GameState.StructGenericExchangeReply()
-        exchangeReply.actionCompleted = true
-        print(GameState.genericExchangeReplyToString(genericExchangeReply: exchangeReply))
-        print("MessageKey: \(exchange.message)")
-        exchange.reply(withLocalizableMessageKey: exchange.message! , arguments: ["XY","Y"], data: GameState.encodeStruct(structToEncode: exchangeReply), completionHandler: {(error: Error?) -> Void in
-            if(error == nil ) {
-                // Operation erfolgreich
-                print("ExchangeReply erfolgreich verschickt")
-                //TODO Skeltek: Hier unbedingt Merge einbauen, da es nicht anders geht
-                print("Exchange-Nachricht: \(exchange.message)")
-                print("GameState.Identifier: \(GameState.IdentifierThrowExchange)")
-                if (self.getIndexOfLocalPlayer() == self.getIndexOfCurrentPlayer() ){//}&& exchange.message == GameState.IdentifierThrowExchange){
-                    self.gameState.activePlayerID = self.getIndexOfLocalPlayer()
-                    self.mergeCompletedExchangeToSave(exchange: exchange)
-                }
-                // StartScene.germanMapScene.gameScene.updateStats()
-            } else {
-                print("Fehler beim ExchangeRequest beantworten")
-                print(error as Any)
-            }
-        })
+        
     }
     
     /** Spieler erhält Information das der Exchange abgebrochen wurde */
