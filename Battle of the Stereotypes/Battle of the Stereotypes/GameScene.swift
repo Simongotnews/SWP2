@@ -413,7 +413,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(leftDummyHealthLabel)
         
         angreiferNameLabel = SKLabelNode(text: germanMapReference.blAngreifer.blNameString)
-        if germanMapReference.player1.blEigene.contains(germanMapReference.blAngreifer) {
+        if GameCenterHelper.getInstance().getIndexOfCurrentPlayer()==GameCenterHelper.getInstance().getIndexOfGameOwner() {
             angreiferNameLabel.fontColor = SKColor.blue
         } else {
             angreiferNameLabel.fontColor = SKColor.red
@@ -433,7 +433,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(rightDummyHealthLabel)
         
         verteidigerNameLabel = SKLabelNode(text: germanMapReference.blVerteidiger.blNameString)
-        if germanMapReference.player2.blEigene.contains(germanMapReference.blVerteidiger) {
+        if GameCenterHelper.getInstance().getIndexOfCurrentPlayer()==GameCenterHelper.getInstance().getIndexOfGameOwner() {
             verteidigerNameLabel.fontColor = SKColor.red
         } else {
             verteidigerNameLabel.fontColor = SKColor.blue
