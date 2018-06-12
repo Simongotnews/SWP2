@@ -223,7 +223,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightDummy.lifePoints = rightDummyHealthInitial
         leftDummyHealthInitial = germanMapReference.blAngreifer.anzahlTruppen-1
         leftDummy.lifePoints = leftDummyHealthInitial
-        
+        leftDummyID = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
+        rightDummyID = GameCenterHelper.getInstance().getIndexOfNextPlayer()
         angreiferNameLabel.removeFromParent()
         verteidigerNameLabel.removeFromParent()
         leftDummyHealthLabel.removeFromParent()
