@@ -797,6 +797,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else {
                 leftDummy.lifePoints = 0
                 updateStatistics(attackerIndex: 3, defenderIndex: 1)
+                GameCenterHelper.getInstance().gameState.troops[GameCenterHelper.getInstance().gameState.combatingBLs[0]]=1
+                GameCenterHelper.getInstance().gameState.troops[GameCenterHelper.getInstance().gameState.combatingBLs[1]]=rightDummy.lifePoints
             }
         }
         else if(((contact.bodyA.categoryBitMask|contact.bodyB.categoryBitMask) & rightDummyCategory) != 0){
@@ -811,6 +813,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 print("Kill")
                 rightDummy.lifePoints = 0
                 updateStatistics(attackerIndex: 1, defenderIndex: 3)
+                GameCenterHelper.getInstance().gameState.troops[GameCenterHelper.getInstance().gameState.combatingBLs[0]]=1
+                GameCenterHelper.getInstance().gameState.troops[GameCenterHelper.getInstance().gameState.combatingBLs[1]]=leftDummy.lifePoints
                 blIstEingenommen()
             }
         }

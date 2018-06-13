@@ -298,13 +298,28 @@ class GermanMap: SKScene {
     }
 
     func refreshScene(){    //Soll Scene und Labels mit Hilfe gameState aktualisieren, falls Scene schon geladen
-        //Länder nach Besitzer einfärben
-        for (index, _) in GameCenterHelper.getInstance().gameState.ownerOfbundesland.enumerated(){
-            GameCenterHelper.getInstance().gameState.ownerOfbundesland[index]==0 ? self.allBundeslaender[index].switchColorToBlue() : self.allBundeslaender[index].switchColorToRed()
-        }
-        coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
-        //Phase setzen je nach gameState
         print("Refreshing germanMapScene")
+        print("Lade BL-Verteilung")
+        StartScene.germanMapScene.player1.blEigene.removeAll()
+        StartScene.germanMapScene.player2.blEigene.removeAll()
+        for (index,bundesland) in GameCenterHelper.getInstance().gameState.ownerOfbundesland.enumerated() {
+            if(bundesland == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
+                StartScene.germanMapScene.player1.blEigene.append(StartScene.germanMapScene.allBundeslaender[index])
+            } else {
+                StartScene.germanMapScene.player2.blEigene.append(StartScene.germanMapScene.allBundeslaender[index])
+            }
+            //Länder nach Besitzer einfärben
+            GameCenterHelper.getInstance().gameState.ownerOfbundesland[index]==0 ? self.allBundeslaender[index].switchColorToBlue() : self.allBundeslaender[index].switchColorToRed()
+            
+            //StartScene.germanMapScene.initColors()
+            StartScene.germanMapScene.getBundesland(StartScene.germanMapScene.allBundeslaender[index].blNameString)?.anzahlTruppen = GameCenterHelper.getInstance().gameState.troops[index]
+        }
+        StartScene.germanMapScene.player1.coins = GameCenterHelper.getInstance().gameState.money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]
+        coinLabel.text = "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €"
+        
+        
+        //Phase setzen je nach gameState
+        //Anzahl verbleibender Aktionen berechnen
         print("Remaining attacks: \(GameCenterHelper.getInstance().gameState.remainingActions[0])")
         print("Remaining transfers: \(GameCenterHelper.getInstance().gameState.remainingActions[1])")
         if GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfCurrentPlayer(){
@@ -489,6 +504,14 @@ class GermanMap: SKScene {
                     var arrowExchange = GameState.StructArrowExchangeRequest()
                     arrowExchange.startBundesland = blAngreifer.blNameString
                     arrowExchange.endBundesland = blVerteidiger.blNameString
+                    for (index, _) in allBundeslaender.enumerated(){
+                        if allBundeslaender[index]==blAngreifer{
+                            GameCenterHelper.getInstance().gameState.combatingBLs[0] = index
+                        }
+                        if allBundeslaender[index]==blVerteidiger{
+                            GameCenterHelper.getInstance().gameState.combatingBLs[1] = index
+                        }
+                    }
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
                 }
             }

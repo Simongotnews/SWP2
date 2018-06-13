@@ -35,7 +35,8 @@ class GameState {
         var troops = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         /** Geld der Spieler */
         var money = [0, 0]
-        
+        /** Am Kampf beteiligte Bundesländer-Indexe [AngreiferIndex, VerteidigerIndex] */
+        var combatingBLs = [0, 0]
         var angriffsPhase = true
         //erster Wert ist verfügbare Angriffe und zweiter Wert ist verfügbare Verschiebungen
         var remainingActions = [2, 2]

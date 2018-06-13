@@ -348,24 +348,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     }
                     print("Derzeit gezeigte Szene: " + String(GameViewController.currentlyShownSceneNumber))
                     if GameViewController.currentlyShownSceneNumber != 0{
-                        print("Lade BL-Verteilung")
-                        StartScene.germanMapScene.player1.blEigene.removeAll()
-                        StartScene.germanMapScene.player2.blEigene.removeAll()
-                        for (index,bundesland) in self.gameState.ownerOfbundesland.enumerated() {
-                            if(bundesland == self.getIndexOfLocalPlayer()) {
-                                StartScene.germanMapScene.player1.blEigene.append(StartScene.germanMapScene.allBundeslaender[index])
-                                self.getIndexOfLocalPlayer()==self.getIndexOfGameOwner() ? StartScene.germanMapScene.player1.blEigene.last?.switchColorToBlue() : StartScene.germanMapScene.player1.blEigene.last?.switchColorToRed()
-                            } else {
-                                StartScene.germanMapScene.player2.blEigene.append(StartScene.germanMapScene.allBundeslaender[index])
-                                self.getIndexOfLocalPlayer()==self.getIndexOfGameOwner() ? StartScene.germanMapScene.player2.blEigene.last?.switchColorToRed() : StartScene.germanMapScene.player2.blEigene.last?.switchColorToBlue()
-                            }
-                            //StartScene.germanMapScene.initColors()
-                            StartScene.germanMapScene.getBundesland(StartScene.germanMapScene.allBundeslaender[index].blNameString)?.anzahlTruppen = self.gameState.troops[index]
-                            
-                            StartScene.germanMapScene.player1.coins = self.gameState.money[self.getIndexOfLocalPlayer()]
-                            if GameViewController.currentlyShownSceneNumber==1{
-                                StartScene.germanMapScene.refreshScene()
-                            }
+                        
+                        if GameViewController.currentlyShownSceneNumber==1{
+                            StartScene.germanMapScene.refreshScene()
                         }
                     }
                 } else{
@@ -630,6 +615,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 tempExchanges.append(exchange)
                 gameState.activePlayerID = getIndexOfOtherPlayer()
                 mergeCompletedExchangesToSave(exchanges: tempExchanges)
+                StartScene.germanMapScene.refreshScene()
                 if StartScene.germanMapScene.gameScene.leftDummy.lifePoints*StartScene.germanMapScene.gameScene.rightDummy.lifePoints == 0{
                     //Skeltek TODO: Hier zurück zur german Map, da sonst zu früh der Wechsel stattfindet
                     gameState.activePlayerID = getIndexOfCurrentPlayer()
