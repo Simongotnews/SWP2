@@ -181,9 +181,26 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         }
     }
     
+    /** Beendet Spiel mit Gewinner */
+    func gameWon(){
+        for participant in currentMatch.participants!{
+            if participant == GameCenterHelper.getInstance().currentMatch.currentParticipant{
+                participant.matchOutcome = GKTurnBasedMatchOutcome.won
+            } else{
+                participant.matchOutcome = GKTurnBasedMatchOutcome.lost
+            }
+            currentMatch.endMatchInTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: {(error : Error?) -> Void in
+                if error != nil{
+                    print("Fehler beim Beenden des gewonnenen Spiels")
+                } else {
+                    print("Spiel gewonnen und beendet")
+                }
+                })
+        }
+    }
+    
     /** Beendet das Spiel */
-    func endGame()
-    {
+    func endGame(){
         currentMatch.endMatchInTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: nil)
     }
     
@@ -583,6 +600,12 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 print("MergeRequest bestätigt, merge drei Exchanges")
                 if (self.isLocalPlayersTurn()){
                     self.gameState.activePlayerID = self.getIndexOfLocalPlayer()
+                    if StartScene.germanMapScene.gameScene.leftDummy.lifePoints*StartScene.germanMapScene.gameScene.rightDummy.lifePoints==0{
+                        StartScene.germanMapScene.gameScene.childNode(withName: "ball")?.removeFromParent()
+                        GameCenterHelper.getInstance().gameState.troops[GameCenterHelper.getInstance().gameState.combatingBLs[0]] = 1
+                        GameCenterHelper.getInstance().gameState.troops[GameCenterHelper.getInstance().gameState.combatingBLs[1]] = StartScene.germanMapScene.gameScene.rightDummy.lifePoints
+                        StartScene.germanMapScene.gameScene.transitToGermanMap(transitToAngriffAnsicht: false)
+                    }
                     self.mergeCompletedExchangesToSave(exchanges: self.tempExchanges)
                     self.tempExchanges = [GKTurnBasedExchange]()
                 }

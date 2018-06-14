@@ -330,6 +330,7 @@ class GermanMap: SKScene {
                     setPhase(PhaseEnum.Verschieben)
                 } else{
                     GameCenterHelper.getInstance().gameState.remainingActions = [2, 2]
+                    updateCoinLabel()
                     setPhase(PhaseEnum.Warten)
                     GameCenterHelper.getInstance().endTurn()
                 }
@@ -340,6 +341,13 @@ class GermanMap: SKScene {
         
         initStatistics()
         initBlAnzahlTruppen()
+        if player1.blEigene.count == allBundeslaender.count {
+            GameCenterHelper.getInstance().gameWon()
+            //Win-Screen anzeigen mit Rückkehr zur StartScene und Spielauswahl
+        }
+        if player1.blEigene.count == 0 {
+            //Lost-Screen anzeigen mit Rückkehr zur StartScene und Spielauswahl
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -392,6 +400,7 @@ class GermanMap: SKScene {
         if verschiebeFinishButton != nil {
             if verschiebeFinishButton.contains(touch.location(in: verschiebeLabel)) {
                 updateCoinLabel()
+                GameCenterHelper.getInstance().gameState.remainingActions = [2, 2]
                 GameCenterHelper.getInstance().endTurn()
             }
         }

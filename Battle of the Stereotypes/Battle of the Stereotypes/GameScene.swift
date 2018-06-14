@@ -938,6 +938,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             germanMapReference.player2.blEigene.append(germanMapReference.blVerteidiger)
             //germanMapReference.player1.blEigene.remove(at: germanMapReference.player1.blEigene.index(of: germanMapReference.blVerteidiger)!)
         }
+        //Übertragen des BL an den Angreifer im gameState
         for (index, _) in StartScene.germanMapScene.allBundeslaender.enumerated(){
             if germanMapReference.blVerteidiger == StartScene.germanMapScene.allBundeslaender[index]{
                 GameCenterHelper.getInstance().gameState.ownerOfbundesland[index] = GameCenterHelper.getInstance().getIndexOfCurrentPlayer()
