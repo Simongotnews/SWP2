@@ -87,7 +87,7 @@ class Player {
             bonusDamagePercentage = 0
         } else {
             let collisionImpulseTemp = collisionImpulse - 300
-            bonusDamagePercentage = Float(collisionImpulseTemp / 700)
+            bonusDamagePercentage = Float(collisionImpulseTemp) / 700.0
         }
         
         //Rechne den Bonusschaden dazu
