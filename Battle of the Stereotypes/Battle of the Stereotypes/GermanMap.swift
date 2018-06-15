@@ -1105,6 +1105,8 @@ class GermanMap: SKScene {
         
         for i in 0...15 {
             
+            
+            
             if i == 0 {//BundeslandEnum.BadenWuerttemberg
                 GameCenterHelper.getInstance().gameState.troops[i]  = 11 * (Int (arc4random_uniform(4)+1))// zuweisen der Tuppenzahl an die Bundesländer bei Spielbeginn (Bevölkerunszahl in Mio gerundet mal Zufallszahl zwischen 1 und 4)
             } else if i == 1 {//Bayern
@@ -1145,7 +1147,7 @@ class GermanMap: SKScene {
         var countTroupsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
         var countTroupsNotGameOwner : Int = 0
         
-        for i in 0...15 { //an jeden Spieler 8 Bundesländer verteilen //!!!
+        for i in 0...15 { //an jeden Spieler 8 Bundesländer verteilen
             
             let zufallszahl : UInt32 = arc4random_uniform(2) //Zahlen (zwischen) 0 und 1 generieren
             
@@ -1170,20 +1172,19 @@ class GermanMap: SKScene {
             }
         }
         
-        // var countTroupsGameOwner : Int = 0 //wieviel Bundesländer GameOwner schon erhalten hat
-        //var countTroupsNotGameOwner : Int = 0
+        //Truppenzahl ausgleichen, falls Nicht-GameOwner mehr Truppen hat, als GameOwner
         
-        //Truppenzahl ausgleichen, falls Nicht-GameOwner >= 20 % mehr Truppen hat, als GameOwner
+        print("Bls zufällig verteilen")
         
-        if Double (countTroupsGameOwner) * 1.2 <= Double (countTroupsNotGameOwner){
-            
-            while Double (countTroupsGameOwner) * 1.2 <= Double (countTroupsNotGameOwner){
+            while Double (countTroupsGameOwner) < Double (countTroupsNotGameOwner){
                 
                 for i in 0...15 {
                     
-                    //für jedes Bundesland des Nicht-GameOwners{  //Nicht-GameOwner in jedem BL eine Truppe wegnehmen
+                    if Double (countTroupsGameOwner) < Double (countTroupsNotGameOwner){
+                    
+                    //Nicht-GameOwner in jedem BL eine Truppe wegnehmen
                     if(GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] == 1){
-                        if (countTroupsNotGameOwner - countTroupsGameOwner >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                        if (countTroupsNotGameOwner - countTroupsGameOwner >= 32){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
                             if (GameCenterHelper.getInstance().gameState.troops[i] >= 10){
                                 GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 4
                                 countTroupsNotGameOwner = countTroupsNotGameOwner - 4
@@ -1193,28 +1194,27 @@ class GermanMap: SKScene {
                             if (GameCenterHelper.getInstance().gameState.troops[i] > 2){
                                 GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 1
                                 countTroupsNotGameOwner = countTroupsNotGameOwner - 1
+                                }
                             }
-                            
                         }
-                        
                     }
                 }
                 if (countTroupsNotGameOwner <= 16 ){ //Endlosschleife vermeiden
                     break
                 }
-                
             }
-        }else if Double (countTroupsNotGameOwner) * 1.2 <= Double (countTroupsGameOwner){
             
-            //Truppenzahl ausgleichen, falls Spieler1 >= 20 % mehr Truppen hat, als Spieler 2
+            //Truppenzahl ausgleichen, falls GameOwner  mehr Truppen hat, als Nicht-GameOwner
             
-            while Double (countTroupsNotGameOwner) * 1.2 <= Double (countTroupsGameOwner){
+            while Double (countTroupsNotGameOwner) < Double (countTroupsGameOwner){
                 
                 for i in 0...15 {
                     
+                    if Double (countTroupsNotGameOwner) < Double (countTroupsGameOwner){
+                    
                     //für jedes Bundesland des GameOwners{  //GameOwner in jedem BL eine Truppe wegnehmen
                     if(GameCenterHelper.getInstance().gameState.ownerOfbundesland[i] == 0){
-                        if (countTroupsGameOwner - countTroupsNotGameOwner >= 30){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
+                        if (countTroupsGameOwner - countTroupsNotGameOwner >= 32){ //bei großer Differenz, bei großen Bundesländern mehrere Truppen abziehen
                             if (GameCenterHelper.getInstance().gameState.troops[i] >= 10){
                                 GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 4
                                 countTroupsGameOwner = countTroupsGameOwner - 4
@@ -1224,18 +1224,17 @@ class GermanMap: SKScene {
                             if (GameCenterHelper.getInstance().gameState.troops[i] > 2){
                                 GameCenterHelper.getInstance().gameState.troops[i] = GameCenterHelper.getInstance().gameState.troops[i] - 1
                                 countTroupsGameOwner = countTroupsGameOwner - 1
+                                }
                             }
-                            
                         }
-                        
                     }
                 }
                 if (countTroupsGameOwner <= 16 ){ //Endlosschleife vermeiden
                     break
                 }
-                
             }
-        }    }
+    }
+    
     func transitToGameScene(){
         
         audioPlayer.stop()
