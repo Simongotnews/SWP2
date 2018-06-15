@@ -130,6 +130,9 @@ class GermanMap: SKScene {
     var schleswigHolsteinAnzahlTruppenLabel: SKLabelNode!
     var thueringenAnzahlTruppenLabel: SKLabelNode!
     
+    //Label für "Erobere alle BLs von blau/rot" über Map 
+    var erobereBLsLabel: SKLabelNode!
+    
     // Deklaration des angreifenden und des verteidigenden Bundesland:
     var blAngreifer: Bundesland!
     var blVerteidiger: Bundesland!
@@ -164,6 +167,7 @@ class GermanMap: SKScene {
             //Initialisiere die Spieler mit ihren zugehörigen Bundesländern
             initPlayer()
             initBundeslaender()
+            initErobereBLsLabel()
             assignBlToPlayers()
             initBlAnzahlTruppen()
             initBlNachbarn()
@@ -246,6 +250,27 @@ class GermanMap: SKScene {
         } else {
             phaseLabel.text = "Gegner ist am Zug"
         }
+        
+    }
+    
+    func initErobereBLsLabel(){
+    
+        //Label erstellen und richtigen Text anzeigen
+        erobereBLsLabel = SKLabelNode()
+        
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 {
+        erobereBLsLabel.text = "Erobere alle roten Bundesländer"
+        }else{
+        erobereBLsLabel.text = "Erobere alle blauen Bundesländer"
+        }
+        
+        erobereBLsLabel.position = CGPoint(x: -20, y: 263)
+        erobereBLsLabel.zPosition=3 // in Vordergrund bringen
+        erobereBLsLabel.fontName = "AvenirNext-Bold"
+        erobereBLsLabel.fontColor = UIColor.black
+        erobereBLsLabel.fontSize = 15
+        erobereBLsLabel.alpha = 5
+        mapSide.addChild(erobereBLsLabel)
         
     }
     
@@ -670,6 +695,7 @@ class GermanMap: SKScene {
         if(badenWuerttembergAnzahlTruppenLabel != nil){
             badenWuerttembergAnzahlTruppenLabel.removeFromParent()
         }
+        
         let badenWuerttembergAnzahlTruppen = String(badenWuerttemberg?.anzahlTruppen ?? Int())
         badenWuerttembergAnzahlTruppenLabel = SKLabelNode(text: badenWuerttembergAnzahlTruppen)
         badenWuerttembergAnzahlTruppenLabel.name = badenWuerttemberg?.blNameString
