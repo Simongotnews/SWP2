@@ -540,14 +540,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         var statusText : String = ""
         if(GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
-            statusText += "Du bist dran "
+            statusText += "Du bist am Zug "
         } else {
-            statusText += "Gegner ist dran "
+            statusText += "Gegner ist am Zug "
         }
         if(leftDummyID! == GameCenterHelper.getInstance().gameState.activePlayerID) {
             statusText += "(links)"
         } else {
             statusText += "(rechts)"
+        }
+        if GameCenterHelper.getInstance().getIndexOfCurrentPlayer() == 0 {
+            statusLabel.fontColor = UIColor.blue
+        } else {
+            statusLabel.fontColor = UIColor.red 
         }
         statusLabel.text = statusText
     }
