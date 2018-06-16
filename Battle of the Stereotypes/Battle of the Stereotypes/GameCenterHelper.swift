@@ -186,17 +186,19 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         for participant in currentMatch.participants!{
             if participant == GameCenterHelper.getInstance().currentMatch.currentParticipant{
                 participant.matchOutcome = GKTurnBasedMatchOutcome.won
+                print("Gewinner gesetzt")
             } else{
                 participant.matchOutcome = GKTurnBasedMatchOutcome.lost
+                print("Verlierer gesetzt")
             }
-            currentMatch.endMatchInTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: {(error : Error?) -> Void in
-                if error != nil{
-                    print("Fehler beim Beenden des gewonnenen Spiels")
-                } else {
-                    print("Spiel gewonnen und beendet")
-                }
-                })
         }
+        currentMatch.endMatchInTurn(withMatch: GameState.encodeStruct(structToEncode: gameState), completionHandler: {(error : Error?) -> Void in
+            if error != nil{
+                print("Fehler beim Beenden des gewonnenen Spiels")
+            } else {
+                print("Spiel gewonnen und beendet")
+            }
+        })
     }
     
     /** Beendet das Spiel */
