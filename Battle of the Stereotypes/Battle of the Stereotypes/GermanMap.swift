@@ -333,6 +333,7 @@ class GermanMap: SKScene {
         
         //Pfeil von letzter Scene soll auch gelöscht werden
         pfeil?.removeFromParent()
+        pfeil = nil
         
         StartScene.germanMapScene.player1.blEigene.removeAll()
         StartScene.germanMapScene.player2.blEigene.removeAll()
@@ -423,15 +424,6 @@ class GermanMap: SKScene {
             }
         }
         
-        //suche nach dem Angreifer
-        if pfeil == nil {
-            blAngreifer = nil
-            let bundeslandName = atPoint(touch.location(in: self)).name
-            if(bundeslandName != nil){
-                blAngreifer = getBundesland(bundeslandName!)
-            }
-        }
-        
         if shopButton != nil {
             if shopButton.isPressable == true && shopButton.contains(touch.location(in: statsSide)) {
                 transitToShopScene()
@@ -504,8 +496,20 @@ class GermanMap: SKScene {
             }
         }
         
-        //wenn der Pfeil ausgewählt wurde, soll bei einem Klick der Angriff abgebrochen und die Statistiken wieder angezeigt werden
+        //suche nach dem Angreifer (bzw. Verschiebe Anfangsbundesland), falls dies gewünscht war
+        let bundeslandName = atPoint(touch.location(in: self)).name
+        if pfeil == nil {
+            if(bundeslandName != nil){
+                blAngreifer = getBundesland(bundeslandName!)
+            } else {
+                blAngreifer = nil;
+            }
+            return
+        }
+            
+        //wenn keine bisherige Aktion zutrifft, soll der Pfeil resettet und der Angriff als ungultig gelten (wegen blAngreifer = nil)
         if(pfeil != nil){
+            blAngreifer = nil
             pfeil.removeFromParent()
             pfeil = nil
             statsSideRootNode?.removeFromParent()
@@ -531,19 +535,20 @@ class GermanMap: SKScene {
         
         touchesEndedLocation = touch.location(in: self)
         
+        //Zeichnen eines Pfeils, wenn gültige Auswahl
         if pfeil == nil {
             let bundeslandName = atPoint(touch.location(in: self)).name
-            
-            blVerteidiger = nil
+        
             if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
                 blVerteidiger = getBundesland(bundeslandName!)
+            } else {
+                blVerteidiger = nil
             }
-            
             
             if(isAttackValid()){
                 touchpadLocked = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
-                    self.touchpadLocked = false
+                self.touchpadLocked = false
                 })
                 setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
                 
