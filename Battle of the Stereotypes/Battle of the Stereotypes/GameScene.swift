@@ -495,7 +495,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         powerBarGray.strokeColor = SKColor.clear
         powerBarGray.position = CGPoint.zero
         powerBarGray.position = CGPoint(x: 0, y: 230)
-        powerBarGreen.zPosition = 3
+        powerBarGray.zPosition = 3
+        powerBarGray.name = "powerbar"
         self.addChild(powerBarGray)
         
         powerBarGreen.fillColor = SKColor.green
@@ -588,7 +589,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func powerBarRun(){
+        if childNode(withName: "powerbar") == nil
+        {
         initPowerBar()
+        }
         let wait = SKAction.wait(forDuration: 0.03)
         let block = SKAction.run({
             [unowned self] in
@@ -603,6 +607,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         })
         let sequence = SKAction.sequence([wait,block])
         run(SKAction.repeatForever(sequence), withKey: "powerBarAction")
+        
     }
     
     func powerBarReset(){
@@ -724,7 +729,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let pos = touch.location(in: self)
                 
                 _ = self.atPoint(pos)
-                let touchedNode = self.atPoint(pos)
                 let deltaX = self.arrow.position.x - pos.x
                 let deltaY = self.arrow.position.y - pos.y
                 angleForArrow = atan2(deltaY, deltaX)
