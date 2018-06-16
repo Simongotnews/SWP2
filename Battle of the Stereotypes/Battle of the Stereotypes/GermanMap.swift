@@ -382,7 +382,7 @@ class GermanMap: SKScene {
         //Gewonnen
         if player1.blEigene.count == allBundeslaender.count {
             showWinningElement(text: "DU HAST GEWONNEN")
-            //GameCenterHelper.getInstance().gameWon()
+            GameCenterHelper.getInstance().gameWon()
             //Win-Screen anzeigen mit Rückkehr zur StartScene und Spielauswahl
         }
         //Verloren
