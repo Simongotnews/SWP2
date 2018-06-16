@@ -540,9 +540,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         var statusText : String = ""
         if(GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
-            statusText += "Spieler: DU "
+            statusText += "Du bist dran "
         } else {
-            statusText += "Spieler: Gegner "
+            statusText += "Gegner ist dran "
         }
         if(leftDummyID! == GameCenterHelper.getInstance().gameState.activePlayerID) {
             statusText += "(links)"
