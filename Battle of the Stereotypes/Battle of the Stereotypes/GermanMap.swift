@@ -76,6 +76,10 @@ class GermanMap: SKScene {
     var backGroundBl2: SKShapeNode!
     var vsLabel: SKLabelNode!
     
+    //Nodes für Gewinnen/Verlieren
+    var labelWinLose: SKLabelNode!
+    var backGroundWinLose: SKShapeNode!
+    
     //Label für das Geld des Spielers
     var coinLabel: SKLabelNode!
     
@@ -326,6 +330,10 @@ class GermanMap: SKScene {
     func refreshScene(){    //Soll Scene und Labels mit Hilfe gameState aktualisieren, falls Scene schon geladen
         print("Refreshing germanMapScene")
         print("Lade BL-Verteilung")
+        
+        //Pfeil von letzter Scene soll auch gelöscht werden
+        pfeil?.removeFromParent()
+        
         StartScene.germanMapScene.player1.blEigene.removeAll()
         StartScene.germanMapScene.player2.blEigene.removeAll()
         for (index,bundesland) in GameCenterHelper.getInstance().gameState.ownerOfbundesland.enumerated() {
@@ -367,11 +375,19 @@ class GermanMap: SKScene {
         
         initStatistics()
         initBlAnzahlTruppen()
+        
+        //vorsichtshalber soll die Anzeige der Bundeslänger auch gelöscht werden
+        statsSideRootNode?.removeFromParent()
+        
+        //Gewonnen
         if player1.blEigene.count == allBundeslaender.count {
-            GameCenterHelper.getInstance().gameWon()
+            showWinningElement(text: "DU HAST GEWONNEN")
+            //GameCenterHelper.getInstance().gameWon()
             //Win-Screen anzeigen mit Rückkehr zur StartScene und Spielauswahl
         }
+        //Verloren
         if player1.blEigene.count == 0 {
+            showWinningElement(text: "DU HAST VERLOREN")
             //Lost-Screen anzeigen mit Rückkehr zur StartScene und Spielauswahl
         }
     }
@@ -1066,7 +1082,7 @@ class GermanMap: SKScene {
         statsSideRootNode.addChild(backGroundBl2)
         
         //erstelle Fade In Effekte für alle 3 Elemente
-        let fadeIn = SKAction.fadeIn(withDuration: 0.8)
+        let fadeIn = SKAction.fadeIn(withDuration: 0.3)
         //führe Effekt hintereinander aus
         backGroundBl1.run(fadeIn, completion: { self.vsLabel.run(fadeIn, completion: { self.backGroundBl2.run(fadeIn) })})
         
@@ -1301,5 +1317,35 @@ class GermanMap: SKScene {
     }
     @IBAction func buttonGameSelectionAction(sender: UIButton!){
         GameCenterHelper.getInstance().findBattleMatch()
+    }
+    
+    func showWinningElement(text: String) {
+        statsSide.removeAllChildren()
+        
+        statsSideRootNode = SKNode()
+        statsSideRootNode.position = CGPoint(x: 0, y: 100)
+        statsSide.addChild(statsSideRootNode)
+        
+        //Erstelle Label und Hintergrund für eigenes Bundesland (bl1)
+        labelWinLose = SKLabelNode(text: text)
+        labelWinLose.position = CGPoint(x: 0, y: -50)
+        labelWinLose.fontName = "AvenirNext-Bold"
+        labelWinLose.fontSize = 27
+        
+        backGroundWinLose = SKShapeNode()
+        backGroundWinLose.path = UIBezierPath(roundedRect: CGRect(x:(labelWinLose.frame.origin.x) - 15, y: (labelWinLose.frame.origin.y) - 8, width: ((labelWinLose.frame.size.width) + 30), height: ((labelWinLose.frame.size.height) + 18 )), cornerRadius: 59).cgPath
+        backGroundWinLose.position = CGPoint(x: 0, y: 0)
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfGameOwner(){
+            backGroundWinLose.fillColor = UIColor.blue
+        } else {
+            backGroundWinLose.fillColor = UIColor.red
+        }
+        backGroundWinLose.strokeColor = UIColor.black
+        backGroundWinLose.lineWidth = 5
+        backGroundWinLose.addChild(labelWinLose)
+    
+        
+        statsSideRootNode.addChild(backGroundWinLose)
+        
     }
 }
