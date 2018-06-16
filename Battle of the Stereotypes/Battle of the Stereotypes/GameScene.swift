@@ -540,9 +540,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         var statusText : String = ""
         if(GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
-            statusText += "Spieler: DU "
+            statusText += "Du bist dran "
         } else {
-            statusText += "Spieler: Gegner "
+            statusText += "Gegner ist dran "
         }
         if(leftDummyID! == GameCenterHelper.getInstance().gameState.activePlayerID) {
             statusText += "(links)"
@@ -644,19 +644,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //Erstelle Pfeil, aber nur für meinen Kämpfer
-        if touchedNode.name == "leftdummy" && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == leftDummyID){
+        if (touchedNode.name == "leftdummy" || touchedNode.name == "leftDummy_Oberarm" || touchedNode.name == "leftDummy_Unterarm") && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == leftDummyID){
             createArrow(node: leftDummy)
         }
-        else if touchedNode.name == "rightdummy" && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == rightDummyID){
+        else if (touchedNode.name == "rightdummy" || touchedNode.name == "rightDummy_Oberarm" || touchedNode.name == "rightDummy_Unterarm") && (childNode(withName: "arrow") == nil && germanMapReference.player1.id == rightDummyID){
             createArrow(node: rightDummy)
         }
         
     }
-    func moveArmAfterProjectile(startPoint: SKSpriteNode, endPoint: SKSpriteNode){
+    /*func moveArmAfterProjectile(startPoint: SKSpriteNode, endPoint: SKSpriteNode){
         let square = UIBezierPath(rect: CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 100, height: 100)))
         let followSquare = SKAction.follow(square.cgPath, asOffset: true, orientToPath: false, duration: 5.0)
         leftDummyHand.run(followSquare)
-    }
+    }*/
     func slowMoveTo(_ location: CGPoint,for player: Int){
         if(player == leftDummyID){
             let move = SKAction.reach(to: location, rootNode: leftDummyOberarm, duration: 0.2)
@@ -675,7 +675,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch:UITouch = touches.first!
         //wenn man gerade nicht aktiv ist, darf man nichts machen
         if touchpadLocked {
             return
@@ -747,7 +746,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         arrow.position = CGPoint(x: centerLeft.x, y: centerLeft.y)
         arrow.anchorPoint = CGPoint(x:0.0,y:0.5)
         arrow.setScale(0.05)
-        arrow.zPosition=3
+        arrow.zPosition = 4
         arrow.name = "arrow"
         arrow.zRotation = 0.5 * CGFloat.pi
         
