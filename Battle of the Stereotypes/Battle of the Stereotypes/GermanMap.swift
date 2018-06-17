@@ -500,8 +500,8 @@ class GermanMap: SKScene {
         }
         
         //suche nach dem Angreifer (bzw. Verschiebe Anfangsbundesland), falls dies gewünscht war
-        let bundeslandName = atPoint(touch.location(in: self)).name
         if pfeil == nil {
+            let bundeslandName = atPoint(touch.location(in: self)).name
             if(bundeslandName != nil){
                 blAngreifer = getBundesland(bundeslandName!)
             } else {
@@ -509,9 +509,10 @@ class GermanMap: SKScene {
             }
             return
         }
+
             
         //wenn keine bisherige Aktion zutrifft, soll der Pfeil resettet und der Angriff als ungültig gelten (wegen blAngreifer = nil)
-        if(pfeil != nil){
+        if(pfeil != nil) {
             blAngreifer = nil
             pfeil.removeFromParent()
             pfeil = nil
@@ -539,8 +540,10 @@ class GermanMap: SKScene {
         touchesEndedLocation = touch.location(in: self)
         
         //Zeichnen eines Pfeils, wenn gültige Auswahl
-        if pfeil == nil {
+        if mapSide.contains(touch.location(in: self)) {
+        
             let bundeslandName = atPoint(touch.location(in: self)).name
+        
         
             if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
                 blVerteidiger = getBundesland(bundeslandName!)
@@ -573,7 +576,16 @@ class GermanMap: SKScene {
                     }
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
                 }
+            } else {
+                pfeil?.removeFromParent()
+                pfeil = nil
             }
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if blAngreifer != nil {
+            setPfeil(startLocation: touchesBeganLocation, endLocation: touches.first!.location(in: self))
         }
     }
     
@@ -1138,6 +1150,7 @@ class GermanMap: SKScene {
     
     // Initialisieren des Pfeils zur Anzeige der verbundenen Bundesländer
     func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
+        pfeil?.removeFromParent()
         let pfeilKoordinaten = UIBezierPath.pfeil(from: CGPoint(x:startLocation.x, y:startLocation.y), to: CGPoint(x:endLocation.x, y: endLocation.y),tailWidth: 10, headWidth: 25, headLength: 20)
         
         pfeil = SKShapeNode(path: pfeilKoordinaten.cgPath)
