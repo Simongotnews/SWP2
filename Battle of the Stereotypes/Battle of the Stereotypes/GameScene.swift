@@ -551,7 +551,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             statusText += "(rechts)"
         }
-        if GameCenterHelper.getInstance().getIndexOfCurrentPlayer() == 0 {
+        if GameCenterHelper.getInstance().gameState.activePlayerID == 0 {
             statusLabel.fontColor = UIColor.blue
         } else {
             statusLabel.fontColor = UIColor.red 

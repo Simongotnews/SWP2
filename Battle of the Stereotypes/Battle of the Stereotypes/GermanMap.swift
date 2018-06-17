@@ -417,7 +417,7 @@ class GermanMap: SKScene {
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
-                pfeil.removeFromParent()
+                pfeil?.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
                 GameCenterHelper.getInstance().gameState.remainingActions[0] -= 1
@@ -500,19 +500,35 @@ class GermanMap: SKScene {
             }
         }
         
+        //sicherheitshalber Entfernung der Anzeige mit Play Button
+        statsSideRootNode?.removeFromParent()
+        if table != nil {
+            if table.alpha == 0 {
+                table.alpha = 1
+            }
+        }
+        
         //suche nach dem Angreifer (bzw. Verschiebe Anfangsbundesland), falls dies gewünscht war
-        let bundeslandName = atPoint(touch.location(in: self)).name
-        if pfeil == nil {
-            if(bundeslandName != nil){
+        if touch.location(in: self).x < self.size.width/2 {
+            blAngreifer = nil
+            blVerteidiger = nil
+            pfeil?.removeFromParent()
+            pfeil = nil
+            
+            let bundeslandName = atPoint(touch.location(in: self)).name
+            if bundeslandName != nil {
                 blAngreifer = getBundesland(bundeslandName!)
-            } else {
-                blAngreifer = nil;
+                if blAngreifer != nil && player1.blEigene.contains(blAngreifer){
+                    return
+                } else {
+                    blAngreifer = nil
+                }
             }
             return
         }
-            
+
         //wenn keine bisherige Aktion zutrifft, soll der Pfeil resettet und der Angriff als ungültig gelten (wegen blAngreifer = nil)
-        if(pfeil != nil){
+        if(pfeil != nil) {
             blAngreifer = nil
             pfeil.removeFromParent()
             pfeil = nil
@@ -540,7 +556,12 @@ class GermanMap: SKScene {
         touchesEndedLocation = touch.location(in: self)
         
         //Zeichnen eines Pfeils, wenn gültige Auswahl
-        if pfeil == nil {
+        if touch.location(in: self).x < self.size.width/2 {
+            //Pfeil muss vor dem neuen Zeichnen zuerst gelöscht werden, da sonst atPoint() nicht funktioniert
+            pfeil?.removeFromParent()
+            pfeil = nil
+            blVerteidiger = nil
+        
             let bundeslandName = atPoint(touch.location(in: self)).name
         
             if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
@@ -551,7 +572,7 @@ class GermanMap: SKScene {
             
             if(isAttackValid()){
                 touchpadLocked = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
                 self.touchpadLocked = false
                 })
                 setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
@@ -574,7 +595,29 @@ class GermanMap: SKScene {
                     }
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
                 }
+            } else {
+                pfeil?.removeFromParent()
+                pfeil = nil
+                //setzt verschiebeZahl auf 0, da Aktion abgebrochen
+                verschiebeZahl = 0
+                verschiebeLabel?.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
             }
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if !GameCenterHelper.getInstance().isLocalPlayersTurn() {
+            return
+        }
+        
+        if (blAngreifer != nil && touches.first!.location(in: self).x < self.size.width/2) {
+            setPfeil(startLocation: touchesBeganLocation, endLocation: touches.first!.location(in: self))
+        } else {
+            pfeil?.removeFromParent()
+            pfeil = nil
+            //setzt verschiebeZahl auf 0, da Aktion abgebrochen
+            verschiebeZahl = 0
+            verschiebeLabel?.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
         }
     }
     
@@ -1091,7 +1134,7 @@ class GermanMap: SKScene {
         statsSideRootNode.addChild(backGroundBl2)
         
         //erstelle Fade In Effekte für alle 3 Elemente
-        let fadeIn = SKAction.fadeIn(withDuration: 0.3)
+        let fadeIn = SKAction.fadeIn(withDuration: 0.1)
         //führe Effekt hintereinander aus
         backGroundBl1.run(fadeIn, completion: { self.vsLabel.run(fadeIn, completion: { self.backGroundBl2.run(fadeIn) })})
         
@@ -1139,6 +1182,7 @@ class GermanMap: SKScene {
     
     // Initialisieren des Pfeils zur Anzeige der verbundenen Bundesländer
     func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
+        pfeil?.removeFromParent()
         let pfeilKoordinaten = UIBezierPath.pfeil(from: CGPoint(x:startLocation.x, y:startLocation.y), to: CGPoint(x:endLocation.x, y: endLocation.y),tailWidth: 10, headWidth: 25, headLength: 20)
         
         pfeil = SKShapeNode(path: pfeilKoordinaten.cgPath)
