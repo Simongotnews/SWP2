@@ -153,7 +153,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func initMusikButton(){
         //Sound
         //...
-        hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
+        //hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
+        hintergrundMusik = Bundle.main.url(forResource: "battleThemeA", withExtension: "mp3")
         
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)

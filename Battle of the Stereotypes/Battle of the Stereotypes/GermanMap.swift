@@ -288,7 +288,8 @@ class GermanMap: SKScene {
     func initMusikButton(){
         //Sound
         //...
-        hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+        //hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+        hintergrundMusik = Bundle.main.url(forResource: "Heroic Demise (New)", withExtension: "mp3")
         
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)

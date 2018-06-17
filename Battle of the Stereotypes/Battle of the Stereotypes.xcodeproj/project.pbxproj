@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F07B15320D68E17000E1F98 /* Heroic Demise (New).mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3F07B15220D68E17000E1F98 /* Heroic Demise (New).mp3 */; };
+		3F07B15520D68E1C000E1F98 /* battleThemeA.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3F07B15420D68E1C000E1F98 /* battleThemeA.mp3 */; };
 		3F1FEF10209756190049F94F /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FEF0F209756190049F94F /* GameState.swift */; };
 		3F1FEF122097563D0049F94F /* GameCenterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FEF112097563D0049F94F /* GameCenterHelper.swift */; };
 		3F2B5A4C209AFEE2005B29C7 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2B5A4B209AFEE2005B29C7 /* Button.swift */; };
@@ -59,6 +61,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F07B15220D68E17000E1F98 /* Heroic Demise (New).mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = "Heroic Demise (New).mp3"; path = "../../../../../Desktop/Heroic Demise (New).mp3"; sourceTree = "<group>"; };
+		3F07B15420D68E1C000E1F98 /* battleThemeA.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = battleThemeA.mp3; path = ../../../../../Desktop/battleThemeA.mp3; sourceTree = "<group>"; };
 		3F1FEF0F209756190049F94F /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
 		3F1FEF112097563D0049F94F /* GameCenterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCenterHelper.swift; sourceTree = "<group>"; };
 		3F2B5A4B209AFEE2005B29C7 /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
@@ -200,6 +204,8 @@
 			children = (
 				3F9082AD20AD06070000842A /* GameScene1.mp3 */,
 				3F9082AA20AD06060000842A /* GameScene2.mp3 */,
+				3F07B15220D68E17000E1F98 /* Heroic Demise (New).mp3 */,
+				3F07B15420D68E1C000E1F98 /* battleThemeA.mp3 */,
 				3F9082AB20AD06060000842A /* GermanMap.mp3 */,
 				3F9082AC20AD06060000842A /* StartScene.mp3 */,
 				3F9082B220AD06150000842A /* treffer.mp3 */,
@@ -314,6 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F555E6820A3320F00F4F3E4 /* StartScene.sks in Resources */,
+				3F07B15320D68E17000E1F98 /* Heroic Demise (New).mp3 in Resources */,
 				3FA47FF920850BE900ADE0A8 /* Main.storyboard in Resources */,
 				3F9CE7A320AC9B6F00427E13 /* Bundeslaender.atlas in Resources */,
 				3F9082B420AD06160000842A /* treffer.mp3 in Resources */,
@@ -324,6 +331,7 @@
 				3FA47FFE20850BEC00ADE0A8 /* LaunchScreen.storyboard in Resources */,
 				3F2DF3012093B6B600FC7469 /* GermanMap.sks in Resources */,
 				3FA47FF220850BE900ADE0A8 /* Actions.sks in Resources */,
+				3F07B15520D68E1C000E1F98 /* battleThemeA.mp3 in Resources */,
 				3F9082B120AD06070000842A /* GameScene1.mp3 in Resources */,
 				3F9082AE20AD06070000842A /* GameScene2.mp3 in Resources */,
 				3F9082B520AD06160000842A /* wurf.mp3 in Resources */,

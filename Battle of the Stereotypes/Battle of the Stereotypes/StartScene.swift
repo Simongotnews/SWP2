@@ -92,7 +92,8 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     func initMusikButton(){
         //Sound
         //...
-        hintergrundMusik = Bundle.main.url(forResource: "StartScene", withExtension: "mp3")
+        //hintergrundMusik = Bundle.main.url(forResource: "StartScene", withExtension: "mp3")
+        hintergrundMusik = Bundle.main.url(forResource: "Heroic Demise (New)", withExtension: "mp3")
         
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
