@@ -259,6 +259,7 @@ class GermanMap: SKScene {
     }
     
     func initErobereBLsLabel(){
+        erobereBLsLabel?.removeFromParent()
     
         //Label erstellen und richtigen Text anzeigen
         erobereBLsLabel = SKLabelNode()
@@ -269,7 +270,7 @@ class GermanMap: SKScene {
         erobereBLsLabel.text = "Erobere alle blauen Bundesländer"
         }
         
-        erobereBLsLabel.position = CGPoint(x: -20, y: 263)
+        erobereBLsLabel.position = CGPoint(x: 8, y: 263)
         erobereBLsLabel.zPosition=3 // in Vordergrund bringen
         erobereBLsLabel.fontName = "AvenirNext-Bold"
         erobereBLsLabel.fontColor = UIColor.black
@@ -376,6 +377,7 @@ class GermanMap: SKScene {
         
         initStatistics()
         initBlAnzahlTruppen()
+        initErobereBLsLabel()
         
         //vorsichtshalber soll die Anzeige der Bundeslänger auch gelöscht werden
         statsSideRootNode?.removeFromParent()
@@ -507,7 +509,7 @@ class GermanMap: SKScene {
             return
         }
             
-        //wenn keine bisherige Aktion zutrifft, soll der Pfeil resettet und der Angriff als ungultig gelten (wegen blAngreifer = nil)
+        //wenn keine bisherige Aktion zutrifft, soll der Pfeil resettet und der Angriff als ungültig gelten (wegen blAngreifer = nil)
         if(pfeil != nil){
             blAngreifer = nil
             pfeil.removeFromParent()
