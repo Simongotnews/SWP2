@@ -503,7 +503,7 @@ class GermanMap: SKScene {
         let bundeslandName = atPoint(touch.location(in: self)).name
         if bundeslandName != nil {
             blAngreifer = getBundesland(bundeslandName!)
-            if(blAngreifer != nil){
+            if blAngreifer != nil && player1.blEigene.contains(blAngreifer){
                 return
             } else {
                 blAngreifer = nil;
@@ -588,6 +588,10 @@ class GermanMap: SKScene {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if !GameCenterHelper.getInstance().isLocalPlayersTurn() {
+            return
+        }
+        
         if (blAngreifer != nil && touches.first!.location(in: self).x < self.size.width/2) {
             setPfeil(startLocation: touchesBeganLocation, endLocation: touches.first!.location(in: self))
         } else {
