@@ -416,7 +416,7 @@ class GermanMap: SKScene {
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
-                pfeil.removeFromParent()
+                pfeil?.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
                 GameCenterHelper.getInstance().gameState.remainingActions[0] -= 1
@@ -499,15 +499,31 @@ class GermanMap: SKScene {
             }
         }
         
-        //suche nach dem Angreifer (bzw. Verschiebe Anfangsbundesland), falls dies gewünscht war
-        let bundeslandName = atPoint(touch.location(in: self)).name
-        if bundeslandName != nil {
-            blAngreifer = getBundesland(bundeslandName!)
-            if blAngreifer != nil && player1.blEigene.contains(blAngreifer){
-                return
-            } else {
-                blAngreifer = nil;
+        //sicherheitshalber Entfernung der Anzeige mit Play Button
+        statsSideRootNode?.removeFromParent()
+        if table != nil {
+            if table.alpha == 0 {
+                table.alpha = 1
             }
+        }
+        
+        //suche nach dem Angreifer (bzw. Verschiebe Anfangsbundesland), falls dies gewünscht war
+        if touch.location(in: self).x < self.size.width/2 {
+            blAngreifer = nil
+            blVerteidiger = nil
+            pfeil?.removeFromParent()
+            pfeil = nil
+            
+            let bundeslandName = atPoint(touch.location(in: self)).name
+            if bundeslandName != nil {
+                blAngreifer = getBundesland(bundeslandName!)
+                if blAngreifer != nil && player1.blEigene.contains(blAngreifer){
+                    return
+                } else {
+                    blAngreifer = nil
+                }
+            }
+            return
         }
 
         //wenn keine bisherige Aktion zutrifft, soll der Pfeil resettet und der Angriff als ungültig gelten (wegen blAngreifer = nil)
@@ -543,6 +559,7 @@ class GermanMap: SKScene {
             //Pfeil muss vor dem neuen Zeichnen zuerst gelöscht werden, da sonst atPoint() nicht funktioniert
             pfeil?.removeFromParent()
             pfeil = nil
+            blVerteidiger = nil
         
             let bundeslandName = atPoint(touch.location(in: self)).name
         
@@ -554,7 +571,7 @@ class GermanMap: SKScene {
             
             if(isAttackValid()){
                 touchpadLocked = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
                 self.touchpadLocked = false
                 })
                 setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
@@ -1116,7 +1133,7 @@ class GermanMap: SKScene {
         statsSideRootNode.addChild(backGroundBl2)
         
         //erstelle Fade In Effekte für alle 3 Elemente
-        let fadeIn = SKAction.fadeIn(withDuration: 0.3)
+        let fadeIn = SKAction.fadeIn(withDuration: 0.1)
         //führe Effekt hintereinander aus
         backGroundBl1.run(fadeIn, completion: { self.vsLabel.run(fadeIn, completion: { self.backGroundBl2.run(fadeIn) })})
         
