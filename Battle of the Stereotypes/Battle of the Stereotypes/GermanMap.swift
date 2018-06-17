@@ -500,17 +500,16 @@ class GermanMap: SKScene {
         }
         
         //suche nach dem Angreifer (bzw. Verschiebe Anfangsbundesland), falls dies gewünscht war
-        if pfeil == nil {
-            let bundeslandName = atPoint(touch.location(in: self)).name
-            if(bundeslandName != nil){
-                blAngreifer = getBundesland(bundeslandName!)
+        let bundeslandName = atPoint(touch.location(in: self)).name
+        if bundeslandName != nil {
+            blAngreifer = getBundesland(bundeslandName!)
+            if(blAngreifer != nil){
+                return
             } else {
                 blAngreifer = nil;
             }
-            return
         }
 
-            
         //wenn keine bisherige Aktion zutrifft, soll der Pfeil resettet und der Angriff als ungültig gelten (wegen blAngreifer = nil)
         if(pfeil != nil) {
             blAngreifer = nil
@@ -540,10 +539,12 @@ class GermanMap: SKScene {
         touchesEndedLocation = touch.location(in: self)
         
         //Zeichnen eines Pfeils, wenn gültige Auswahl
-        if mapSide.contains(touch.location(in: self)) {
+        if touch.location(in: self).x < self.size.width/2 {
+            //Pfeil muss vor dem neuen Zeichnen zuerst gelöscht werden, da sonst atPoint() nicht funktioniert
+            pfeil?.removeFromParent()
+            pfeil = nil
         
             let bundeslandName = atPoint(touch.location(in: self)).name
-        
         
             if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
                 blVerteidiger = getBundesland(bundeslandName!)
@@ -579,13 +580,22 @@ class GermanMap: SKScene {
             } else {
                 pfeil?.removeFromParent()
                 pfeil = nil
+                //setzt verschiebeZahl auf 0, da Aktion abgebrochen
+                verschiebeZahl = 0
+                verschiebeLabel?.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
             }
         }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if blAngreifer != nil {
+        if (blAngreifer != nil && touches.first!.location(in: self).x < self.size.width/2) {
             setPfeil(startLocation: touchesBeganLocation, endLocation: touches.first!.location(in: self))
+        } else {
+            pfeil?.removeFromParent()
+            pfeil = nil
+            //setzt verschiebeZahl auf 0, da Aktion abgebrochen
+            verschiebeZahl = 0
+            verschiebeLabel?.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
         }
     }
     
