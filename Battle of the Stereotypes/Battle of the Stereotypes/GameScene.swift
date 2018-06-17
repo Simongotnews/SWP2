@@ -153,7 +153,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func initMusikButton(){
         //Sound
         //...
-        hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
+        //hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
+        hintergrundMusik = Bundle.main.url(forResource: "battleThemeA", withExtension: "mp3")
         
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
@@ -558,7 +559,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             statusText += "(rechts)"
         }
-        if GameCenterHelper.getInstance().getIndexOfCurrentPlayer() == 0 {
+        if GameCenterHelper.getInstance().gameState.activePlayerID == 0 {
             statusLabel.fontColor = UIColor.blue
         } else {
             statusLabel.fontColor = UIColor.red 

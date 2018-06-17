@@ -76,6 +76,10 @@ class GermanMap: SKScene {
     var backGroundBl2: SKShapeNode!
     var vsLabel: SKLabelNode!
     
+    //Nodes für Gewinnen/Verlieren
+    var labelWinLose: SKLabelNode!
+    var backGroundWinLose: SKShapeNode!
+    
     //Label für das Geld des Spielers
     var coinLabel: SKLabelNode!
     
@@ -243,8 +247,9 @@ class GermanMap: SKScene {
             verschiebeOkButton.alpha = 5
             verschiebeLabel.addChild(verschiebeOkButton)
             
-            verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"), size: CGSize(width: 80, height: 50), isPressable: true)
+            verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"),  size: CGSize(width: 130, height: 70), isPressable: true)
             verschiebeFinishButton.position = CGPoint(x: 53, y: -80)
+            verschiebeFinishButton.setScale(0.6)
             verschiebeFinishButton.alpha = 5
             verschiebeLabel.addChild(verschiebeFinishButton)
             
@@ -255,6 +260,7 @@ class GermanMap: SKScene {
     }
     
     func initErobereBLsLabel(){
+        erobereBLsLabel?.removeFromParent()
     
         //Label erstellen und richtigen Text anzeigen
         erobereBLsLabel = SKLabelNode()
@@ -265,7 +271,7 @@ class GermanMap: SKScene {
         erobereBLsLabel.text = "Erobere alle blauen Bundesländer"
         }
         
-        erobereBLsLabel.position = CGPoint(x: -20, y: 263)
+        erobereBLsLabel.position = CGPoint(x: 8, y: 263)
         erobereBLsLabel.zPosition=3 // in Vordergrund bringen
         erobereBLsLabel.fontName = "GillSans-BoldItalic" //"AvenirNext-Bold"
         erobereBLsLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
@@ -282,7 +288,8 @@ class GermanMap: SKScene {
     func initMusikButton(){
         //Sound
         //...
-        hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+        //hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
+        hintergrundMusik = Bundle.main.url(forResource: "Heroic Demise (New)", withExtension: "mp3")
         
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
@@ -326,6 +333,11 @@ class GermanMap: SKScene {
     func refreshScene(){    //Soll Scene und Labels mit Hilfe gameState aktualisieren, falls Scene schon geladen
         print("Refreshing germanMapScene")
         print("Lade BL-Verteilung")
+        
+        //Pfeil von letzter Scene soll auch gelöscht werden
+        pfeil?.removeFromParent()
+        pfeil = nil
+        
         StartScene.germanMapScene.player1.blEigene.removeAll()
         StartScene.germanMapScene.player2.blEigene.removeAll()
         for (index,bundesland) in GameCenterHelper.getInstance().gameState.ownerOfbundesland.enumerated() {
@@ -367,11 +379,20 @@ class GermanMap: SKScene {
         
         initStatistics()
         initBlAnzahlTruppen()
+        initErobereBLsLabel()
+        
+        //vorsichtshalber soll die Anzeige der Bundeslänger auch gelöscht werden
+        statsSideRootNode?.removeFromParent()
+        
+        //Gewonnen
         if player1.blEigene.count == allBundeslaender.count {
+            showWinningElement(text: "DU HAST GEWONNEN")
             GameCenterHelper.getInstance().gameWon()
             //Win-Screen anzeigen mit Rückkehr zur StartScene und Spielauswahl
         }
+        //Verloren
         if player1.blEigene.count == 0 {
+            showWinningElement(text: "DU HAST VERLOREN")
             //Lost-Screen anzeigen mit Rückkehr zur StartScene und Spielauswahl
         }
     }
@@ -396,7 +417,7 @@ class GermanMap: SKScene {
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
-                pfeil.removeFromParent()
+                pfeil?.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
                 GameCenterHelper.getInstance().gameState.remainingActions[0] -= 1
@@ -404,15 +425,6 @@ class GermanMap: SKScene {
                 // Exchange, um anderen Spieler in die GameScene zu schicken
                 GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
                 return
-            }
-        }
-        
-        //suche nach dem Angreifer
-        if pfeil == nil {
-            blAngreifer = nil
-            let bundeslandName = atPoint(touch.location(in: self)).name
-            if(bundeslandName != nil){
-                blAngreifer = getBundesland(bundeslandName!)
             }
         }
         
@@ -488,8 +500,36 @@ class GermanMap: SKScene {
             }
         }
         
-        //wenn der Pfeil ausgewählt wurde, soll bei einem Klick der Angriff abgebrochen und die Statistiken wieder angezeigt werden
-        if(pfeil != nil){
+        //sicherheitshalber Entfernung der Anzeige mit Play Button
+        statsSideRootNode?.removeFromParent()
+        if table != nil {
+            if table.alpha == 0 {
+                table.alpha = 1
+            }
+        }
+        
+        //suche nach dem Angreifer (bzw. Verschiebe Anfangsbundesland), falls dies gewünscht war
+        if touch.location(in: self).x < self.size.width/2 {
+            blAngreifer = nil
+            blVerteidiger = nil
+            pfeil?.removeFromParent()
+            pfeil = nil
+            
+            let bundeslandName = atPoint(touch.location(in: self)).name
+            if bundeslandName != nil {
+                blAngreifer = getBundesland(bundeslandName!)
+                if blAngreifer != nil && player1.blEigene.contains(blAngreifer){
+                    return
+                } else {
+                    blAngreifer = nil
+                }
+            }
+            return
+        }
+
+        //wenn keine bisherige Aktion zutrifft, soll der Pfeil resettet und der Angriff als ungültig gelten (wegen blAngreifer = nil)
+        if(pfeil != nil) {
+            blAngreifer = nil
             pfeil.removeFromParent()
             pfeil = nil
             statsSideRootNode?.removeFromParent()
@@ -515,19 +555,25 @@ class GermanMap: SKScene {
         
         touchesEndedLocation = touch.location(in: self)
         
-        if pfeil == nil {
-            let bundeslandName = atPoint(touch.location(in: self)).name
-            
+        //Zeichnen eines Pfeils, wenn gültige Auswahl
+        if touch.location(in: self).x < self.size.width/2 {
+            //Pfeil muss vor dem neuen Zeichnen zuerst gelöscht werden, da sonst atPoint() nicht funktioniert
+            pfeil?.removeFromParent()
+            pfeil = nil
             blVerteidiger = nil
+        
+            let bundeslandName = atPoint(touch.location(in: self)).name
+        
             if(bundeslandName != nil && bundeslandName != blAngreifer?.blNameString){
                 blVerteidiger = getBundesland(bundeslandName!)
+            } else {
+                blVerteidiger = nil
             }
-            
             
             if(isAttackValid()){
                 touchpadLocked = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
-                    self.touchpadLocked = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {    //verhindert ein zu schnelles hintereinander Senden von Exchanges
+                self.touchpadLocked = false
                 })
                 setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
                 
@@ -549,7 +595,29 @@ class GermanMap: SKScene {
                     }
                     GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
                 }
+            } else {
+                pfeil?.removeFromParent()
+                pfeil = nil
+                //setzt verschiebeZahl auf 0, da Aktion abgebrochen
+                verschiebeZahl = 0
+                verschiebeLabel?.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
             }
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if !GameCenterHelper.getInstance().isLocalPlayersTurn() {
+            return
+        }
+        
+        if (blAngreifer != nil && touches.first!.location(in: self).x < self.size.width/2) {
+            setPfeil(startLocation: touchesBeganLocation, endLocation: touches.first!.location(in: self))
+        } else {
+            pfeil?.removeFromParent()
+            pfeil = nil
+            //setzt verschiebeZahl auf 0, da Aktion abgebrochen
+            verschiebeZahl = 0
+            verschiebeLabel?.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
         }
     }
     
@@ -1066,7 +1134,7 @@ class GermanMap: SKScene {
         statsSideRootNode.addChild(backGroundBl2)
         
         //erstelle Fade In Effekte für alle 3 Elemente
-        let fadeIn = SKAction.fadeIn(withDuration: 0.8)
+        let fadeIn = SKAction.fadeIn(withDuration: 0.1)
         //führe Effekt hintereinander aus
         backGroundBl1.run(fadeIn, completion: { self.vsLabel.run(fadeIn, completion: { self.backGroundBl2.run(fadeIn) })})
         
@@ -1114,6 +1182,7 @@ class GermanMap: SKScene {
     
     // Initialisieren des Pfeils zur Anzeige der verbundenen Bundesländer
     func setPfeil(startLocation: CGPoint, endLocation: CGPoint){
+        pfeil?.removeFromParent()
         let pfeilKoordinaten = UIBezierPath.pfeil(from: CGPoint(x:startLocation.x, y:startLocation.y), to: CGPoint(x:endLocation.x, y: endLocation.y),tailWidth: 10, headWidth: 25, headLength: 20)
         
         pfeil = SKShapeNode(path: pfeilKoordinaten.cgPath)
@@ -1301,5 +1370,35 @@ class GermanMap: SKScene {
     }
     @IBAction func buttonGameSelectionAction(sender: UIButton!){
         GameCenterHelper.getInstance().findBattleMatch()
+    }
+    
+    func showWinningElement(text: String) {
+        statsSide.removeAllChildren()
+        
+        statsSideRootNode = SKNode()
+        statsSideRootNode.position = CGPoint(x: 0, y: 100)
+        statsSide.addChild(statsSideRootNode)
+        
+        //Erstelle Label und Hintergrund für eigenes Bundesland (bl1)
+        labelWinLose = SKLabelNode(text: text)
+        labelWinLose.position = CGPoint(x: 0, y: -50)
+        labelWinLose.fontName = "AvenirNext-Bold"
+        labelWinLose.fontSize = 27
+        
+        backGroundWinLose = SKShapeNode()
+        backGroundWinLose.path = UIBezierPath(roundedRect: CGRect(x:(labelWinLose.frame.origin.x) - 15, y: (labelWinLose.frame.origin.y) - 8, width: ((labelWinLose.frame.size.width) + 30), height: ((labelWinLose.frame.size.height) + 18 )), cornerRadius: 59).cgPath
+        backGroundWinLose.position = CGPoint(x: 0, y: 0)
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer()==GameCenterHelper.getInstance().getIndexOfGameOwner(){
+            backGroundWinLose.fillColor = UIColor.blue
+        } else {
+            backGroundWinLose.fillColor = UIColor.red
+        }
+        backGroundWinLose.strokeColor = UIColor.black
+        backGroundWinLose.lineWidth = 5
+        backGroundWinLose.addChild(labelWinLose)
+    
+        
+        statsSideRootNode.addChild(backGroundWinLose)
+        
     }
 }
