@@ -247,8 +247,9 @@ class GermanMap: SKScene {
             verschiebeOkButton.alpha = 5
             verschiebeLabel.addChild(verschiebeOkButton)
             
-            verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"), size: CGSize(width: 80, height: 50), isPressable: true)
+            verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"),  size: CGSize(width: 130, height: 70), isPressable: true)
             verschiebeFinishButton.position = CGPoint(x: 53, y: -80)
+            verschiebeFinishButton.setScale(0.6)
             verschiebeFinishButton.alpha = 5
             verschiebeLabel.addChild(verschiebeFinishButton)
             
