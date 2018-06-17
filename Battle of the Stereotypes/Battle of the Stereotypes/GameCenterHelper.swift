@@ -317,6 +317,7 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                     //Skeltek: Spielzustand aus übernommenen Daten extrahieren -> lokale Daten synchronisieren
                     self.gameState = GameState.decodeStruct(dataToDecode: data!, structInstance: GameState.StructGameState())
                     self.spielGeladen = true
+                    
                     //TODO Skeltek: Nicht aufgelöste Exchanges nach Laden bzw Appstart auflösen
                     if (self.currentMatch.exchanges != nil) {
                         for activeExchange in self.currentMatch.exchanges!{
@@ -735,5 +736,13 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             }
         })
         print("\n")
+    }
+    
+    /** Gibt zurück ob das lokale Spiel beendet ist. Ein nicht existierendes Match ergibt true */
+    func hasMatchEnded() -> Bool {
+        if(currentMatch == nil) {
+            return true
+        }
+        return (currentMatch.status == GKTurnBasedMatchStatus.ended)
     }
 }
