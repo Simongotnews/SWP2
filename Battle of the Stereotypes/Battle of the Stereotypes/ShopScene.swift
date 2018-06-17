@@ -12,7 +12,7 @@ import GameplayKit
 class ShopScene: SKScene {
     
     var germanMapReference: GermanMap!
-    
+    var hintergrund:SKSpriteNode!
     //Tabelle zur Anzeige der erforderlichen Daten für den Shop
     var shop: Shop!
     //Tabelle zur Anzeige des Headers für die Shop-Tabelle
@@ -55,6 +55,7 @@ class ShopScene: SKScene {
         if(shop != nil){
             shop.removeFromParent()
         }
+        initHintergrund()
         initGeldNode()
         initShopTableHeader()
         initShopTable()
@@ -129,6 +130,10 @@ class ShopScene: SKScene {
         guthaben = getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]
         rest = guthaben
     }
+    func initHintergrund(){
+        hintergrund = SKSpriteNode(color: UIColor.lightGray, size: CGSize(width: self.size.width, height: self.size.height))
+        self.addChild(hintergrund)
+    }
     
     //Enthält die Labels mit den Angaben zum aktuellen Guthaben, den Kosten für die gewünschte Truppenstärke und das verbleibende Guthaben nach Kauf von Truppenstärke
     func initGeldNode(){
@@ -171,6 +176,7 @@ class ShopScene: SKScene {
     func initGeldLabels(){
         //Aktuelles Guthaben
         guthabenLabel = SKLabelNode(text: "Guthaben: \(guthaben!) €")
+        guthabenLabel.fontName = "GillSans-BoldItalic"
         guthabenLabel.position = CGPoint(x: -185, y: 240)
         guthabenLabel.fontColor = UIColor(red: 0.0, green: 0.5451, blue: 0.2706, alpha: 1.0) //Dunkelgrün; ursprüngliche RGB-Werte müssen durch 255 geteilt werden
         setLabelLayout(label: guthabenLabel)
@@ -179,6 +185,7 @@ class ShopScene: SKScene {
         
         //Gesamtkosten für Truppenkauf
         kostenLabel = SKLabelNode(text: "Kosten: \(kosten!) €")
+        kostenLabel.fontName = "GillSans-BoldItalic"
         kostenLabel.position = CGPoint(x: -185, y: 200)
         kostenLabel.fontColor = UIColor.red
         setLabelLayout(label: kostenLabel)
@@ -187,6 +194,7 @@ class ShopScene: SKScene {
         
         //Verbleibendes Guthaben nach Truppenkauf
         restLabel = SKLabelNode(text: "Rest: \(guthaben - kosten!) €")
+        restLabel.fontName = "GillSans-BoldItalic"
         restLabel.position = CGPoint(x: -185, y: 160)
         restLabel.fontColor = UIColor.orange
         setLabelLayout(label: restLabel)
@@ -246,7 +254,7 @@ class ShopScene: SKScene {
     
     //Definiert das Layout für die Labels zur Geldanzeige
     func setLabelLayout(label: SKLabelNode){
-        label.fontName = "AvenirNext-Bold"
+        label.fontName = "GillSans-BoldItalic"
         label.fontSize = 25
         label.alpha = 10
         label.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left

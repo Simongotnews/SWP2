@@ -56,14 +56,19 @@ class Table: SKNode {
             
             //Färbe die Reihen in abwechselnden Farben
             if i % 2 == 0 {
-                entryBackground[i].fillColor = UIColor.orange
+                entryBackground[i].fillColor = UIColor(red: 185.0/255, green: 199.0/255, blue: 202.0/255, alpha:1)
+                entryBackground[i].strokeColor = SKColor.clear
             } else {
-                entryBackground[i].fillColor = UIColor.brown
+                entryBackground[i].fillColor = UIColor(red: 124.0/255, green: 132.0/255, blue: 134.0/255, alpha:1)
+                entryBackground[i].strokeColor = SKColor.clear
             }
             
             //Füge dem Hintergrund den Schlüssel hinzu
             entryLabelKeys.append(SKLabelNode(text: keys[i]))
             entryLabelKeys[i].fontSize = 19
+            entryLabelKeys[i].fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
+            entryLabelKeys[i].fontName = "GillSans"
+            
             //allign left
             entryLabelKeys[i].horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
             entryLabelKeys[i].position = CGPoint(x: -150, y: -7)
@@ -72,6 +77,8 @@ class Table: SKNode {
             //Füge dem Hintergrund den zugehörigen Wert hinzu
             entryLabelValues.append(SKLabelNode(text: String(values[i])))
             entryLabelValues[i].fontSize = 19
+            entryLabelValues[i].fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
+            entryLabelValues[i].fontName = "GillSans"
             //allign left
             entryLabelValues[i].horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
             entryLabelValues[i].position = CGPoint(x: 120, y: -7)

@@ -66,11 +66,14 @@ class Shop: SKNode {
         let headerBackground = (SKShapeNode(rectOf: CGSize(width: 480, height: 35)))
         headerBackground.position = CGPoint(x: 30, y: 0)
         
-        headerBackground.fillColor = UIColor.black
+        headerBackground.fillColor = UIColor(red: 84.0/255, green: 90.0/255, blue: 91.0/255, alpha:1)
+        headerBackground.strokeColor = SKColor.clear
         
         //1. Spalte: Anzeige des Bundeslandes
         let bundeslandLabel = SKLabelNode(text: String("Bundesland"))
         bundeslandLabel.fontSize = 19
+        bundeslandLabel.fontName = "GillSans"
+        bundeslandLabel.fontColor = UIColor.black
         bundeslandLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         bundeslandLabel.position = CGPoint(x: -220, y: -7)
         headerBackground.addChild(bundeslandLabel)
@@ -78,20 +81,26 @@ class Shop: SKNode {
         //2. Spalte: Anzeige des Werts einer Truppenstärke für das jeweilige Bundesland
         let wertLabel = (SKLabelNode(text: String("Wert")))
         wertLabel.fontSize = 19
+        wertLabel.fontName = "GillSans"
+        wertLabel.fontColor = UIColor.black
         wertLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         wertLabel.position = CGPoint(x: -10, y: -7)
         headerBackground.addChild(wertLabel)
         
         //3. Spalte: Anzeige der Anzahl der zum Kauf ausgewählten Truppenstärke
         let kaufanzahlLabel = (SKLabelNode(text: String("Kaufanzahl")))
+        kaufanzahlLabel.fontName = "GillSans"
         kaufanzahlLabel.fontSize = 19
+        kaufanzahlLabel.fontColor = UIColor.black
         kaufanzahlLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         kaufanzahlLabel.position = CGPoint(x: 65, y: -7)
         headerBackground.addChild(kaufanzahlLabel)
         
         //4. Spalte: Anzeger der Anzahl der Truppenstärke nach dem Kauf
         let gesamtLabel = (SKLabelNode(text: String("Gesamt")))
+        gesamtLabel.fontName = "GillSans"
         gesamtLabel.fontSize = 19
+        gesamtLabel.fontColor = UIColor.black
         gesamtLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         gesamtLabel.position = CGPoint(x: 165, y: -7)
         headerBackground.addChild(gesamtLabel)
@@ -111,14 +120,18 @@ class Shop: SKNode {
             
             //Färbe die Reihen in abwechselnden Farben
             if i % 2 == 0 {
-                entryBackground[i].fillColor = UIColor.blue
+                entryBackground[i].fillColor = UIColor(red: 185.0/255, green: 199.0/255, blue: 202.0/255, alpha:1)
+                entryBackground[i].strokeColor = SKColor.clear
             } else {
-                entryBackground[i].fillColor = UIColor.brown
+                entryBackground[i].fillColor = UIColor(red: 124.0/255, green: 132.0/255, blue: 134.0/255, alpha:1)
+                entryBackground[i].strokeColor = SKColor.clear
             }
             
             //Füge dem Hintergrund den Schlüssel hinzu
             entryLabelKeys.append(SKLabelNode(text: keys[i]))
             entryLabelKeys[i].fontSize = 19
+            entryLabelKeys[i].fontName = "GillSans"
+            entryLabelKeys[i].fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
             entryLabelKeys[i].horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
             entryLabelKeys[i].position = CGPoint(x: -220, y: -7)
             entryBackground[i].addChild(entryLabelKeys[i])
@@ -126,20 +139,26 @@ class Shop: SKNode {
             //Füge dem Hintergrund den Geldwert einer Truppenstärke des bestimmten Bundeslandes hinzu
             entryLabelWert.append(SKLabelNode(text: String(wert[i])))
             entryLabelWert[i].fontSize = 19
+            entryLabelWert[i].fontName = "GillSans"
+            entryLabelWert[i].fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
             entryLabelWert[i].horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.center
             entryLabelWert[i].position = CGPoint(x: 10, y: -7)
             entryBackground[i].addChild(entryLabelWert[i])
             
             //Füge dem Hintergrund die gewünschte Anzahl der Käufe hinzu
             entryLabelKaufAnzahl.append(SKLabelNode(text: String(kaufAnzahl[i])))
+            entryLabelKaufAnzahl[i].fontName = "GillSans"
             entryLabelKaufAnzahl[i].fontSize = 19
+            entryLabelKaufAnzahl[i].fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
             entryLabelKaufAnzahl[i].horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.center
             entryLabelKaufAnzahl[i].position = CGPoint(x: 105, y: -7)
             entryBackground[i].addChild(entryLabelKaufAnzahl[i])
             
             //Füge dem Hintergrund den zugehörigen Wert hinzu
             entryLabelValues.append(SKLabelNode(text: String(blNameStrings[i])))
+            entryLabelValues[i].fontName = "GillSans"
             entryLabelValues[i].fontSize = 19
+            entryLabelValues[i].fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
             entryLabelValues[i].horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.center
             entryLabelValues[i].position = CGPoint(x: 200, y: -7)
             entryBackground[i].addChild(entryLabelValues[i])

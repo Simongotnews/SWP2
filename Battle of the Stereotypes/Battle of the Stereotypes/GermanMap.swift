@@ -204,9 +204,9 @@ class GermanMap: SKScene {
         
         //Label erstellen und richtigen Text anzeigen
         phaseLabel = SKLabelNode()
+        phaseLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
         phaseLabel.position = CGPoint(x: 5, y: 160)
-        phaseLabel.fontName = "AvenirNext-Bold"
-        phaseLabel.fontColor = UIColor.black
+        phaseLabel.fontName = "GillSans-BoldItalic"
         phaseLabel.fontSize = 20
         phaseLabel.alpha = 5
         
@@ -221,8 +221,8 @@ class GermanMap: SKScene {
             verschiebeLabel = SKLabelNode()
             verschiebeLabel.text = "Anzahl Truppen zum Verschieben: \(verschiebeZahl)"
             verschiebeLabel.position = CGPoint(x: -10, y: -150)
-            verschiebeLabel.fontName = "AvenirNext-Bold"
-            verschiebeLabel.fontColor = UIColor.black
+            verschiebeLabel.fontName = "GillSans-BoldItalic"
+            verschiebeLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
             verschiebeLabel.fontSize = 20
             verschiebeLabel.alpha = 5
             
@@ -267,8 +267,8 @@ class GermanMap: SKScene {
         
         erobereBLsLabel.position = CGPoint(x: -20, y: 263)
         erobereBLsLabel.zPosition=3 // in Vordergrund bringen
-        erobereBLsLabel.fontName = "AvenirNext-Bold"
-        erobereBLsLabel.fontColor = UIColor.black
+        erobereBLsLabel.fontName = "GillSans-BoldItalic" //"AvenirNext-Bold"
+        erobereBLsLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
         erobereBLsLabel.fontSize = 15
         erobereBLsLabel.alpha = 5
         mapSide.addChild(erobereBLsLabel)
@@ -907,8 +907,8 @@ class GermanMap: SKScene {
         
         coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")
         coinLabel.position = CGPoint(x: -80, y: 255)
-        coinLabel.fontName = "AvenirNext-Bold"
-        coinLabel.fontColor = UIColor.black
+        coinLabel.fontName = "GillSans-BoldItalic"
+        coinLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
         coinLabel.fontSize = 25
         coinLabel.alpha = 10
         
@@ -989,7 +989,7 @@ class GermanMap: SKScene {
     
     // Design der Labels zur Anzeige der Truppenstärke eines Bundeslandes
     func setTruppenAnzahlLabel(_ truppenLabel: SKLabelNode!){
-        truppenLabel.fontName = "Optima-Bold"
+        truppenLabel.fontName = "GillSans-BoldItalic"
         truppenLabel.fontSize = 36
         truppenLabel.fontColor = UIColor.white
         truppenLabel.zPosition=4
@@ -1014,7 +1014,7 @@ class GermanMap: SKScene {
         //Erstelle Label und Hintergrund für eigenes Bundesland (bl1)
         labelBl1 = SKLabelNode(text: bl1.blNameString)
         labelBl1.position = CGPoint(x: 0, y: 0)
-        labelBl1.fontName = "AvenirNext-Bold"
+        labelBl1.fontName = "GillSans-BoldItalic"
         labelBl1.fontSize = 23
         
         backGroundBl1 = SKShapeNode()
@@ -1036,7 +1036,7 @@ class GermanMap: SKScene {
         //Erstelle "vs" Label
         vsLabel = SKLabelNode(text: "VS")
         vsLabel.position = CGPoint(x: 0, y: -70)
-        vsLabel.fontName = "AvenirNext-Bold"
+        vsLabel.fontName = "GillSans-BoldItalic"
         vsLabel.fontSize = 40
         vsLabel.alpha = 0
         
@@ -1046,7 +1046,7 @@ class GermanMap: SKScene {
         //Erstelle Gegnerbundesland und Hintergrund
         labelBl2 = SKLabelNode(text: bl2.blNameString)
         labelBl2.position = CGPoint(x: 0, y: 0)
-        labelBl2.fontName = "AvenirNext-Bold"
+        labelBl2.fontName = "GillSans-BoldItalic"
         labelBl2.fontSize = 23
         
         backGroundBl2 = SKShapeNode()
