@@ -398,7 +398,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func initDummyLabels(){
         leftDummyHealthLabel = SKLabelNode(text: "Health: \(leftDummy.lifePoints)/\(leftDummyHealthInitial)")
         leftDummyHealthLabel.setScale(0.8)
-        leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 630, y: leftDummy.size.height / 2 + 50)
+        leftDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 600, y: leftDummy.size.height / 2 + 50)
         leftDummyHealthLabel.fontName = "GillSans-BoldItalic"
         leftDummyHealthLabel.fontSize = 26
         leftDummyHealthLabel.fontColor = UIColor.white
@@ -407,7 +407,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(leftDummyHealthLabel)
         
         angreiferNameLabel = SKLabelNode(text: germanMapReference.blAngreifer.blNameString)
-    
         angreiferNameLabel.setScale(0.8)
         if GameCenterHelper.getInstance().getIndexOfCurrentPlayer()==GameCenterHelper.getInstance().getIndexOfGameOwner() {
             angreiferNameLabel.fontColor = SKColor.blue
@@ -422,7 +421,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         rightDummyHealthLabel = SKLabelNode(text: "Health: \(rightDummy.lifePoints)/\(rightDummyHealthInitial)")
         rightDummyHealthLabel.setScale(0.8)
-        rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 135, y: rightDummy.size.height / 2 + 50)
+        rightDummyHealthLabel.position = CGPoint(x: self.frame.size.width / 2 - 155, y: rightDummy.size.height / 2 + 50)
         rightDummyHealthLabel.fontName = "GillSans-BoldItalic"
         rightDummyHealthLabel.fontSize = 26
         rightDummyHealthLabel.fontColor = UIColor.white
@@ -431,15 +430,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(rightDummyHealthLabel)
         
         verteidigerNameLabel = SKLabelNode(text: germanMapReference.blVerteidiger.blNameString)
+        verteidigerNameLabel.setScale(0.8)
         verteidigerNameLabel.position.x = rightDummyHealthLabel.position.x
         verteidigerNameLabel.position.y = rightDummyHealthLabel.position.y + 40
-        verteidigerNameLabel.setScale(0.8)
+        
         if GameCenterHelper.getInstance().getIndexOfCurrentPlayer()==GameCenterHelper.getInstance().getIndexOfGameOwner() {
             verteidigerNameLabel.fontColor = SKColor.red
         } else {
             verteidigerNameLabel.fontColor = SKColor.blue
         }
-        verteidigerNameLabel.position = CGPoint(x: self.frame.size.width / 2 - 150, y: self.frame.size.height / 2 - 480)
+       
         initBundeslandNameLabel(verteidigerNameLabel)
     }
     
