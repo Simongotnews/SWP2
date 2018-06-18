@@ -248,7 +248,7 @@ class GermanMap: SKScene {
             verschiebeLabel.addChild(verschiebeOkButton)
             
             verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"),  size: CGSize(width: 130, height: 70), isPressable: true)
-            verschiebeFinishButton.position = CGPoint(x: 53, y: -80)
+            verschiebeFinishButton.position = CGPoint(x: 43, y: -80)
             verschiebeFinishButton.setScale(0.6)
             verschiebeFinishButton.alpha = 5
             verschiebeLabel.addChild(verschiebeFinishButton)
@@ -989,9 +989,9 @@ class GermanMap: SKScene {
     
     
     func initPlayButton() {
-        playButton = Button(texture: SKTexture(imageNamed: "play_Button"), size: CGSize(width: 150, height: 100), isPressable: true)
-        playButton.setScale(1.1)
-        playButton.position = CGPoint(x: 0, y: -250)
+        playButton = Button(texture: SKTexture(imageNamed: "play"), size: CGSize(width: 130, height: 70), isPressable: true)
+        playButton.setScale(0.6)
+        playButton.position = CGPoint(x: 0, y: -200)
         statsSideRootNode.addChild(playButton)
     }
     
@@ -1000,7 +1000,7 @@ class GermanMap: SKScene {
         
         shopButton = Button(texture: SKTexture(imageNamed: "shopButton"), size: CGSize(width: 130, height: 70), isPressable: true)
         shopButton.setScale(0.6)
-        shopButton.position = CGPoint(x: -50, y: -230)
+        shopButton.position = CGPoint(x: -60, y: -230)
         
         statsSide.addChild(shopButton)
     }
@@ -1353,12 +1353,11 @@ class GermanMap: SKScene {
     
     /** initialisiert den Button für die Spielauswahl */
     func initGameSelectionButton() {
-        gameSelectionButton = UIButton(frame: CGRect(x: 6.6*self.frame.height/10 , y: 9*self.frame.width/10, width: self.frame.height/10, height: self.frame.width/10))
+        gameSelectionButton = UIButton(frame: CGRect(x: 6.7*self.frame.height/10 , y: 8.9*self.frame.width/10, width: 120, height: 60))
         gameSelectionButton.addTarget(self, action: #selector(buttonGameSelectionAction), for: .touchUpInside)
-        gameSelectionButton.setTitle("Spielauswahl", for: UIControlState.normal)
-        gameSelectionButton.backgroundColor = UIColor.red
-        gameSelectionButton.tintColor = UIColor.clear
+        gameSelectionButton.setImage(UIImage(named: "spielauswahl.png"), for: .normal)
         self.view?.addSubview(gameSelectionButton)
+        //(x: self.size.width / 2 + 330, y: self.size.height / 2 - 230)
     }
     @IBAction func buttonGameSelectionAction(sender: UIButton!){
         GameCenterHelper.getInstance().findBattleMatch()

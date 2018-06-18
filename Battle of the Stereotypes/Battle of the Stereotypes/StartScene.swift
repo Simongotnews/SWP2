@@ -113,11 +113,9 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     
     /** initialisiert den Button für die Spielauswahl */
     func initGameSelectionButton() {
-        gameSelectionButton = UIButton(frame: CGRect(x: 6.6*self.frame.height/10 , y: 9*self.frame.width/10, width: self.frame.height/10, height: self.frame.width/10))
+        gameSelectionButton = UIButton(frame: CGRect(x: 6.7*self.frame.height/10 , y: 8.9*self.frame.width/10, width: 120, height: 60))
         gameSelectionButton.addTarget(self, action: #selector(buttonGameSelectionAction), for: .touchUpInside)
-        gameSelectionButton.setTitle("Spielauswahl", for: UIControlState.normal)
-        gameSelectionButton.backgroundColor = UIColor.red
-        gameSelectionButton.tintColor = UIColor.clear
+        gameSelectionButton.setImage(UIImage(named: "spielauswahl.png"), for: .normal)
         self.view?.addSubview(gameSelectionButton)
     }
     
