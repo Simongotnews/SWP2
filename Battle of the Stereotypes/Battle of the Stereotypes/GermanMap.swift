@@ -424,10 +424,15 @@ class GermanMap: SKScene {
         }
         
         if verschiebeFinishButton != nil {
-            if verschiebeFinishButton.contains(touch.location(in: statsSide)) {
+            if verschiebeFinishButton.contains(touch.location(in: statsSide)) && phase==PhaseEnum.Verschieben {
                 updateCoinLabel()
                 GameCenterHelper.getInstance().gameState.remainingActions = [2, 2]
                 GameCenterHelper.getInstance().endTurn()
+            }
+            else if verschiebeFinishButton.contains(touch.location(in: statsSide)) && phase==PhaseEnum.Angriff {
+                setPhase(PhaseEnum.Verschieben)
+                table.setValue(index: 4, value: 0)
+                table.update()
             }
         }
         
