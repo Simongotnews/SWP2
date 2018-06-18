@@ -77,9 +77,9 @@ class Player {
         var finalDamage = self.damage
         
         //Berechnung des Zusatzschadens aufgrund der Aufkommenskraft des Geschosses beim Gegner
-        //wenn collisionImpulse < 300 ist, gibt es keinen Bonusschaden
-        //1000 ist der Maximalwert und man bekommt 100% Bonusschaden
-        //wenn der Wert dazwischen ist, wird ein Wert zwischen 0 und 100% ausgerechnet
+        //wenn collisionImpulse < 200 ist, gibt es keinen Bonusschaden
+        //700 ist der Maximalwert und man bekommt 200% Bonusschaden
+        //wenn der Wert dazwischen ist, wird ein Wert zwischen 0 und 200% ausgerechnet
         var bonusDamagePercentage:Float = 0
         if collisionImpulse > 700 {
             bonusDamagePercentage = 2
