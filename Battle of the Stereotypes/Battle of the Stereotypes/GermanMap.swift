@@ -205,6 +205,7 @@ class GermanMap: SKScene {
         //wenn schon existiert -> Löschen
         phaseLabel?.removeFromParent()
         verschiebeLabel?.removeFromParent()
+        verschiebeFinishButton?.removeFromParent()
         
         //Label erstellen und richtigen Text anzeigen
         phaseLabel = SKLabelNode()
@@ -430,12 +431,10 @@ class GermanMap: SKScene {
                 GameCenterHelper.getInstance().endTurn()
             }
             else if verschiebeFinishButton.contains(touch.location(in: statsSide)) && phase==PhaseEnum.Angriff {
-                setPhase(PhaseEnum.Verschieben)
-                table.setValue(index: 4, value: 0)
-                table.update()
                 GameCenterHelper.getInstance().gameState.remainingActions[0] = 0
                 GameCenterHelper.getInstance().gameState.angriffsPhase = false
                 GameCenterHelper.getInstance().saveGameDataToGameCenter()
+                refreshScene()
             }
         }
         
