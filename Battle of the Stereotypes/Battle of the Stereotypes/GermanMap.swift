@@ -218,6 +218,7 @@ class GermanMap: SKScene {
         
         if phase==PhaseEnum.Angriff {
             phaseLabel.text = "Du bist am Zug: Angriff"
+            initBeendenButton()
         } else if phase==PhaseEnum.Verschieben {
             phaseLabel.text = "Du bist am Zug: Verschieben"
             
@@ -247,12 +248,7 @@ class GermanMap: SKScene {
             verschiebeOkButton.alpha = 5
             verschiebeLabel.addChild(verschiebeOkButton)
             
-            verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"),  size: CGSize(width: 130, height: 70), isPressable: true)
-            verschiebeFinishButton.position = CGPoint(x: 0, y: -80)
-            verschiebeFinishButton.setScale(0.6)
-            verschiebeFinishButton.alpha = 5
-            verschiebeLabel.addChild(verschiebeFinishButton)
-            
+            initBeendenButton()
         } else {
             phaseLabel.text = "Gegner ist am Zug"
         }
@@ -428,7 +424,7 @@ class GermanMap: SKScene {
         }
         
         if verschiebeFinishButton != nil {
-            if verschiebeFinishButton.contains(touch.location(in: verschiebeLabel)) {
+            if verschiebeFinishButton.contains(touch.location(in: statsSide)) {
                 updateCoinLabel()
                 GameCenterHelper.getInstance().gameState.remainingActions = [2, 2]
                 GameCenterHelper.getInstance().endTurn()
@@ -987,6 +983,13 @@ class GermanMap: SKScene {
         
     }
     
+    func initBeendenButton(){
+        verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"),  size: CGSize(width: 130, height: 70), isPressable: true)
+        verschiebeFinishButton.position = CGPoint(x: 0, y: -230)
+        verschiebeFinishButton.setScale(0.6)
+        verschiebeFinishButton.alpha = 5
+        statsSide.addChild(verschiebeFinishButton)
+    }
     
     func initPlayButton() {
         playButton = Button(texture: SKTexture(imageNamed: "play"), size: CGSize(width: 130, height: 70), isPressable: true)
