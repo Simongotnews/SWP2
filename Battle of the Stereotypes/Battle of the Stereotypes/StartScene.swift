@@ -48,22 +48,19 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
     }
     
     @IBAction func buttonMusikAction(sender: UIButton!){
-        if (statusMusik){
-            print("Musik An")
-            statusMusik = false
-            print(statusMusik)
+        if (SoundGlobal.statusMusik){
+            SoundGlobal.statusMusik = false
             buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
             audioPlayer.play()
-            
-            
-        }else if (!statusMusik){
-            print("Musik Aus")
-            statusMusik = true
-            print(statusMusik)
+        }else if (!SoundGlobal.statusMusik){
+            SoundGlobal.statusMusik = true
             buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
             audioPlayer.pause()
-            
         }
+    }
+    
+    struct SoundGlobal {
+        static var statusMusik = Bool()
     }
     
     /** EventHandler für Button um Spiel auswählen zu können */
@@ -159,38 +156,38 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         }
         
     }
+    
+    func loadGermanMapScene() { // Lade die Bundeslandübersicht-Scene
         
-        func loadGermanMapScene() { // Lade die Bundeslandübersicht-Scene
+        audioPlayer.stop()
+        buttonMusik.removeFromSuperview()
+        gameSelectionButton.removeFromSuperview()
+        // Load 'GameScene.sks' as a GKScene. This provides gameplay related content
+        // including entities and graphs.
+        if let scene = GKScene(fileNamed: "GermanMap") {
             
-            audioPlayer.stop()
-            buttonMusik.removeFromSuperview()
-            gameSelectionButton.removeFromSuperview()
-            // Load 'GameScene.sks' as a GKScene. This provides gameplay related content
-            // including entities and graphs.
-            if let scene = GKScene(fileNamed: "GermanMap") {
+            // Get the SKScene from the loaded GKScene
+            if let sceneNode = scene.rootNode as! GermanMap? {
+                StartScene.germanMapScene = sceneNode   //Skeltek: Referenzen bitte immer direkt nach dem Instanzieren setzen
+                // Copy gameplay related content over to the scene
+                sceneNode.entities = scene.entities
+                sceneNode.graphs = scene.graphs
                 
-                // Get the SKScene from the loaded GKScene
-                if let sceneNode = scene.rootNode as! GermanMap? {
-                    StartScene.germanMapScene = sceneNode   //Skeltek: Referenzen bitte immer direkt nach dem Instanzieren setzen
-                    // Copy gameplay related content over to the scene
-                    sceneNode.entities = scene.entities
-                    sceneNode.graphs = scene.graphs
+                // Set the scale mode to scale to fit the window
+                sceneNode.scaleMode = .aspectFill
+                
+                // Present the scene
+                if let view = self.view as! SKView? {
+                    print("Showing loaded Scene")
+                    GameViewController.currentlyShownSceneNumber = 1
+                    view.presentScene(sceneNode)
                     
-                    // Set the scale mode to scale to fit the window
-                    sceneNode.scaleMode = .aspectFill
+                    view.ignoresSiblingOrder = true
                     
-                    // Present the scene
-                    if let view = self.view as! SKView? {
-                        print("Showing loaded Scene")
-                        GameViewController.currentlyShownSceneNumber = 1
-                        view.presentScene(sceneNode)
-                        
-                        view.ignoresSiblingOrder = true
-                        
-                        view.showsFPS = true
-                        view.showsNodeCount = true
-                    }
+                    view.showsFPS = true
+                    view.showsNodeCount = true
                 }
             }
         }
     }
+}

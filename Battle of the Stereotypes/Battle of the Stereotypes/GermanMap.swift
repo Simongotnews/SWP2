@@ -290,7 +290,6 @@ class GermanMap: SKScene {
         //...
         //hintergrundMusik = Bundle.main.url(forResource: "GermanMap", withExtension: "mp3")
         hintergrundMusik = Bundle.main.url(forResource: "Heroic Demise (New)", withExtension: "mp3")
-        
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
         }catch{
@@ -300,34 +299,27 @@ class GermanMap: SKScene {
         audioPlayer.numberOfLoops = -1
         //Performance verbessern von Audioplayer
         audioPlayer.prepareToPlay()
-        
-        audioPlayer.play()
-        
         buttonMusik = UIButton(frame: CGRect(x: frame.size.height*(7/10), y: 10, width: 30, height: 30))
-        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
         buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
-        
+        if !StartScene.SoundGlobal.statusMusik {
+            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+            audioPlayer.play()
+        }else{
+            buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
+        }
         self.view?.addSubview(buttonMusik)
     }
     
     @IBAction func buttonMusikAction(sender: UIButton!){
-        
-        if (statusMusik){
-            print("Musik An")
-            statusMusik = false
-            print(statusMusik)
+        if (StartScene.SoundGlobal.statusMusik){
+            StartScene.SoundGlobal.statusMusik = false
             buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
             audioPlayer.play()
-
-        }else if (!statusMusik){
-            print("Musik Aus")
-            statusMusik = true
-            print(statusMusik)
+        }else if (!StartScene.SoundGlobal.statusMusik){
+            StartScene.SoundGlobal.statusMusik = true
             buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
             audioPlayer.pause()
-            
         }
-        
     }
 
     func refreshScene(){    //Soll Scene und Labels mit Hilfe gameState aktualisieren, falls Scene schon geladen

@@ -155,7 +155,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //...
         //hintergrundMusik = Bundle.main.url(forResource: "GameScene1", withExtension: "mp3")
         hintergrundMusik = Bundle.main.url(forResource: "battleThemeA", withExtension: "mp3")
-        
         do{
             audioPlayer = try AVAudioPlayer(contentsOf: hintergrundMusik!)
         }catch{
@@ -165,13 +164,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         audioPlayer.numberOfLoops = -1
         //Performance verbessern von Audioplayer
         audioPlayer.prepareToPlay()
-        
-        audioPlayer.play()
-        
         buttonMusik = UIButton(frame: CGRect(x: frame.size.height*(7/10), y: 10, width: 30, height: 30))
-        buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
         buttonMusik.addTarget(self, action: #selector(buttonMusikAction), for: .touchUpInside)
-        
+        if !StartScene.SoundGlobal.statusMusik {
+            buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
+            audioPlayer.play()
+        }else{
+            buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
+        }
         self.view?.addSubview(buttonMusik)
     }
     func initSoundButton(){
@@ -183,24 +183,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.view?.addSubview(buttonSound)
         
     }
-    
     @IBAction func buttonMusikAction(sender: UIButton!){
-        
-        if (statusMusik){
-            print("Musik An")
-            statusMusik = false
-            print(statusMusik)
+        if (StartScene.SoundGlobal.statusMusik){
+            StartScene.SoundGlobal.statusMusik = false
             buttonMusik.setImage(UIImage(named: "MusikAn.png"), for: .normal)
             audioPlayer.play()
-            
-            
-        }else if (!statusMusik){
-            statusMusik = true
+        }else if (!StartScene.SoundGlobal.statusMusik){
+            StartScene.SoundGlobal.statusMusik = true
             buttonMusik.setImage(UIImage(named: "MusikAus.png"), for: .normal)
             audioPlayer.pause()
-            
         }
-        
     }
     @IBAction func buttonSoundAction(sender: UIButton!){
         if (!statusSound){
