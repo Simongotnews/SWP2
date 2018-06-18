@@ -433,6 +433,9 @@ class GermanMap: SKScene {
                 setPhase(PhaseEnum.Verschieben)
                 table.setValue(index: 4, value: 0)
                 table.update()
+                GameCenterHelper.getInstance().gameState.remainingActions[0] = 0
+                GameCenterHelper.getInstance().gameState.angriffsPhase = false
+                GameCenterHelper.getInstance().saveGameDataToGameCenter()
             }
         }
         
