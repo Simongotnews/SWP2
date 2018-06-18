@@ -81,13 +81,13 @@ class Player {
         //1000 ist der Maximalwert und man bekommt 100% Bonusschaden
         //wenn der Wert dazwischen ist, wird ein Wert zwischen 0 und 100% ausgerechnet
         var bonusDamagePercentage:Float = 0
-        if collisionImpulse > 1000 {
-            bonusDamagePercentage = 1
-        } else if collisionImpulse < 300 {
+        if collisionImpulse > 700 {
+            bonusDamagePercentage = 2
+        } else if collisionImpulse < 200 {
             bonusDamagePercentage = 0
         } else {
-            let collisionImpulseTemp = collisionImpulse - 300
-            bonusDamagePercentage = Float(collisionImpulseTemp) / 700.0
+            let collisionImpulseTemp = collisionImpulse - 100
+            bonusDamagePercentage = Float(collisionImpulseTemp) * 2 / 500.0
         }
         
         //Rechne den Bonusschaden dazu
