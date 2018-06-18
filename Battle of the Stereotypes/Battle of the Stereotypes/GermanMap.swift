@@ -248,7 +248,7 @@ class GermanMap: SKScene {
             verschiebeLabel.addChild(verschiebeOkButton)
             
             verschiebeFinishButton = Button(texture: SKTexture(imageNamed: "ZugBeendenButton"),  size: CGSize(width: 130, height: 70), isPressable: true)
-            verschiebeFinishButton.position = CGPoint(x: 43, y: -80)
+            verschiebeFinishButton.position = CGPoint(x: 0, y: -80)
             verschiebeFinishButton.setScale(0.6)
             verschiebeFinishButton.alpha = 5
             verschiebeLabel.addChild(verschiebeFinishButton)
@@ -966,7 +966,7 @@ class GermanMap: SKScene {
     func initCoinLabel(){
         
         coinLabel  = SKLabelNode(text: "\(getGS().money[GameCenterHelper.getInstance().getIndexOfLocalPlayer()]) €")
-        coinLabel.position = CGPoint(x: -80, y: 255)
+        coinLabel.position = CGPoint(x: -80, y: 245)
         coinLabel.fontName = "GillSans-BoldItalic"
         coinLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
         coinLabel.fontSize = 25
@@ -1000,7 +1000,7 @@ class GermanMap: SKScene {
         
         shopButton = Button(texture: SKTexture(imageNamed: "shopButton"), size: CGSize(width: 130, height: 70), isPressable: true)
         shopButton.setScale(0.6)
-        shopButton.position = CGPoint(x: -60, y: -230)
+        shopButton.position = CGPoint(x: 50, y: 255)
         
         statsSide.addChild(shopButton)
     }
