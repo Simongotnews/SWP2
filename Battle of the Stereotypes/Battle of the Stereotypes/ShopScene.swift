@@ -178,7 +178,7 @@ class ShopScene: SKScene {
         guthabenLabel = SKLabelNode(text: "Guthaben: \(guthaben!) €")
         guthabenLabel.fontName = "GillSans-BoldItalic"
         guthabenLabel.position = CGPoint(x: -185, y: 240)
-        guthabenLabel.fontColor = UIColor(red: 0.0, green: 0.5451, blue: 0.2706, alpha: 1.0) //Dunkelgrün; ursprüngliche RGB-Werte müssen durch 255 geteilt werden
+        guthabenLabel.fontColor = UIColor.blue
         setLabelLayout(label: guthabenLabel)
         
         geldNode.addChild(guthabenLabel)
@@ -196,7 +196,7 @@ class ShopScene: SKScene {
         restLabel = SKLabelNode(text: "Rest: \(guthaben - kosten!) €")
         restLabel.fontName = "GillSans-BoldItalic"
         restLabel.position = CGPoint(x: -185, y: 160)
-        restLabel.fontColor = UIColor.orange
+        restLabel.fontColor = UIColor.darkGray
         setLabelLayout(label: restLabel)
         
         geldNode.addChild(restLabel)
