@@ -234,9 +234,9 @@ class GermanMap: SKScene {
             phaseLabel.text = "Du bist am Zug: Angriff"
             
             if GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 { //lokaler Spieler ist der GameOwner
-                ziehePfeilLabel.text = "Verbinde blaues Bundesland mit rotem Bundesland (Zahl zu Zahl)"
+                ziehePfeilLabel.text = "Verbinde blaues Bundesland (≠1) mit rotem Bundesland (Zahl zu Zahl)"
             }else { //lokaler Spieler ist der Nicht-GameOwner
-                ziehePfeilLabel.text = "Verbinde rotes Bundesland mit blauem Bundesland (Zahl zu Zahl)"
+                ziehePfeilLabel.text = "Verbinde rotes Bundesland (≠1) mit blauem Bundesland (Zahl zu Zahl)"
             }
             
             initBeendenButton()
@@ -318,19 +318,19 @@ class GermanMap: SKScene {
         
         if GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 { //lokaler Spieler ist der GameOwner
             if(isAngriffsPhase()==true){ //wenn Angriffsansicht
-                ziehePfeilLabel.text = "Verbinde blaues Bundesland mit rotem Bundesland (Zahl zu Zahl)"
+                ziehePfeilLabel.text = "Verbinde blaues Bundesland (≠1) mit rotem Bundesland (Zahl zu Zahl)"
             }else{ //wenn Verschiebenansicht
                 ziehePfeilLabel.text = "Verbinde blaues Bundesland mit blauem Bundesland (Zahl zu Zahl)"
             }
         }else{ //lokaler Spieler ist der Nicht-GameOwner
             if(isAngriffsPhase()==true){ //wenn Angriffsansicht
-                ziehePfeilLabel.text = "Verbinde rotes Bundesland mit blauem Bundesland (Zahl zu Zahl)"
+                ziehePfeilLabel.text = "Verbinde rotes Bundesland (≠1) mit blauem Bundesland (Zahl zu Zahl)"
             }else{//lokaler Spieler ist der GameOwner //wenn Verschiebenansicht
                 ziehePfeilLabel.text = "Verbinde rotes Bundesland mit rotem Bundesland (Zahl zu Zahl)"
             }
         }
         
-        ziehePfeilLabel.position = CGPoint(x: 50, y: -280)
+        ziehePfeilLabel.position = CGPoint(x:50, y: -280)
         ziehePfeilLabel.zPosition=3 // in Vordergrund bringen
         ziehePfeilLabel.fontName = "GillSans-BoldItalic" //"AvenirNext-Bold"
         ziehePfeilLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
