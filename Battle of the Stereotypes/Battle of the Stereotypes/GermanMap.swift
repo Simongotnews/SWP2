@@ -138,6 +138,8 @@ class GermanMap: SKScene {
     
     //Label für "Erobere alle BLs von blau/rot" über Map 
     var erobereBLsLabel: SKLabelNode!
+    //Label für "Verbinde blaues/rotes BL mit blauem/rotem BL
+    var ziehePfeilLabel: SKLabelNode!
     
     // Deklaration des angreifenden und des verteidigenden Bundesland:
     var blAngreifer: Bundesland!
@@ -175,6 +177,7 @@ class GermanMap: SKScene {
             initPlayer()
             initBundeslaender()
             initErobereBLsLabel()
+            initZiehePfeilLabel()
             assignBlToPlayers()
             initBlAnzahlTruppen()
             initBlNachbarn()
@@ -206,6 +209,7 @@ class GermanMap: SKScene {
         phaseLabel?.removeFromParent()
         verschiebeLabel?.removeFromParent()
         verschiebeFinishButton?.removeFromParent()
+        ziehePfeilLabel?.removeFromParent()
         
         //Label erstellen und richtigen Text anzeigen
         phaseLabel = SKLabelNode()
@@ -217,11 +221,38 @@ class GermanMap: SKScene {
         
         statsSide.addChild(phaseLabel)
         
+        ziehePfeilLabel.position = CGPoint(x: 50, y: -280)  //neu
+        ziehePfeilLabel.zPosition=3 // in Vordergrund bringen
+        ziehePfeilLabel.fontName = "GillSans-BoldItalic" //"AvenirNext-Bold"
+        ziehePfeilLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
+        ziehePfeilLabel.fontSize = 14
+        ziehePfeilLabel.alpha = 5
+        mapSide.addChild(ziehePfeilLabel)
+        
         if phase==PhaseEnum.Angriff {
+            
             phaseLabel.text = "Du bist am Zug: Angriff"
+            
+            if GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 { //lokaler Spieler ist der GameOwner
+                ziehePfeilLabel.text = "Verbinde blaues Bundesland mit rotem Bundesland (Zahl zu Zahl)"
+            }else { //lokaler Spieler ist der Nicht-GameOwner
+                ziehePfeilLabel.text = "Verbinde rotes Bundesland mit blauem Bundesland (Zahl zu Zahl)"
+            }
+            
             initBeendenButton()
+            
         } else if phase==PhaseEnum.Verschieben {
+            
             phaseLabel.text = "Du bist am Zug: Verschieben"
+            
+            if GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 { //lokaler Spieler ist der GameOwner
+                
+                ziehePfeilLabel.text = "Verbinde blaues Bundesland mit blauem Bundesland (Zahl zu Zahl)"
+                
+            }else{ //lokaler Spieler ist der Nicht-GameOwner
+                
+                ziehePfeilLabel.text = "Verbinde rotes Bundesland mit rotem Bundesland (Zahl zu Zahl)"
+            }
             
             //Erstellen der gesamten Verschiebeansicht
             verschiebeLabel = SKLabelNode()
@@ -252,6 +283,7 @@ class GermanMap: SKScene {
             initBeendenButton()
         } else {
             phaseLabel.text = "Gegner ist am Zug"
+            ziehePfeilLabel.text = ""
         }
         
     }
@@ -277,6 +309,38 @@ class GermanMap: SKScene {
         mapSide.addChild(erobereBLsLabel)
         
     }
+    
+    func initZiehePfeilLabel(){
+        ziehePfeilLabel?.removeFromParent()
+        
+        //Label erstellen und richtigen Text anzeigen
+        ziehePfeilLabel = SKLabelNode()
+        
+        if GameCenterHelper.getInstance().getIndexOfLocalPlayer() == 0 { //lokaler Spieler ist der GameOwner
+            if(isAngriffsPhase()==true){ //wenn Angriffsansicht
+                ziehePfeilLabel.text = "Verbinde blaues Bundesland mit rotem Bundesland (Zahl zu Zahl)"
+            }else{ //wenn Verschiebenansicht
+                ziehePfeilLabel.text = "Verbinde blaues Bundesland mit blauem Bundesland (Zahl zu Zahl)"
+            }
+        }else{ //lokaler Spieler ist der Nicht-GameOwner
+            if(isAngriffsPhase()==true){ //wenn Angriffsansicht
+                ziehePfeilLabel.text = "Verbinde rotes Bundesland mit blauem Bundesland (Zahl zu Zahl)"
+            }else{//lokaler Spieler ist der GameOwner //wenn Verschiebenansicht
+                ziehePfeilLabel.text = "Verbinde rotes Bundesland mit rotem Bundesland (Zahl zu Zahl)"
+            }
+        }
+        
+        ziehePfeilLabel.position = CGPoint(x: 50, y: -280)
+        ziehePfeilLabel.zPosition=3 // in Vordergrund bringen
+        ziehePfeilLabel.fontName = "GillSans-BoldItalic" //"AvenirNext-Bold"
+        ziehePfeilLabel.fontColor = UIColor(red: 49.0/255, green: 56.0/255, blue: 58.0/255, alpha:1)
+        ziehePfeilLabel.fontSize = 14
+        ziehePfeilLabel.alpha = 5
+        mapSide.addChild(ziehePfeilLabel)
+        
+    }
+    
+    
     
     func isAngriffsPhase() -> Bool{
         return GameCenterHelper.getInstance().gameState.angriffsPhase
