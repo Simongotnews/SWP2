@@ -614,26 +614,22 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("Exchange completed")
         
         if (self.isLocalPlayersTurn()){ // && isLocalPlayerActive überflüssig
-            if (exchange.message == GameState.IdentifierArrowExchange){
-                tempExchanges.append(exchange)
-            }
             if (exchange.message == GameState.IdentifierAttackButtonExchange){
                 tempExchanges.append(exchange)
                 mergeCompletedExchangesToSave(exchanges: tempExchanges)
             }
             if (exchange.message == GameState.IdentifierThrowExchange){
-                
                 tempExchanges.append(exchange)
             }
             if (exchange.message == GameState.IdentifierDamageExchange){
                 tempExchanges.append(exchange)
                 gameState.activePlayerID = getIndexOfOtherPlayer()
-                mergeCompletedExchangesToSave(exchanges: tempExchanges)
-                StartScene.germanMapScene.refreshScene()
                 if StartScene.germanMapScene.gameScene.leftDummy.lifePoints*StartScene.germanMapScene.gameScene.rightDummy.lifePoints == 0{
                     //Skeltek TODO: Hier zurück zur german Map, da sonst zu früh der Wechsel stattfindet
                     gameState.activePlayerID = getIndexOfCurrentPlayer()
                 }
+                mergeCompletedExchangesToSave(exchanges: tempExchanges)
+                StartScene.germanMapScene.refreshScene()
             }
         }
         

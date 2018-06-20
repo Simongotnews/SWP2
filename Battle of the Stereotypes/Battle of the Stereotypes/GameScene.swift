@@ -829,7 +829,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             damageSent = true
             GameCenterHelper.getInstance().sendExchangeRequest(structToSend: damageExchange, messageKey: GameState.IdentifierDamageExchange)
             if (GameCenterHelper.getInstance().isLocalPlayersTurn()){
-                GameCenterHelper.getInstance().mergeCompletedExchangesToSave(exchanges: GameCenterHelper.getInstance().tempExchanges)
+                //GameCenterHelper.getInstance().mergeCompletedExchangesToSave(exchanges: GameCenterHelper.getInstance().tempExchanges)
             }
         } else{
             if (!passiveThrow){
