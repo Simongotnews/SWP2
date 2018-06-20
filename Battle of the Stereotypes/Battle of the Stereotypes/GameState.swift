@@ -54,19 +54,15 @@ class GameState {
      Structs für ExchangeRequests
      */
     
-    /** ExchangeRequest für Pfeil Ziehen auf der Map */
-    struct StructArrowExchangeRequest : Codable {
+    /** ExchangeRequest wenn man auf Angriff gedrückt hat in der Karte, damit man in die BattleScene wechselt */
+    struct StructAttackButtonExchangeRequest : Codable {
+        var startedFight: Bool = false
         /** Startbundesland von wo aus der Pfeil gezogen wurde */
         var startBundesland: String = ""
         /** Endbundes wo der Pfeil hingezogen wurde */
         var endBundesland: String = ""
         /** Wieviele Truppen sollen in endBundesland transferiert werden */
         var troupsSent : Int = 0
-    }
-    
-    /** ExchangeRequest wenn man auf Angriff gedrückt hat in der Karte, damit man in die BattleScene wechselt */
-    struct StructAttackButtonExchangeRequest : Codable {
-        var startedFight: Bool = false
     }
     
     /** ExchangeRequest der nach dem Schuss stattfindet , vielleicht legt man damageExchangeRequest und ThrowExchangeRequest zusammen */
@@ -146,24 +142,20 @@ class GameState {
         return "GameState [ownerOfBundesland=" + gameState.ownerOfbundesland.description + ", troups=" + gameState.troops.description + ", money=" + gameState.money.description + ", lives=" + gameState.health.description + ", turnOwnerActive=" + String(gameState.activePlayerID)
     }
     
-    /** Gibt die String Representation von StructArrowExchangeRequest */
-    static func arrowExchangeRequestToString(arrowExchangeRequest: StructArrowExchangeRequest) -> String {
-        var returnString = ""
-        returnString += "ArrowExchangeRequest [startBundesland="
-        returnString += String(arrowExchangeRequest.startBundesland)
-        returnString += ", endBundesland="
-        returnString += String(arrowExchangeRequest.endBundesland)
-        returnString += ", troupsSent="
-        returnString += String(arrowExchangeRequest.troupsSent)
-        returnString += "]"
-        return returnString
-    }
-    
-    
     /** Gibt die String Representation von StructAttackButtonExchangeRequest */
     static func attackButtonExchangeRequestToString(attackButtonExchangeRequest : StructAttackButtonExchangeRequest) -> String
     {
-        return "AttackButtonExchangeRequest [startedFight=" + String(attackButtonExchangeRequest.startedFight) + "]"
+        var returnString : String = ""
+        returnString += "AttackButtonExchangeRequest [startedFight="
+        returnString += String(attackButtonExchangeRequest.startedFight)
+        returnString += ",startBundesland="
+        returnString += String(attackButtonExchangeRequest.startBundesland)
+        returnString += ", endBundesland="
+        returnString += String(attackButtonExchangeRequest.endBundesland)
+        returnString += ", troupsSent="
+        returnString += String(attackButtonExchangeRequest.troupsSent)
+        returnString += "]"
+        return returnString
     }
     
     /** Gibt die String Representation von StructThrowExchangeRequest */

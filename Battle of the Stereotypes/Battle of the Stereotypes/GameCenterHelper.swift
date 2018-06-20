@@ -503,10 +503,6 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
             return
         }
         switch exchange.message {
-        case GameState.IdentifierArrowExchange:
-            print("ArrowExchange empfangen")
-            handleArrowExchange(arrowExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructArrowExchangeRequest()), exchange: exchange)
-            return
         case GameState.IdentifierAttackButtonExchange:
             print("AttackExchange empfangen")
             handleAttackButtonExchange(attackButtonExchangeStruct: GameState.decodeStruct(dataToDecode: exchange.data!, structInstance: GameState.StructAttackButtonExchangeRequest()),exchange: exchange)
@@ -540,27 +536,20 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
         print("Exchange abgebrochen")
     }
     
-    /** Method um ArrowExchange Requests anzuhandeln */
-    func handleArrowExchange(arrowExchangeStruct : GameState.StructArrowExchangeRequest, exchange: GKTurnBasedExchange?) {
-        //TODO: Skeltek Wenn nicht richtige Ansicht, erstmal nicht ausführen
-        print(GameState.arrowExchangeRequestToString(arrowExchangeRequest: arrowExchangeStruct))
-        if (GameViewController.currentlyShownSceneNumber == 1 ){
-            StartScene.germanMapScene.blVerteidiger = StartScene.germanMapScene.getBundesland(arrowExchangeStruct.endBundesland)
-            StartScene.germanMapScene.blAngreifer = StartScene.germanMapScene.getBundesland(arrowExchangeStruct.startBundesland)
-        } else {
-            print("Something went wrong handling ArrowExchange")
-        }
-        exchange?.reply(withLocalizableMessageKey: GameState.IdentifierArrowExchange, arguments: ["X"], data: GameState.encodeStruct(structToEncode: GameState.StructGenericExchangeReply()), completionHandler: nil)
-    }
-    
     /** Methode um AttackButtonExchange Requests abzuhandeln */
     func handleAttackButtonExchange(attackButtonExchangeStruct : GameState.StructAttackButtonExchangeRequest, exchange: GKTurnBasedExchange?) {
         print(GameState.attackButtonExchangeRequestToString(attackButtonExchangeRequest: attackButtonExchangeStruct))
+        //TODO: Skeltek Wenn nicht richtige Ansicht, erstmal nicht ausführen
+        if (GameViewController.currentlyShownSceneNumber == 1 ){
+            StartScene.germanMapScene.blVerteidiger = StartScene.germanMapScene.getBundesland(attackButtonExchangeStruct.endBundesland)
+            StartScene.germanMapScene.blAngreifer = StartScene.germanMapScene.getBundesland(attackButtonExchangeStruct.startBundesland)
+        } else {
+            print("Something went wrong handling AttackButtonExchange")
+        }
         // Wenn der andere angreift, muss man hier in die GameScene geschickt werden
         StartScene.germanMapScene.transitToGameScene()
         exchange?.reply(withLocalizableMessageKey: GameState.IdentifierAttackButtonExchange, arguments: ["X"], data: GameState.encodeStruct(structToEncode: GameState.StructGenericExchangeReply()), completionHandler: nil)
     }
-    
     
     /** Methode um ThrowExchange Requests abzuhandeln */
     func handleThrowExchange(throwExchangeStruct : GameState.StructThrowExchangeRequest, exchange : GKTurnBasedExchange?) {

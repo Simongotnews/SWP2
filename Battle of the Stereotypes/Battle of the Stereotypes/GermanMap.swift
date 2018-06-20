@@ -470,13 +470,16 @@ class GermanMap: SKScene {
         //erstelle den Übergang von GermanMap zu GameScene mittels Play Button
         if playButton != nil {
             if playButton.isPressable == true && playButton.contains(touch.location(in: statsSideRootNode)) {
+                var attackExchange = GameState.StructAttackButtonExchangeRequest()
+                attackExchange.startBundesland = blAngreifer.blNameString
+                attackExchange.endBundesland = blVerteidiger.blNameString
                 pfeil?.removeFromParent()
                 statsSideRootNode.removeFromParent()
                 table.alpha = 1
                 GameCenterHelper.getInstance().gameState.remainingActions[0] -= 1
                 transitToGameScene()
                 // Exchange, um anderen Spieler in die GameScene zu schicken
-                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: GameState.StructAttackButtonExchangeRequest(), messageKey: GameState.IdentifierAttackButtonExchange)
+                GameCenterHelper.getInstance().sendExchangeRequest(structToSend: attackExchange, messageKey: GameState.IdentifierAttackButtonExchange)
                 return
             }
         }
@@ -636,14 +639,11 @@ class GermanMap: SKScene {
                 })
                 setPfeil(startLocation: touchesBeganLocation, endLocation: touchesEndedLocation)
                 
-                //die folgende Methode und Exchanges sollen nur aufgerufen werden, wenn man sich im Angriffsmodus befindet
+                //die folgende Methode sollen nur aufgerufen werden, wenn man sich im Angriffsmodus befindet
                 if phase==PhaseEnum.Angriff {
                     showBlAfterArrowSelect(blAngreifer!, against: blVerteidiger!)
                     
                     // Schicke die Infos an den Gegner, damit dieser bei einem Angriff Bescheid weiß welche Bundesländer in der Scene beteiligt sind
-                    var arrowExchange = GameState.StructArrowExchangeRequest()
-                    arrowExchange.startBundesland = blAngreifer.blNameString
-                    arrowExchange.endBundesland = blVerteidiger.blNameString
                     for (index, _) in allBundeslaender.enumerated(){
                         if allBundeslaender[index]==blAngreifer{
                             GameCenterHelper.getInstance().gameState.combatingBLs[0] = index
@@ -652,7 +652,6 @@ class GermanMap: SKScene {
                             GameCenterHelper.getInstance().gameState.combatingBLs[1] = index
                         }
                     }
-                    GameCenterHelper.getInstance().sendExchangeRequest(structToSend: arrowExchange, messageKey: GameState.IdentifierArrowExchange)
                 }
             } else {
                 pfeil?.removeFromParent()
