@@ -200,6 +200,7 @@ class GermanMap: SKScene {
             initialized = true
         } else {
             refreshScene()
+            initMusikButton()
         }
     }
     func setPhase(_ phase:PhaseEnum) {

@@ -19,9 +19,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var hintergrundMusik: URL?
     
     var statusMusik = false
-    var statusSound = true
     var buttonMusik: UIButton!
-    var buttonSound: UIButton!
     
     //*Zeigt an ob Eingaben geblockt sind*/
     var touchpadLocked = (GameCenterHelper.getInstance().getIndexOfLocalPlayer() == GameCenterHelper.getInstance().getIndexOfNextPlayer())
@@ -125,7 +123,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         GameViewController.currentlyShownSceneNumber = 2
         
         initMusikButton()
-        initSoundButton()
         
         if (!initialized){
             //self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
@@ -174,15 +171,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         self.view?.addSubview(buttonMusik)
     }
-    func initSoundButton(){
-        
-        buttonSound = UIButton(frame: CGRect(x: frame.size.height*(7/10)+40, y: 10, width: 30, height: 30))
-        buttonSound.setImage(UIImage(named: "SoundAN.png"), for: .normal)
-        buttonSound.addTarget(self, action: #selector(buttonSoundAction), for: .touchUpInside)
-        
-        self.view?.addSubview(buttonSound)
-        
-    }
     @IBAction func buttonMusikAction(sender: UIButton!){
         if (StartScene.SoundGlobal.statusMusik){
             StartScene.SoundGlobal.statusMusik = false
@@ -194,23 +182,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             audioPlayer.pause()
         }
     }
-    @IBAction func buttonSoundAction(sender: UIButton!){
-        if (!statusSound){
-            statusSound = true
-            buttonSound.setImage(UIImage(named: "SoundAn.png"), for: .normal)
-            
-            
-            
-            
-        }else if (statusSound){
-            statusSound = false
-            buttonSound.setImage(UIImage(named: "SoundAus.png"), for: .normal)
-            
-        }
-        
-    }
-    
-    
+ 
     func refreshScene(){
         rightDummyHealthInitial = germanMapReference.blVerteidiger.anzahlTruppen
         rightDummy.lifePoints = rightDummyHealthInitial
@@ -582,9 +554,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         allowsRotation = true
         
         //Sound bei Wurf
-        if(statusSound){
-            ball.run(SKAction.playSoundFileNamed("wurf", waitForCompletion: true))
-        }
+        ball.run(SKAction.playSoundFileNamed("wurf", waitForCompletion: true))
     }
     
     func powerBarRun(){
@@ -775,9 +745,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if(GameCenterHelper.getInstance().gameState.activePlayerID == GameCenterHelper.getInstance().getIndexOfLocalPlayer()) {
                 projectileDidCollideWithDummy(contact) }
             //Sound bei Treffer
-            if(statusSound){
-                ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
-            }
+            ball.run(SKAction.playSoundFileNamed("treffer", waitForCompletion: true))
         }
     }
     
@@ -949,7 +917,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func transitToGermanMap(transitToAngriffAnsicht : Bool){  //German Map Scene laden, Parameter: wenn transitToAngriffAnsicht true ist, wird AngriffAnsicht geladen, sonst Verschiebenansicht
         audioPlayer.stop()
         buttonMusik.removeFromSuperview()
-        buttonSound.removeFromSuperview()
         self.childNode(withName: "ball")?.removeFromParent()
         //switch turn
         // TODO: Switch Turn später duch Turn abgeben im GameCenterHelper ersetzen
