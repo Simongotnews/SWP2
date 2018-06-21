@@ -141,15 +141,17 @@ class StartScene: SKScene, SKPhysicsContactDelegate{
         let touch:UITouch = touches.first!
         let pos = touch.location(in: self)
         let touchedNode = self.atPoint(pos)
-        if !GameCenterHelper.getInstance().spielGeladen{
-            return
-        }
+        
         if playGameButton != nil {
             if playGameButton.isPressable == true && playGameButton.contains(touch.location(in: self)) {
                 print("Loading GermanMapScene:")
+                if GameCenterHelper.getInstance().spielGeladen{
+                    loadGermanMapScene()
+                    return
+                }else{
+                    GameCenterHelper.getInstance().findBattleMatch()
+                }
                 
-                loadGermanMapScene()
-                return
             }
         }
         

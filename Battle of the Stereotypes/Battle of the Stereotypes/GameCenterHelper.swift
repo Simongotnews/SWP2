@@ -57,8 +57,9 @@ class GameCenterHelper: NSObject, GKGameCenterControllerDelegate,GKTurnBasedMatc
                 self.gamecenterEnabled = true
                 localPlayer.unregisterAllListeners()
                 localPlayer.register(self)
-                self.findBattleMatch()
-            } else {
+//                self.findBattleMatch()
+            }
+                else {
                 // Game center nicht auf aktuellem Gerät aktiviert
                 self.gamecenterEnabled = false
                 print("Fehler: authenticateLocalPlayer: Lokaler Spieler konnte nicht autentifiziert werden")
